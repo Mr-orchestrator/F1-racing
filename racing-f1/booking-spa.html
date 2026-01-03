@@ -773,11 +773,9 @@
         'use strict';
 
         // =============================================
-        // DIGITALDATA EVENT LAYER (W3C Format)
+        // GRIDBOX EVENT LAYER (Universal)
         // =============================================
-        window.digitalData = window.digitalData || { event: [] };
-        window.gridboxLayer = window.gridboxLayer || [];  // GridBox internal layer
-        window.dataLayer = window.dataLayer || [];        // GTM/GA4 layer
+        window.gridboxLayer = window.gridboxLayer || [];
 
         // Generate unique page instance ID
         function generatePageInstanceId() {
@@ -791,52 +789,24 @@
         };
 
         // =============================================
-        // PUSH EVENT TO DIGITALDATA.EVENT (Your Format)
+        // PUSH EVENT TO GRIDBOX LAYER
         // =============================================
         function pushEvent(category, eventInfo, attributes) {
             const event = {
-                category: {
-                    primaryCategory: category
-                },
-                eventInfo: {
-                    ...eventInfo,
-                    timeStamp: new Date().toISOString(),
-                    pageId: pageState.currentPageId,
-                    pageInstanceId: pageState.pageInstanceId
-                }
+                event: 'spa_event',
+                category: category,
+                eventName: eventInfo.eventName,
+                eventKey: eventInfo.key,
+                pageId: pageState.currentPageId,
+                pageInstanceId: pageState.pageInstanceId,
+                timeStamp: new Date().toISOString(),
+                attributes: attributes || []
             };
 
-            // Add attributes array if provided
-            if (attributes && attributes.length > 0) {
-                event.attributes = attributes;
-            }
+            // Push to GridBox Layer (universal)
+            window.gridboxLayer.push(event);
 
-            // Push to digitalData.event array
-            window.digitalData.event.push(event);
-
-            // Push to GridBox layer (internal tracking)
-            window.gridboxLayer.push({
-                event: 'digitalData_event',
-                eventCategory: category,
-                eventName: eventInfo.eventName,
-                eventKey: eventInfo.key,
-                pageId: pageState.currentPageId,
-                pageInstanceId: pageState.pageInstanceId,
-                eventData: event
-            });
-
-            // Also push to GTM dataLayer for tag firing
-            window.dataLayer.push({
-                event: 'digitalData_event',
-                eventCategory: category,
-                eventName: eventInfo.eventName,
-                eventKey: eventInfo.key,
-                pageId: pageState.currentPageId,
-                pageInstanceId: pageState.pageInstanceId,
-                eventData: event
-            });
-
-            console.log('[digitalData.event] Pushed:', event);
+            console.log('[GridBox SPA] Event pushed:', event);
             return event;
         }
 
@@ -1194,3 +1164,4 @@
     </script>
 </body>
 </html>
+
