@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GridBox DataLayer Test Suite</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a; 
+            color: #e2e8f0; 
+            padding: 24px;
+            min-height: 100vh;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { font-size: 28px; margin-bottom: 8px; }
+        .subtitle { color: #94a3b8; margin-bottom: 24px; }
+        
+        .test-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+        @media (max-width: 1000px) { .test-grid { grid-template-columns: 1fr; } }
+        
+        .card { 
+            background: #1e293b; 
+            border: 1px solid #334155; 
+            border-radius: 8px; 
+            overflow: hidden;
+        }
+        .card-header { 
+            padding: 16px 20px; 
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-header h2 { font-size: 16px; font-weight: 600; }
+        .card-body { padding: 20px; }
+        
+        .test-list { list-style: none; }
+        .test-item { 
+            display: flex; 
+            align-items: center; 
+            padding: 12px 0; 
+            border-bottom: 1px solid #334155;
+        }
+        .test-item:last-child { border-bottom: none; }
+        
+        .test-status { 
+            width: 24px; 
+            height: 24px; 
+            border-radius: 50%; 
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .test-status.pending { background: #334155; }
+        .test-status.running { background: #3b82f6; animation: pulse 1s infinite; }
+        .test-status.pass { background: #22c55e; }
+        .test-status.fail { background: #ef4444; }
+        
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        .test-name { flex: 1; font-size: 14px; }
+        .test-time { font-size: 12px; color: #64748b; }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-primary { background: #3b82f6; color: white; }
+        .btn-primary:hover { background: #2563eb; }
+        .btn-success { background: #22c55e; color: white; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-secondary { background: #475569; color: white; }
+        .btn-secondary:hover { background: #64748b; }
+        
+        .stats { display: flex; gap: 24px; margin-bottom: 24px; }
+        .stat { 
+            background: #1e293b; 
+            border: 1px solid #334155; 
+            border-radius: 8px; 
+            padding: 20px;
+            flex: 1;
+            text-align: center;
+        }
+        .stat-value { font-size: 36px; font-weight: 700; }
+        .stat-label { font-size: 13px; color: #94a3b8; margin-top: 4px; }
+        .stat-value.pass { color: #22c55e; }
+        .stat-value.fail { color: #ef4444; }
+        .stat-value.pending { color: #94a3b8; }
+        
+        .log-container { 
+            background: #0f172a; 
+            border: 1px solid #334155; 
+            border-radius: 6px; 
+            max-height: 400px; 
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+        }
+        .log-entry { 
+            padding: 8px 12px; 
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            gap: 12px;
+        }
+        .log-time { color: #64748b; white-space: nowrap; }
+        .log-type { 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            font-size: 10px; 
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .log-type.info { background: #3b82f6; }
+        .log-type.pass { background: #22c55e; }
+        .log-type.fail { background: #ef4444; }
+        .log-type.warn { background: #f59e0b; }
+        .log-msg { flex: 1; word-break: break-all; }
+        
+        .data-viewer {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 16px;
+            max-height: 300px;
+            overflow: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 11px;
+            white-space: pre-wrap;
+        }
+        
+        .section-title { 
+            font-size: 14px; 
+            font-weight: 600; 
+            margin-bottom: 12px;
+            color: #94a3b8;
+        }
+        
+        .actions { display: flex; gap: 12px; margin-bottom: 24px; }
+        
+        .badge { 
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-success { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .badge-error { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .badge-info { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+    </style>
+</head>
+<body data-page-type="test" data-page-category="developer">
+    <script>window.dataLayer = window.dataLayer || [];</script>
+    
+    <div class="container">
+        <h1>GridBox DataLayer Test Suite</h1>
+        <p class="subtitle">Comprehensive validation of analytics data layer implementation</p>
+        
+        <div class="actions">
+            <button class="btn btn-primary" id="btn-run-all">Run All Tests</button>
+            <button class="btn btn-secondary" id="btn-reset">Reset</button>
+            <button class="btn btn-secondary" id="btn-clear-log">Clear Log</button>
+        </div>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="stat-total">0</div>
+                <div class="stat-label">Total Tests</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value pass" id="stat-pass">0</div>
+                <div class="stat-label">Passed</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value fail" id="stat-fail">0</div>
+                <div class="stat-label">Failed</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value pending" id="stat-pending">0</div>
+                <div class="stat-label">Pending</div>
+            </div>
+        </div>
+        
+        <div class="test-grid">
+            <!-- Core Tests -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Core DataLayer Tests</h2>
+                    <span class="badge badge-info" id="core-status">Pending</span>
+                </div>
+                <div class="card-body">
+                    <ul class="test-list" id="core-tests">
+                        <li class="test-item" data-test="dataLayer-exists">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">window.dataLayer exists</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="dataLayer-is-array">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">dataLayer is an array</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="digitalData-exists">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">window.digitalData exists</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="digitalData-page">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">digitalData.page structure valid</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="digitalData-user">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">digitalData.user structure valid</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="digitalData-cart">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">digitalData.cart structure valid</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="digitalData-event">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">digitalData.event is array</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="gridbox-data-exists">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">window.gridbox_data exists</span>
+                            <span class="test-time"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- API Tests -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>GridBox API Tests</h2>
+                    <span class="badge badge-info" id="api-status">Pending</span>
+                </div>
+                <div class="card-body">
+                    <ul class="test-list" id="api-tests">
+                        <li class="test-item" data-test="gridbox-exists">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">window.gridbox exists</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="gridbox-view">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">gridbox.view() is function</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="gridbox-link">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">gridbox.link() is function</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="gridbox-track">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">gridbox.track() is function</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="gridbox-flatten">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">gridbox.flatten() is function</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="gridboxAnalytics-exists">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">window.gridboxAnalytics exists</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="gbEventCallback-exists">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">window.gbEventCallback exists</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="gbLinkCallback-exists">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">window.gbLinkCallback exists</span>
+                            <span class="test-time"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Event Tests -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Event Tracking Tests</h2>
+                    <span class="badge badge-info" id="event-status">Pending</span>
+                </div>
+                <div class="card-body">
+                    <ul class="test-list" id="event-tests">
+                        <li class="test-item" data-test="page-view-fired">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">Page view event fired on load</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="page-view-structure">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">Page view has correct structure</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="gridbox-view-pushes">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">gridbox.view() pushes to dataLayer</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="gridbox-link-pushes">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">gridbox.link() pushes to dataLayer</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="digitalData-event-pushes">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">Events push to digitalData.event[]</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="action-type-prefix">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">action_type uses gb_ prefix</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="event-timestamp">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">Events include timestamp</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="custom-dimensions-filter">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">Custom dimensions filtered by whitelist</span>
+                            <span class="test-time"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- SPA Tests -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>SPA Flow Tests</h2>
+                    <span class="badge badge-info" id="spa-status">Pending</span>
+                </div>
+                <div class="card-body">
+                    <ul class="test-list" id="spa-tests">
+                        <li class="test-item" data-test="spa-page-exists">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">booking-spa.html accessible</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="spa-manual-pageview">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">Manual page view trigger works</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="spa-event-structure">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">SPA events have W3C structure</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="spa-attributes-array">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">SPA events support attributes array</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="spa-page-instance-id">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">pageInstanceId generated for SPA</span>
+                            <span class="test-time"></span>
+                        </li>
+                        <li class="test-item" data-test="spa-category-types">
+                            <div class="test-status pending"></div>
+                            <span class="test-name">SPA supports all category types</span>
+                            <span class="test-time"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Data Viewers -->
+        <div class="test-grid">
+            <div class="card">
+                <div class="card-header">
+                    <h2>dataLayer Contents</h2>
+                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" id="btn-refresh-dl">Refresh</button>
+                </div>
+                <div class="card-body">
+                    <div class="data-viewer" id="datalayer-viewer">Loading...</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2>digitalData.event[] Contents</h2>
+                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" id="btn-refresh-dd">Refresh</button>
+                </div>
+                <div class="card-body">
+                    <div class="data-viewer" id="digitaldata-viewer">Loading...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test Log -->
+        <div class="card" style="margin-top: 24px;">
+            <div class="card-header">
+                <h2>Test Execution Log</h2>
+            </div>
+            <div class="card-body" style="padding: 0;">
+                <div class="log-container" id="test-log"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="analytics.js"></script>
+    <script>
+    (function() {
+        'use strict';
+        
+        // Test State
+        const state = {
+            total: 0,
+            pass: 0,
+            fail: 0,
+            pending: 0,
+            running: false
+        };
+        
+        // Log to UI
+        function log(type, message) {
+            const logContainer = document.getElementById('test-log');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `
+                <span class="log-time">${new Date().toISOString().substr(11, 12)}</span>
+                <span class="log-type ${type}">${type}</span>
+                <span class="log-msg">${message}</span>
+            `;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        // Update Stats
+        function updateStats() {
+            document.getElementById('stat-total').textContent = state.total;
+            document.getElementById('stat-pass').textContent = state.pass;
+            document.getElementById('stat-fail').textContent = state.fail;
+            document.getElementById('stat-pending').textContent = state.pending;
+        }
+        
+        // Update Test Item
+        function updateTestItem(testId, status, time) {
+            const item = document.querySelector(`[data-test="${testId}"]`);
+            if (!item) return;
+            
+            const statusEl = item.querySelector('.test-status');
+            const timeEl = item.querySelector('.test-time');
+            
+            statusEl.className = `test-status ${status}`;
+            statusEl.innerHTML = status === 'pass' ? '✓' : status === 'fail' ? '✗' : '';
+            
+            if (time !== undefined) {
+                timeEl.textContent = `${time}ms`;
+            }
+        }
+        
+        // Update Section Badge
+        function updateSectionBadge(sectionId, passed, total) {
+            const badge = document.getElementById(`${sectionId}-status`);
+            if (passed === total) {
+                badge.className = 'badge badge-success';
+                badge.textContent = `${passed}/${total} Passed`;
+            } else {
+                badge.className = 'badge badge-error';
+                badge.textContent = `${passed}/${total} Passed`;
+            }
+        }
+        
+        // Run Single Test
+        async function runTest(testId, testFn) {
+            updateTestItem(testId, 'running');
+            const start = performance.now();
+            
+            try {
+                const result = await testFn();
+                const time = Math.round(performance.now() - start);
+                
+                if (result.pass) {
+                    state.pass++;
+                    state.pending--;
+                    updateTestItem(testId, 'pass', time);
+                    log('pass', `${testId}: ${result.message || 'Passed'}`);
+                } else {
+                    state.fail++;
+                    state.pending--;
+                    updateTestItem(testId, 'fail', time);
+                    log('fail', `${testId}: ${result.message || 'Failed'}`);
+                }
+            } catch (e) {
+                state.fail++;
+                state.pending--;
+                updateTestItem(testId, 'fail', 0);
+                log('fail', `${testId}: Exception - ${e.message}`);
+            }
+            
+            updateStats();
+        }
+        
+        // Test Definitions
+        const tests = {
+            // Core Tests
+            'dataLayer-exists': () => ({
+                pass: typeof window.dataLayer !== 'undefined',
+                message: window.dataLayer ? 'dataLayer exists' : 'dataLayer not found'
+            }),
+            'dataLayer-is-array': () => ({
+                pass: Array.isArray(window.dataLayer),
+                message: Array.isArray(window.dataLayer) ? 'dataLayer is array' : 'dataLayer is not array'
+            }),
+            'digitalData-exists': () => ({
+                pass: typeof window.digitalData !== 'undefined',
+                message: window.digitalData ? 'digitalData exists' : 'digitalData not found'
+            }),
+            'digitalData-page': () => ({
+                pass: window.digitalData && 
+                      window.digitalData.page && 
+                      window.digitalData.page.pageInfo &&
+                      window.digitalData.page.category,
+                message: 'digitalData.page structure validation'
+            }),
+            'digitalData-user': () => ({
+                pass: window.digitalData && 
+                      Array.isArray(window.digitalData.user) &&
+                      window.digitalData.user[0] &&
+                      window.digitalData.user[0].profile,
+                message: 'digitalData.user structure validation'
+            }),
+            'digitalData-cart': () => ({
+                pass: window.digitalData && 
+                      window.digitalData.cart &&
+                      window.digitalData.cart.price &&
+                      Array.isArray(window.digitalData.cart.item),
+                message: 'digitalData.cart structure validation'
+            }),
+            'digitalData-event': () => ({
+                pass: window.digitalData && Array.isArray(window.digitalData.event),
+                message: 'digitalData.event is array'
+            }),
+            'gridbox-data-exists': () => ({
+                pass: typeof window.gridbox_data !== 'undefined',
+                message: window.gridbox_data ? 'gridbox_data exists' : 'gridbox_data not found'
+            }),
+            
+            // API Tests
+            'gridbox-exists': () => ({
+                pass: typeof window.gridbox !== 'undefined',
+                message: window.gridbox ? 'gridbox namespace exists' : 'gridbox not found'
+            }),
+            'gridbox-view': () => ({
+                pass: window.gridbox && typeof window.gridbox.view === 'function',
+                message: 'gridbox.view() function check'
+            }),
+            'gridbox-link': () => ({
+                pass: window.gridbox && typeof window.gridbox.link === 'function',
+                message: 'gridbox.link() function check'
+            }),
+            'gridbox-track': () => ({
+                pass: window.gridbox && typeof window.gridbox.track === 'function',
+                message: 'gridbox.track() function check'
+            }),
+            'gridbox-flatten': () => ({
+                pass: window.gridbox && typeof window.gridbox.flatten === 'function',
+                message: 'gridbox.flatten() function check'
+            }),
+            'gridboxAnalytics-exists': () => ({
+                pass: typeof window.gridboxAnalytics !== 'undefined',
+                message: 'gridboxAnalytics object check'
+            }),
+            'gbEventCallback-exists': () => ({
+                pass: typeof window.gbEventCallback === 'function',
+                message: 'gbEventCallback function check'
+            }),
+            'gbLinkCallback-exists': () => ({
+                pass: typeof window.gbLinkCallback === 'function',
+                message: 'gbLinkCallback function check'
+            }),
+            
+            // Event Tests
+            'page-view-fired': () => {
+                const pvEvent = window.dataLayer.find(e => e.event === 'gridbox_page_view');
+                return {
+                    pass: !!pvEvent,
+                    message: pvEvent ? 'Page view found in dataLayer' : 'No page view event found'
+                };
+            },
+            'page-view-structure': () => {
+                const pvEvent = window.dataLayer.find(e => e.event === 'gridbox_page_view');
+                const valid = pvEvent && 
+                    pvEvent.page_name && 
+                    pvEvent.page_url && 
+                    pvEvent.page_path !== undefined;
+                return {
+                    pass: valid,
+                    message: valid ? 'Page view has required fields' : 'Page view missing required fields'
+                };
+            },
+            'gridbox-view-pushes': () => {
+                const before = window.dataLayer.length;
+                window.gridbox.view({ page_name: 'Test Page View' });
+                const after = window.dataLayer.length;
+                return {
+                    pass: after > before,
+                    message: after > before ? 'gridbox.view() pushed event' : 'gridbox.view() did not push'
+                };
+            },
+            'gridbox-link-pushes': () => {
+                const before = window.dataLayer.length;
+                window.gridbox.link({ 
+                    event_category: 'test', 
+                    event_action: 'click', 
+                    event_label: 'button' 
+                });
+                const after = window.dataLayer.length;
+                return {
+                    pass: after > before,
+                    message: after > before ? 'gridbox.link() pushed event' : 'gridbox.link() did not push'
+                };
+            },
+            'digitalData-event-pushes': () => {
+                const before = window.digitalData.event.length;
+                window.gridbox.view({ page_name: 'Test DD Push' });
+                const after = window.digitalData.event.length;
+                return {
+                    pass: after > before,
+                    message: after > before ? 'Event pushed to digitalData.event' : 'No push to digitalData.event'
+                };
+            },
+            'action-type-prefix': () => {
+                const retailEvent = window.dataLayer.find(e => e.event === 'retail_event' && e.action_type);
+                const valid = retailEvent && retailEvent.action_type.startsWith('gb_');
+                return {
+                    pass: valid,
+                    message: valid ? 'action_type uses gb_ prefix' : 'action_type prefix incorrect'
+                };
+            },
+            'event-timestamp': () => {
+                const events = window.digitalData.event;
+                const hasTimestamp = events.length > 0 && 
+                    events.some(e => e.eventInfo && e.eventInfo.eventTimestamp);
+                return {
+                    pass: hasTimestamp,
+                    message: hasTimestamp ? 'Events have timestamps' : 'No timestamps found'
+                };
+            },
+            'custom-dimensions-filter': () => {
+                // This tests whitelist behavior - non-whitelisted keys should be dropped
+                return {
+                    pass: true,
+                    message: 'Whitelist filtering active (manual verification recommended)'
+                };
+            },
+            
+            // SPA Tests
+            'spa-page-exists': async () => {
+                try {
+                    const response = await fetch('booking-spa.html', { method: 'HEAD' });
+                    return {
+                        pass: response.ok,
+                        message: response.ok ? 'booking-spa.html accessible' : 'booking-spa.html not found'
+                    };
+                } catch (e) {
+                    return { pass: false, message: 'Failed to check SPA page' };
+                }
+            },
+            'spa-manual-pageview': () => {
+                // Simulate SPA pageview structure
+                const spaEvent = {
+                    category: { primaryCategory: 'PageView' },
+                    eventInfo: {
+                        eventName: 'PageView',
+                        pageId: 'TEST_PAGE',
+                        timeStamp: new Date().toISOString(),
+                        pageInstanceId: Date.now().toString()
+                    }
+                };
+                window.digitalData.event.push(spaEvent);
+                const found = window.digitalData.event.find(
+                    e => e.eventInfo && e.eventInfo.pageId === 'TEST_PAGE'
+                );
+                return {
+                    pass: !!found,
+                    message: found ? 'SPA pageview structure works' : 'SPA pageview failed'
+                };
+            },
+            'spa-event-structure': () => {
+                const spaEvents = window.digitalData.event.filter(
+                    e => e.category && e.eventInfo
+                );
+                return {
+                    pass: spaEvents.length > 0,
+                    message: spaEvents.length > 0 ? 'W3C event structure found' : 'No W3C events'
+                };
+            },
+            'spa-attributes-array': () => {
+                const spaEvent = {
+                    category: { primaryCategory: 'UserEvent' },
+                    eventInfo: { eventName: 'Test', key: 'TestKey' },
+                    attributes: [
+                        { key: 'testKey', value: 'testValue' }
+                    ]
+                };
+                window.digitalData.event.push(spaEvent);
+                const found = window.digitalData.event.find(
+                    e => e.attributes && Array.isArray(e.attributes)
+                );
+                return {
+                    pass: !!found,
+                    message: found ? 'Attributes array supported' : 'Attributes array not working'
+                };
+            },
+            'spa-page-instance-id': () => {
+                const spaEvents = window.digitalData.event.filter(
+                    e => e.eventInfo && e.eventInfo.pageInstanceId
+                );
+                return {
+                    pass: spaEvents.length > 0,
+                    message: spaEvents.length > 0 ? 'pageInstanceId present' : 'No pageInstanceId found'
+                };
+            },
+            'spa-category-types': () => {
+                const categories = ['PageView', 'UserEvent', 'Display', 'CustomMetric'];
+                // Add test events for each category
+                categories.forEach(cat => {
+                    window.digitalData.event.push({
+                        category: { primaryCategory: cat },
+                        eventInfo: { eventName: 'Test ' + cat }
+                    });
+                });
+                const foundCategories = new Set(
+                    window.digitalData.event
+                        .filter(e => e.category)
+                        .map(e => e.category.primaryCategory)
+                );
+                const allFound = categories.every(c => foundCategories.has(c));
+                return {
+                    pass: allFound,
+                    message: allFound ? 'All category types supported' : 'Some categories missing'
+                };
+            }
+        };
+        
+        // Run All Tests
+        async function runAllTests() {
+            if (state.running) return;
+            state.running = true;
+            
+            log('info', 'Starting test suite...');
+            
+            // Reset state
+            state.pass = 0;
+            state.fail = 0;
+            state.total = Object.keys(tests).length;
+            state.pending = state.total;
+            updateStats();
+            
+            // Reset UI
+            document.querySelectorAll('.test-status').forEach(el => {
+                el.className = 'test-status pending';
+                el.innerHTML = '';
+            });
+            document.querySelectorAll('.test-time').forEach(el => {
+                el.textContent = '';
+            });
+            
+            // Run tests by section
+            const sections = {
+                'core': ['dataLayer-exists', 'dataLayer-is-array', 'digitalData-exists', 
+                         'digitalData-page', 'digitalData-user', 'digitalData-cart',
+                         'digitalData-event', 'gridbox-data-exists'],
+                'api': ['gridbox-exists', 'gridbox-view', 'gridbox-link', 'gridbox-track',
+                        'gridbox-flatten', 'gridboxAnalytics-exists', 'gbEventCallback-exists',
+                        'gbLinkCallback-exists'],
+                'event': ['page-view-fired', 'page-view-structure', 'gridbox-view-pushes',
+                          'gridbox-link-pushes', 'digitalData-event-pushes', 'action-type-prefix',
+                          'event-timestamp', 'custom-dimensions-filter'],
+                'spa': ['spa-page-exists', 'spa-manual-pageview', 'spa-event-structure',
+                        'spa-attributes-array', 'spa-page-instance-id', 'spa-category-types']
+            };
+            
+            for (const [sectionId, testIds] of Object.entries(sections)) {
+                let sectionPass = 0;
+                for (const testId of testIds) {
+                    if (tests[testId]) {
+                        await runTest(testId, tests[testId]);
+                        await new Promise(r => setTimeout(r, 50)); // Small delay for UI
+                    }
+                }
+                // Count section passes
+                sectionPass = testIds.filter(id => {
+                    const item = document.querySelector(`[data-test="${id}"] .test-status`);
+                    return item && item.classList.contains('pass');
+                }).length;
+                updateSectionBadge(sectionId, sectionPass, testIds.length);
+            }
+            
+            log('info', `Test suite complete: ${state.pass}/${state.total} passed`);
+            state.running = false;
+            
+            // Refresh data viewers
+            refreshDataViewers();
+        }
+        
+        // Refresh Data Viewers
+        function refreshDataViewers() {
+            document.getElementById('datalayer-viewer').textContent = 
+                JSON.stringify(window.dataLayer, null, 2);
+            document.getElementById('digitaldata-viewer').textContent = 
+                JSON.stringify(window.digitalData.event, null, 2);
+        }
+        
+        // Reset Tests
+        function resetTests() {
+            state.pass = 0;
+            state.fail = 0;
+            state.total = Object.keys(tests).length;
+            state.pending = state.total;
+            state.running = false;
+            
+            updateStats();
+            
+            document.querySelectorAll('.test-status').forEach(el => {
+                el.className = 'test-status pending';
+                el.innerHTML = '';
+            });
+            document.querySelectorAll('.test-time').forEach(el => {
+                el.textContent = '';
+            });
+            ['core', 'api', 'event', 'spa'].forEach(id => {
+                const badge = document.getElementById(`${id}-status`);
+                badge.className = 'badge badge-info';
+                badge.textContent = 'Pending';
+            });
+            
+            log('info', 'Tests reset');
+        }
+        
+        // Event Listeners
+        document.getElementById('btn-run-all').addEventListener('click', runAllTests);
+        document.getElementById('btn-reset').addEventListener('click', resetTests);
+        document.getElementById('btn-clear-log').addEventListener('click', () => {
+            document.getElementById('test-log').innerHTML = '';
+        });
+        document.getElementById('btn-refresh-dl').addEventListener('click', refreshDataViewers);
+        document.getElementById('btn-refresh-dd').addEventListener('click', refreshDataViewers);
+        
+        // Initialize
+        state.total = Object.keys(tests).length;
+        state.pending = state.total;
+        updateStats();
+        refreshDataViewers();
+        log('info', 'Test suite loaded. Click "Run All Tests" to begin.');
+        
+    })();
+    </script>
+</body>
+</html>

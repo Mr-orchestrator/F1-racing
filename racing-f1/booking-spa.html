@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Race Ticket Booking - Racing F1</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Clean, Professional Design - NOT vibe-coded */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --text-muted: #6b7280;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-tertiary: #f3f4f6;
+            --border-color: #e5e7eb;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --success: #059669;
+            --error: #dc2626;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+        
+        /* Header - Simple, Functional */
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo {
+            font-weight: 700;
+            font-size: 20px;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+        
+        .logo span {
+            color: var(--accent);
+        }
+        
+        .header-nav {
+            display: flex;
+            gap: 32px;
+        }
+        
+        .header-nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .header-nav a:hover {
+            color: var(--text-primary);
+        }
+        
+        /* Progress Steps - Clear Visual Hierarchy */
+        .progress-container {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 24px;
+        }
+        
+        .progress-steps {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+        
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 16px;
+            left: 50px;
+            right: 50px;
+            height: 2px;
+            background: var(--border-color);
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        
+        .step.active .step-number {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+        
+        .step.completed .step-number {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+        
+        .step-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+        
+        .step.active .step-label {
+            color: var(--text-primary);
+        }
+        
+        /* Main Content Area */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 32px;
+        }
+        
+        /* Page Views (SPA sections) */
+        .page-view {
+            display: none;
+        }
+        
+        .page-view.active {
+            display: block;
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .card-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .card-body {
+            padding: 24px;
+        }
+        
+        /* Form Elements - Clean and Accessible */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        /* Race Selection Cards */
+        .race-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .race-option {
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .race-option:hover {
+            border-color: var(--accent);
+            background: rgba(37, 99, 235, 0.02);
+        }
+        
+        .race-option.selected {
+            border-color: var(--accent);
+            background: rgba(37, 99, 235, 0.05);
+        }
+        
+        .race-option-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .race-option-info p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .race-option-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .race-option-radio {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            margin-right: 16px;
+            position: relative;
+        }
+        
+        .race-option.selected .race-option-radio {
+            border-color: var(--accent);
+        }
+        
+        .race-option.selected .race-option-radio::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+        
+        /* Ticket Type Selection */
+        .ticket-types {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .ticket-type {
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .ticket-type:hover {
+            border-color: var(--accent);
+        }
+        
+        .ticket-type.selected {
+            border-color: var(--accent);
+            background: rgba(37, 99, 235, 0.05);
+        }
+        
+        .ticket-type-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .ticket-type-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .ticket-type-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+        
+        /* Quantity Selector */
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .quantity-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-primary);
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .quantity-btn:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        .quantity-value {
+            font-size: 18px;
+            font-weight: 600;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        /* Buttons - Clear CTAs */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+        
+        .btn-block {
+            width: 100%;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        /* Order Summary Sidebar */
+        .order-summary {
+            position: sticky;
+            top: 100px;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            font-size: 14px;
+        }
+        
+        .summary-row:not(:last-child) {
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .summary-row.total {
+            font-size: 16px;
+            font-weight: 700;
+            border-top: 2px solid var(--text-primary);
+            margin-top: 12px;
+            padding-top: 16px;
+        }
+        
+        .summary-label {
+            color: var(--text-secondary);
+        }
+        
+        .summary-value {
+            font-weight: 600;
+        }
+        
+        /* Confirmation Page */
+        .confirmation-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+        
+        .confirmation-icon svg {
+            width: 32px;
+            height: 32px;
+            color: white;
+        }
+        
+        .confirmation-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .confirmation-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+        
+        .order-details {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .order-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 14px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .order-summary {
+                position: static;
+            }
+            
+            .ticket-types {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">Racing<span>F1</span></a>
+            <nav class="header-nav">
+                <a href="index.html">Home</a>
+                <a href="tickets.html">All Tickets</a>
+                <a href="support.html">Help</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Progress Steps -->
+    <div class="progress-container">
+        <div class="progress-steps">
+            <div class="step active" id="step-1">
+                <div class="step-number">1</div>
+                <div class="step-label">Select Tickets</div>
+            </div>
+            <div class="step" id="step-2">
+                <div class="step-number">2</div>
+                <div class="step-label">Your Details</div>
+            </div>
+            <div class="step" id="step-3">
+                <div class="step-number">3</div>
+                <div class="step-label">Confirmation</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- LEFT COLUMN: Page Views -->
+        <div class="content-area">
+            
+            <!-- PAGE 1: Select Tickets -->
+            <div class="page-view active" id="page-select-tickets" data-page-id="TICKETSELECTION">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Select Your Race</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="race-options">
+                            <div class="race-option" data-race="monaco" data-price="450">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="race-option-radio"></div>
+                                    <div class="race-option-info">
+                                        <h3>Monaco Grand Prix</h3>
+                                        <p>May 23-26, 2025 • Monte Carlo</p>
+                                    </div>
+                                </div>
+                                <div class="race-option-price">From $450</div>
+                            </div>
+                            <div class="race-option" data-race="silverstone" data-price="320">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="race-option-radio"></div>
+                                    <div class="race-option-info">
+                                        <h3>British Grand Prix</h3>
+                                        <p>July 4-6, 2025 • Silverstone</p>
+                                    </div>
+                                </div>
+                                <div class="race-option-price">From $320</div>
+                            </div>
+                            <div class="race-option" data-race="spa" data-price="280">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="race-option-radio"></div>
+                                    <div class="race-option-info">
+                                        <h3>Belgian Grand Prix</h3>
+                                        <p>July 25-27, 2025 • Spa-Francorchamps</p>
+                                    </div>
+                                </div>
+                                <div class="race-option-price">From $280</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h2>Select Ticket Type</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="ticket-types">
+                            <div class="ticket-type" data-type="general" data-multiplier="1">
+                                <div class="ticket-type-name">General</div>
+                                <div class="ticket-type-price">$<span class="type-price">280</span></div>
+                                <div class="ticket-type-desc">General admission access</div>
+                            </div>
+                            <div class="ticket-type" data-type="grandstand" data-multiplier="1.5">
+                                <div class="ticket-type-name">Grandstand</div>
+                                <div class="ticket-type-price">$<span class="type-price">420</span></div>
+                                <div class="ticket-type-desc">Reserved grandstand seating</div>
+                            </div>
+                            <div class="ticket-type" data-type="vip" data-multiplier="3">
+                                <div class="ticket-type-name">VIP</div>
+                                <div class="ticket-type-price">$<span class="type-price">840</span></div>
+                                <div class="ticket-type-desc">Premium hospitality included</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Number of Tickets</label>
+                            <div class="quantity-selector">
+                                <button class="quantity-btn" id="qty-minus">−</button>
+                                <span class="quantity-value" id="qty-value">2</span>
+                                <button class="quantity-btn" id="qty-plus">+</button>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-primary btn-block" id="btn-continue-to-details">
+                                Continue to Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE 2: Your Details -->
+            <div class="page-view" id="page-details" data-page-id="TRAVELERDETAILS">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Contact Information</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-input" id="firstName" placeholder="John">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-input" id="lastName" placeholder="Smith">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-input" id="email" placeholder="john@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-input" id="phone" placeholder="+1 (555) 123-4567">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h2>Payment Details</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="form-label">Card Number</label>
+                            <input type="text" class="form-input" id="cardNumber" placeholder="4242 4242 4242 4242">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Expiry Date</label>
+                                <input type="text" class="form-input" id="expiry" placeholder="MM/YY">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">CVV</label>
+                                <input type="text" class="form-input" id="cvv" placeholder="123">
+                            </div>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-secondary" id="btn-back-to-tickets">Back</button>
+                            <button class="btn btn-primary" style="flex: 1;" id="btn-complete-booking">
+                                Complete Booking
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE 3: Confirmation -->
+            <div class="page-view" id="page-confirmation" data-page-id="CONFIRMATION">
+                <div class="card">
+                    <div class="card-body" style="padding: 48px;">
+                        <div class="confirmation-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <h1 class="confirmation-title">Booking Confirmed!</h1>
+                        <p class="confirmation-subtitle">Your tickets have been booked. Check your email for details.</p>
+                        
+                        <div class="order-details">
+                            <div class="order-detail-row">
+                                <span>Order Number</span>
+                                <strong id="order-number">RF1-2025-847291</strong>
+                            </div>
+                            <div class="order-detail-row">
+                                <span>Event</span>
+                                <strong id="conf-race">Monaco Grand Prix</strong>
+                            </div>
+                            <div class="order-detail-row">
+                                <span>Ticket Type</span>
+                                <strong id="conf-type">General Admission</strong>
+                            </div>
+                            <div class="order-detail-row">
+                                <span>Quantity</span>
+                                <strong id="conf-qty">2 tickets</strong>
+                            </div>
+                            <div class="order-detail-row">
+                                <span>Total Paid</span>
+                                <strong id="conf-total">$560.00</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="btn-group" style="justify-content: center;">
+                            <a href="index.html" class="btn btn-primary">Return to Home</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Order Summary -->
+        <div class="sidebar">
+            <div class="card order-summary">
+                <div class="card-header">
+                    <h2>Order Summary</h2>
+                </div>
+                <div class="card-body">
+                    <div class="summary-row">
+                        <span class="summary-label">Event</span>
+                        <span class="summary-value" id="sum-race">Select a race</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Ticket Type</span>
+                        <span class="summary-value" id="sum-type">Select type</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Quantity</span>
+                        <span class="summary-value" id="sum-qty">2</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Unit Price</span>
+                        <span class="summary-value" id="sum-unit">$0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Subtotal</span>
+                        <span class="summary-value" id="sum-subtotal">$0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Service Fee</span>
+                        <span class="summary-value" id="sum-fee">$0.00</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total</span>
+                        <span id="sum-total">$0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- SPA Analytics Script -->
+    <script>
+    (function() {
+        'use strict';
+
+        // =============================================
+        // DIGITALDATA EVENT LAYER (W3C Format)
+        // =============================================
+        window.digitalData = window.digitalData || { event: [] };
+        window.dataLayer = window.dataLayer || [];
+
+        // Generate unique page instance ID
+        function generatePageInstanceId() {
+            return Date.now().toString();
+        }
+
+        // Current page state
+        const pageState = {
+            currentPageId: null,
+            pageInstanceId: null
+        };
+
+        // =============================================
+        // PUSH EVENT TO DIGITALDATA.EVENT (Your Format)
+        // =============================================
+        function pushEvent(category, eventInfo, attributes) {
+            const event = {
+                category: {
+                    primaryCategory: category
+                },
+                eventInfo: {
+                    ...eventInfo,
+                    timeStamp: new Date().toISOString(),
+                    pageId: pageState.currentPageId,
+                    pageInstanceId: pageState.pageInstanceId
+                }
+            };
+
+            // Add attributes array if provided
+            if (attributes && attributes.length > 0) {
+                event.attributes = attributes;
+            }
+
+            // Push to digitalData.event array
+            window.digitalData.event.push(event);
+
+            // Also push to GTM dataLayer for tag firing
+            window.dataLayer.push({
+                event: 'digitalData_event',
+                eventCategory: category,
+                eventName: eventInfo.eventName,
+                eventKey: eventInfo.key,
+                pageId: pageState.currentPageId,
+                pageInstanceId: pageState.pageInstanceId,
+                eventData: event
+            });
+
+            console.log('[digitalData.event] Pushed:', event);
+            return event;
+        }
+
+        // =============================================
+        // PAGE VIEW - Manual Trigger for SPA
+        // =============================================
+        function triggerPageView(pageId) {
+            // Update page state
+            pageState.currentPageId = pageId;
+            pageState.pageInstanceId = generatePageInstanceId();
+
+            // Push PageView event
+            pushEvent('PageView', {
+                eventName: 'PageView',
+                pageId: pageId
+            });
+
+            console.log('[SPA] Page View:', pageId);
+        }
+
+        // =============================================
+        // USER EVENT TRACKING
+        // =============================================
+        function trackUserEvent(key, eventName, componentId, attributes) {
+            pushEvent('UserEvent', {
+                key: key,
+                eventName: eventName,
+                componentId: componentId || 'BookingSPA'
+            }, attributes || []);
+        }
+
+        // Track Display Events (component visibility)
+        function trackDisplayEvent(key, eventName, componentId, attributes) {
+            pushEvent('Display', {
+                key: key,
+                eventName: eventName,
+                componentId: componentId
+            }, attributes || []);
+        }
+
+        // Track Custom Metrics
+        function trackCustomMetric(key, eventName, attributes) {
+            pushEvent('CustomMetric', {
+                key: key,
+                eventName: eventName
+            }, attributes || []);
+        }
+
+        // =============================================
+        // BOOKING STATE
+        // =============================================
+        const booking = {
+            race: null,
+            raceName: null,
+            basePrice: 0,
+            ticketType: null,
+            typeName: null,
+            multiplier: 1,
+            quantity: 2,
+            unitPrice: 0,
+            subtotal: 0,
+            fee: 0,
+            total: 0
+        };
+
+        // =============================================
+        // UI FUNCTIONS
+        // =============================================
+        function updateSummary() {
+            booking.unitPrice = booking.basePrice * booking.multiplier;
+            booking.subtotal = booking.unitPrice * booking.quantity;
+            booking.fee = Math.round(booking.subtotal * 0.1);
+            booking.total = booking.subtotal + booking.fee;
+
+            document.getElementById('sum-race').textContent = booking.raceName || 'Select a race';
+            document.getElementById('sum-type').textContent = booking.typeName || 'Select type';
+            document.getElementById('sum-qty').textContent = booking.quantity;
+            document.getElementById('sum-unit').textContent = '$' + booking.unitPrice.toFixed(2);
+            document.getElementById('sum-subtotal').textContent = '$' + booking.subtotal.toFixed(2);
+            document.getElementById('sum-fee').textContent = '$' + booking.fee.toFixed(2);
+            document.getElementById('sum-total').textContent = '$' + booking.total.toFixed(2);
+        }
+
+        function updateTicketPrices() {
+            document.querySelectorAll('.ticket-type').forEach(function(el) {
+                const mult = parseFloat(el.dataset.multiplier);
+                const price = booking.basePrice * mult;
+                el.querySelector('.type-price').textContent = price.toFixed(0);
+            });
+        }
+
+        function navigateToPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page-view').forEach(function(p) {
+                p.classList.remove('active');
+            });
+
+            // Show target page
+            const targetPage = document.querySelector('[data-page-id="' + pageId + '"]');
+            if (targetPage) {
+                targetPage.classList.add('active');
+            }
+
+            // Update progress steps
+            const steps = ['TICKETSELECTION', 'TRAVELERDETAILS', 'CONFIRMATION'];
+            const currentIndex = steps.indexOf(pageId);
+            
+            document.querySelectorAll('.step').forEach(function(step, idx) {
+                step.classList.remove('active', 'completed');
+                if (idx < currentIndex) {
+                    step.classList.add('completed');
+                } else if (idx === currentIndex) {
+                    step.classList.add('active');
+                }
+            });
+
+            // MANUAL PAGE VIEW TRIGGER FOR SPA
+            triggerPageView(pageId);
+        }
+
+        // =============================================
+        // EVENT LISTENERS
+        // =============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // Initial page view for first page
+            triggerPageView('TICKETSELECTION');
+
+            // Track initial display
+            trackDisplayEvent('TicketSelectionAvailable', 'Ticket Selection Form Available', 'ticket-selection-form', [
+                { key: 'PageID', value: 'TICKETSELECTION' }
+            ]);
+
+            // Race Selection
+            document.querySelectorAll('.race-option').forEach(function(option) {
+                option.addEventListener('click', function() {
+                    // Update UI
+                    document.querySelectorAll('.race-option').forEach(function(o) {
+                        o.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+
+                    // Update booking
+                    booking.race = this.dataset.race;
+                    booking.raceName = this.querySelector('h3').textContent;
+                    booking.basePrice = parseFloat(this.dataset.price);
+
+                    // Track user event
+                    trackUserEvent('RaceSelection', 'Select Race', 'race-options', [
+                        { key: 'raceId', value: booking.race },
+                        { key: 'raceName', value: booking.raceName },
+                        { key: 'basePrice', value: booking.basePrice.toString() },
+                        { key: 'currency', value: 'USD' },
+                        { key: 'PageID', value: pageState.currentPageId }
+                    ]);
+
+                    updateTicketPrices();
+                    updateSummary();
+                });
+            });
+
+            // Ticket Type Selection
+            document.querySelectorAll('.ticket-type').forEach(function(type) {
+                type.addEventListener('click', function() {
+                    // Update UI
+                    document.querySelectorAll('.ticket-type').forEach(function(t) {
+                        t.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+
+                    // Update booking
+                    booking.ticketType = this.dataset.type;
+                    booking.typeName = this.querySelector('.ticket-type-name').textContent;
+                    booking.multiplier = parseFloat(this.dataset.multiplier);
+
+                    // Track user event
+                    trackUserEvent('TicketTypeSelection', 'Select Ticket Type', 'ticket-types', [
+                        { key: 'ticketType', value: booking.ticketType },
+                        { key: 'typeName', value: booking.typeName },
+                        { key: 'priceMultiplier', value: booking.multiplier.toString() },
+                        { key: 'unitPrice', value: (booking.basePrice * booking.multiplier).toString() },
+                        { key: 'PageID', value: pageState.currentPageId }
+                    ]);
+
+                    updateSummary();
+                });
+            });
+
+            // Quantity Controls
+            document.getElementById('qty-minus').addEventListener('click', function() {
+                if (booking.quantity > 1) {
+                    booking.quantity--;
+                    document.getElementById('qty-value').textContent = booking.quantity;
+
+                    trackUserEvent('QuantityChange', 'Decrease Quantity', 'quantity-selector', [
+                        { key: 'previousQty', value: (booking.quantity + 1).toString() },
+                        { key: 'newQty', value: booking.quantity.toString() },
+                        { key: 'PageID', value: pageState.currentPageId }
+                    ]);
+
+                    updateSummary();
+                }
+            });
+
+            document.getElementById('qty-plus').addEventListener('click', function() {
+                if (booking.quantity < 10) {
+                    booking.quantity++;
+                    document.getElementById('qty-value').textContent = booking.quantity;
+
+                    trackUserEvent('QuantityChange', 'Increase Quantity', 'quantity-selector', [
+                        { key: 'previousQty', value: (booking.quantity - 1).toString() },
+                        { key: 'newQty', value: booking.quantity.toString() },
+                        { key: 'PageID', value: pageState.currentPageId }
+                    ]);
+
+                    updateSummary();
+                }
+            });
+
+            // Continue to Details Button
+            document.getElementById('btn-continue-to-details').addEventListener('click', function() {
+                if (!booking.race) {
+                    alert('Please select a race');
+                    return;
+                }
+                if (!booking.ticketType) {
+                    alert('Please select a ticket type');
+                    return;
+                }
+
+                // Track continue event
+                trackUserEvent('ContinueToDetails', 'Continue to traveler details', 'btn-continue-to-details', [
+                    { key: 'raceId', value: booking.race },
+                    { key: 'ticketType', value: booking.ticketType },
+                    { key: 'quantity', value: booking.quantity.toString() },
+                    { key: 'totalAmount', value: booking.total.toString() },
+                    { key: 'currency', value: 'USD' },
+                    { key: 'PageID', value: pageState.currentPageId }
+                ]);
+
+                // Navigate to details page (triggers manual page view)
+                navigateToPage('TRAVELERDETAILS');
+
+                // Track display of form
+                trackDisplayEvent('PaymentFormAvailable', 'Payment Form Displayed', 'payment-form', [
+                    { key: 'PageID', value: 'TRAVELERDETAILS' }
+                ]);
+            });
+
+            // Back Button
+            document.getElementById('btn-back-to-tickets').addEventListener('click', function() {
+                trackUserEvent('BackToTickets', 'Navigate back to ticket selection', 'btn-back-to-tickets', [
+                    { key: 'PageID', value: pageState.currentPageId }
+                ]);
+
+                navigateToPage('TICKETSELECTION');
+            });
+
+            // Complete Booking Button
+            document.getElementById('btn-complete-booking').addEventListener('click', function() {
+                const firstName = document.getElementById('firstName').value;
+                const lastName = document.getElementById('lastName').value;
+                const email = document.getElementById('email').value;
+
+                if (!firstName || !lastName || !email) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+
+                // Generate order number
+                const orderNumber = 'RF1-2025-' + Math.floor(Math.random() * 900000 + 100000);
+
+                // Track booking completion
+                trackUserEvent('CompleteBooking', 'Complete booking and payment', 'btn-complete-booking', [
+                    { key: 'orderId', value: orderNumber },
+                    { key: 'raceId', value: booking.race },
+                    { key: 'raceName', value: booking.raceName },
+                    { key: 'ticketType', value: booking.ticketType },
+                    { key: 'quantity', value: booking.quantity.toString() },
+                    { key: 'subtotal', value: booking.subtotal.toString() },
+                    { key: 'serviceFee', value: booking.fee.toString() },
+                    { key: 'totalAmount', value: booking.total.toString() },
+                    { key: 'currency', value: 'USD' },
+                    { key: 'customerEmail', value: email },
+                    { key: 'PageID', value: pageState.currentPageId }
+                ]);
+
+                // Update confirmation page
+                document.getElementById('order-number').textContent = orderNumber;
+                document.getElementById('conf-race').textContent = booking.raceName;
+                document.getElementById('conf-type').textContent = booking.typeName;
+                document.getElementById('conf-qty').textContent = booking.quantity + ' tickets';
+                document.getElementById('conf-total').textContent = '$' + booking.total.toFixed(2);
+
+                // Navigate to confirmation (triggers manual page view)
+                navigateToPage('CONFIRMATION');
+
+                // Track purchase custom metric
+                trackCustomMetric('PurchaseComplete', 'Booking Purchase Completed', [
+                    { key: 'orderId', value: orderNumber },
+                    { key: 'revenue', value: booking.total.toString() },
+                    { key: 'currency', value: 'USD' },
+                    { key: 'PageID', value: 'CONFIRMATION' }
+                ]);
+            });
+
+            // Track form field interactions
+            document.querySelectorAll('.form-input').forEach(function(input) {
+                input.addEventListener('focus', function() {
+                    trackUserEvent('FormFieldFocus', 'Focus on form field', 'form-input', [
+                        { key: 'fieldId', value: this.id },
+                        { key: 'fieldType', value: this.type },
+                        { key: 'PageID', value: pageState.currentPageId }
+                    ]);
+                });
+
+                input.addEventListener('blur', function() {
+                    if (this.value) {
+                        trackUserEvent('FormFieldComplete', 'Complete form field', 'form-input', [
+                            { key: 'fieldId', value: this.id },
+                            { key: 'fieldType', value: this.type },
+                            { key: 'hasValue', value: 'true' },
+                            { key: 'PageID', value: pageState.currentPageId }
+                        ]);
+                    }
+                });
+            });
+
+            // Track TTI (Time to Interactive)
+            window.addEventListener('load', function() {
+                setTimeout(function() {
+                    const tti = performance.now();
+                    trackCustomMetric('TTIPerformance', 'TTI (Time to Interactive)', [
+                        { key: 'TTI', value: Math.round(tti) },
+                        { key: 'PageID', value: pageState.currentPageId }
+                    ]);
+                }, 100);
+            });
+        });
+
+        // Expose for console debugging
+        window.gridboxSPA = {
+            pushEvent: pushEvent,
+            triggerPageView: triggerPageView,
+            trackUserEvent: trackUserEvent,
+            trackDisplayEvent: trackDisplayEvent,
+            trackCustomMetric: trackCustomMetric,
+            getDigitalData: function() { return window.digitalData; },
+            getDataLayer: function() { return window.dataLayer; }
+        };
+
+        console.log('[GridBox SPA] Ready. Use gridboxSPA.getDigitalData() to view events.');
+
+    })();
+    </script>
+</body>
+</html>

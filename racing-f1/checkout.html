@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Racing F1</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <script>window.dataLayer = window.dataLayer || [];</script>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <a href="index.html" data-track="navigation-header_click_logo">
+                    <span class="logo-text">RACING<span class="accent">F1</span></span>
+                </a>
+            </div>
+            <div class="checkout-steps">
+                <span class="step completed">Cart</span>
+                <span class="step-arrow">→</span>
+                <span class="step active">Checkout</span>
+                <span class="step-arrow">→</span>
+                <span class="step">Confirmation</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Checkout Section -->
+    <section class="checkout-section">
+        <div class="container">
+            <h1 class="page-title">CHECKOUT</h1>
+            
+            <div class="checkout-grid">
+                <!-- Checkout Form -->
+                <div class="checkout-form-container">
+                    <form id="checkout-form" class="checkout-form" data-track="checkout-form_submit_purchase">
+                        <!-- Contact Information -->
+                        <div class="form-section">
+                            <h3>Contact Information</h3>
+                            <div class="form-group">
+                                <label for="checkout-email">Email Address</label>
+                                <input type="email" id="checkout-email" name="email" required placeholder="your@email.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="checkout-phone">Phone Number</label>
+                                <input type="tel" id="checkout-phone" name="phone" required placeholder="+1 (555) 123-4567">
+                            </div>
+                        </div>
+
+                        <!-- Shipping Address -->
+                        <div class="form-section">
+                            <h3>Shipping Address</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="ship-firstName">First Name</label>
+                                    <input type="text" id="ship-firstName" name="shipFirstName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="ship-lastName">Last Name</label>
+                                    <input type="text" id="ship-lastName" name="shipLastName" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="ship-address">Street Address</label>
+                                <input type="text" id="ship-address" name="shipAddress" required placeholder="123 Racing Street">
+                            </div>
+                            <div class="form-group">
+                                <label for="ship-address2">Apartment, suite, etc. (optional)</label>
+                                <input type="text" id="ship-address2" name="shipAddress2" placeholder="Apt 4B">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="ship-city">City</label>
+                                    <input type="text" id="ship-city" name="shipCity" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="ship-state">State/Province</label>
+                                    <input type="text" id="ship-state" name="shipState" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="ship-zip">ZIP/Postal Code</label>
+                                    <input type="text" id="ship-zip" name="shipZip" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="ship-country">Country</label>
+                                    <select id="ship-country" name="shipCountry" required>
+                                        <option value="US">United States</option>
+                                        <option value="GB">United Kingdom</option>
+                                        <option value="CA">Canada</option>
+                                        <option value="AU">Australia</option>
+                                        <option value="DE">Germany</option>
+                                        <option value="FR">France</option>
+                                        <option value="IT">Italy</option>
+                                        <option value="ES">Spain</option>
+                                        <option value="NL">Netherlands</option>
+                                        <option value="BE">Belgium</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Shipping Method -->
+                        <div class="form-section">
+                            <h3>Shipping Method</h3>
+                            <div class="shipping-options">
+                                <label class="shipping-option">
+                                    <input type="radio" name="shipping" value="standard" data-price="9.99" checked>
+                                    <div class="option-content">
+                                        <span class="option-name">Standard Shipping</span>
+                                        <span class="option-time">5-7 business days</span>
+                                    </div>
+                                    <span class="option-price">$9.99</span>
+                                </label>
+                                <label class="shipping-option">
+                                    <input type="radio" name="shipping" value="express" data-price="19.99">
+                                    <div class="option-content">
+                                        <span class="option-name">Express Shipping</span>
+                                        <span class="option-time">2-3 business days</span>
+                                    </div>
+                                    <span class="option-price">$19.99</span>
+                                </label>
+                                <label class="shipping-option">
+                                    <input type="radio" name="shipping" value="overnight" data-price="34.99">
+                                    <div class="option-content">
+                                        <span class="option-name">Overnight Shipping</span>
+                                        <span class="option-time">Next business day</span>
+                                    </div>
+                                    <span class="option-price">$34.99</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Payment Information -->
+                        <div class="form-section">
+                            <h3>Payment Information</h3>
+                            <div class="payment-options">
+                                <label class="payment-option active">
+                                    <input type="radio" name="paymentMethod" value="card" checked>
+                                    <span>Credit Card</span>
+                                </label>
+                                <label class="payment-option">
+                                    <input type="radio" name="paymentMethod" value="paypal">
+                                    <span>PayPal</span>
+                                </label>
+                            </div>
+                            
+                            <div id="card-payment" class="payment-details">
+                                <div class="form-group">
+                                    <label for="card-number">Card Number</label>
+                                    <input type="text" id="card-number" name="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+                                </div>
+                                <div class="form-group">
+                                    <label for="card-name">Name on Card</label>
+                                    <input type="text" id="card-name" name="cardName" placeholder="John Doe">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="card-expiry">Expiry Date</label>
+                                        <input type="text" id="card-expiry" name="cardExpiry" placeholder="MM/YY" maxlength="5">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="card-cvv">CVV</label>
+                                        <input type="text" id="card-cvv" name="cardCvv" placeholder="123" maxlength="4">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="checkout-error" class="form-error" style="display: none;"></div>
+
+                        <button type="submit" data-track="checkout-actions_click_place-order" class="btn btn-primary btn-full btn-large" id="place-order-btn">
+                            Place Order
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="order-summary">
+                    <h3>Order Summary</h3>
+                    <div id="checkout-items" class="checkout-items">
+                        <!-- Items populated by JS -->
+                    </div>
+                    <div class="summary-details">
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span id="checkout-subtotal">$0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Shipping</span>
+                            <span id="checkout-shipping">$9.99</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tax (10%)</span>
+                            <span id="checkout-tax">$0.00</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Total</span>
+                            <span id="checkout-total">$0.00</span>
+                        </div>
+                    </div>
+                    <div class="secure-checkout">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <span>Secure checkout - SSL encrypted</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>2024 Racing F1. All rights reserved.</p>
+                <div class="footer-legal">
+                    <a href="index.html" data-track="footer-nav_click_home">Home</a>
+                    <a href="#" data-track="footer-legal_click_privacy">Privacy Policy</a>
+                    <a href="#" data-track="footer-legal_click_terms">Terms</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Debug Panel -->
+    <div id="debug-panel" class="debug-panel">
+        <div class="debug-header">
+            <h3>DataLayer Events</h3>
+            <button id="clear-debug" class="debug-clear">Clear</button>
+        </div>
+        <div id="debug-output" class="debug-output"></div>
+    </div>
+    <button id="toggle-debug" class="toggle-debug-btn">Debug</button>
+
+    <script src="analytics.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Racing F1</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <script>window.dataLayer = window.dataLayer || [];</script>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <a href="index.html" data-track="navigation-header_click_logo">
+                    <span class="logo-text">RACING<span class="accent">F1</span></span>
+                </a>
+            </div>
+            <nav class="main-nav">
+                <a href="teams.html" data-track="navigation-main_click_teams" class="nav-link">Teams</a>
+                <a href="merchandise.html" data-track="navigation-main_click_merchandise" class="nav-link">Merchandise</a>
+                <a href="tickets.html" data-track="navigation-main_click_tickets" class="nav-link">Race Tickets</a>
+                <a href="experiences.html" data-track="navigation-main_click_experiences" class="nav-link">VIP Experiences</a>
+                <a href="calendar.html" data-track="navigation-main_click_calendar" class="nav-link">Calendar</a>
+            </nav>
+            <div class="header-actions">
+                <a href="cart.html" data-track="header-actions_click_cart" class="icon-btn cart-btn" aria-label="Cart">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                    <span class="cart-count">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Register Section -->
+    <section class="auth-section">
+        <div class="container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h1>JOIN THE GRID</h1>
+                    <p>Create your Racing F1 account</p>
+                </div>
+                
+                <form id="register-form" class="auth-form" data-track="register-form_submit_signup">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" name="firstName" required placeholder="John">
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" name="lastName" required placeholder="Doe">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required placeholder="your@email.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required placeholder="Min 8 characters" minlength="8">
+                        <span class="form-hint">Must be at least 8 characters</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm your password">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="favoriteTeam">Favorite Team (Optional)</label>
+                        <select id="favoriteTeam" name="favoriteTeam">
+                            <option value="">Select a team</option>
+                            <option value="redbull">Red Bull Racing</option>
+                            <option value="ferrari">Scuderia Ferrari</option>
+                            <option value="mercedes">Mercedes-AMG</option>
+                            <option value="mclaren">McLaren Racing</option>
+                            <option value="astonmartin">Aston Martin</option>
+                            <option value="alpine">Alpine</option>
+                            <option value="williams">Williams</option>
+                            <option value="haas">Haas</option>
+                            <option value="sauber">Kick Sauber</option>
+                            <option value="rb">RB</option>
+                        </select>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="newsletter" name="newsletter" checked>
+                            <span>Send me exclusive offers and updates</span>
+                        </label>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="terms" name="terms" required>
+                            <span>I agree to the <a href="#" data-track="register-actions_click_terms">Terms of Service</a> and <a href="#" data-track="register-actions_click_privacy">Privacy Policy</a></span>
+                        </label>
+                    </div>
+
+                    <div id="register-error" class="form-error" style="display: none;"></div>
+
+                    <button type="submit" data-track="register-actions_click_signup" class="btn btn-primary btn-full">Create Account</button>
+                </form>
+
+                <div class="auth-divider">
+                    <span>or sign up with</span>
+                </div>
+
+                <div class="social-auth">
+                    <button data-track="register-social_click_google" class="btn btn-social">
+                        <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                        Google
+                    </button>
+                    <button data-track="register-social_click_apple" class="btn btn-social">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+                        Apple
+                    </button>
+                </div>
+
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="login.html" data-track="register-actions_click_login">Sign in</a></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>2024 Racing F1. All rights reserved.</p>
+                <div class="footer-legal">
+                    <a href="index.html" data-track="footer-nav_click_home">Home</a>
+                    <a href="#" data-track="footer-legal_click_privacy">Privacy Policy</a>
+                    <a href="#" data-track="footer-legal_click_terms">Terms</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Debug Panel -->
+    <div id="debug-panel" class="debug-panel">
+        <div class="debug-header">
+            <h3>DataLayer Events</h3>
+            <button id="clear-debug" class="debug-clear">Clear</button>
+        </div>
+        <div id="debug-output" class="debug-output"></div>
+    </div>
+    <button id="toggle-debug" class="toggle-debug-btn">Debug</button>
+
+    <script src="analytics.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

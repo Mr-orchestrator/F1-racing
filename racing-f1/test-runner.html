@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Racing F1 - Automated Test Runner</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0a0a; color: #fff; padding: 20px; }
+        h1 { color: #e10600; margin-bottom: 20px; }
+        .test-section { background: #1a1a2e; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+        .test-section h2 { color: #00f0ff; margin-bottom: 15px; font-size: 1.2rem; }
+        .test-item { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #2a2a4a; }
+        .test-item:last-child { border-bottom: none; }
+        .test-name { flex: 1; }
+        .test-status { padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 600; }
+        .test-status.pass { background: #39ff14; color: #000; }
+        .test-status.fail { background: #e10600; color: #fff; }
+        .test-status.pending { background: #6c6c7c; color: #fff; }
+        .test-status.running { background: #ffd700; color: #000; }
+        .summary { background: #252547; padding: 20px; border-radius: 8px; margin-top: 20px; }
+        .summary h3 { margin-bottom: 10px; }
+        .summary-stats { display: flex; gap: 30px; }
+        .stat { text-align: center; }
+        .stat-value { font-size: 2rem; font-weight: bold; }
+        .stat-label { font-size: 0.85rem; color: #a0a0b0; }
+        .stat-value.pass { color: #39ff14; }
+        .stat-value.fail { color: #e10600; }
+        button { background: #e10600; color: #fff; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 1rem; margin-right: 10px; }
+        button:hover { background: #ff1a1a; }
+        button:disabled { background: #6c6c7c; cursor: not-allowed; }
+        .log { background: #141428; padding: 15px; border-radius: 6px; margin-top: 20px; max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 0.85rem; }
+        .log-entry { padding: 4px 0; }
+        .log-entry.error { color: #e10600; }
+        .log-entry.success { color: #39ff14; }
+        .log-entry.info { color: #00f0ff; }
+        iframe { display: none; }
+    </style>
+</head>
+<body>
+    <h1>Racing F1 - Automated Test Runner</h1>
+    
+    <div>
+        <button id="run-tests">Run All Tests</button>
+        <button id="clear-storage">Clear localStorage</button>
+    </div>
+
+    <div id="test-results"></div>
+
+    <div class="summary" id="summary" style="display: none;">
+        <h3>Test Summary</h3>
+        <div class="summary-stats">
+            <div class="stat">
+                <div class="stat-value pass" id="pass-count">0</div>
+                <div class="stat-label">Passed</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value fail" id="fail-count">0</div>
+                <div class="stat-label">Failed</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="total-count">0</div>
+                <div class="stat-label">Total</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="log" id="log"></div>
+
+    <iframe id="test-frame" src="about:blank"></iframe>
+
+    <script>
+        const TestRunner = {
+            results: [],
+            currentSection: null,
+            frame: null,
+            
+            log: function(message, type = 'info') {
+                const logEl = document.getElementById('log');
+                const entry = document.createElement('div');
+                entry.className = 'log-entry ' + type;
+                entry.textContent = '[' + new Date().toLocaleTimeString() + '] ' + message;
+                logEl.appendChild(entry);
+                logEl.scrollTop = logEl.scrollHeight;
+            },
+            
+            addResult: function(section, name, passed, error) {
+                this.results.push({ section, name, passed, error });
+                this.renderResults();
+            },
+            
+            renderResults: function() {
+                const container = document.getElementById('test-results');
+                const sections = {};
+                
+                this.results.forEach(r => {
+                    if (!sections[r.section]) sections[r.section] = [];
+                    sections[r.section].push(r);
+                });
+                
+                let html = '';
+                for (const section in sections) {
+                    html += '<div class="test-section"><h2>' + section + '</h2>';
+                    sections[section].forEach(test => {
+                        const status = test.passed ? 'pass' : 'fail';
+                        const statusText = test.passed ? 'PASS' : 'FAIL';
+                        html += '<div class="test-item">';
+                        html += '<span class="test-name">' + test.name + (test.error ? ' - ' + test.error : '') + '</span>';
+                        html += '<span class="test-status ' + status + '">' + statusText + '</span>';
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                }
+                
+                container.innerHTML = html;
+                this.updateSummary();
+            },
+            
+            updateSummary: function() {
+                const passed = this.results.filter(r => r.passed).length;
+                const failed = this.results.filter(r => !r.passed).length;
+                
+                document.getElementById('pass-count').textContent = passed;
+                document.getElementById('fail-count').textContent = failed;
+                document.getElementById('total-count').textContent = this.results.length;
+                document.getElementById('summary').style.display = 'block';
+            },
+            
+            loadPage: function(url) {
+                return new Promise((resolve, reject) => {
+                    const frame = document.getElementById('test-frame');
+                    const timeout = setTimeout(() => reject('Page load timeout: ' + url), 10000);
+                    
+                    frame.onload = () => {
+                        clearTimeout(timeout);
+                        setTimeout(() => resolve(frame.contentWindow), 500);
+                    };
+                    frame.onerror = () => {
+                        clearTimeout(timeout);
+                        reject('Failed to load: ' + url);
+                    };
+                    frame.src = url;
+                });
+            },
+            
+            async runTests() {
+                this.results = [];
+                this.log('Starting automated tests...', 'info');
+                document.getElementById('run-tests').disabled = true;
+                
+                try {
+                    // Clear localStorage for clean tests
+                    localStorage.removeItem('rf1_cart');
+                    localStorage.removeItem('rf1_user');
+                    localStorage.removeItem('rf1_users');
+                    localStorage.removeItem('rf1_last_order');
+                    this.log('Cleared localStorage', 'info');
+                    
+                    await this.testPageLoading();
+                    await this.testAnalyticsSetup();
+                    await this.testAddToCart();
+                    await this.testCartPage();
+                    await this.testRegistration();
+                    await this.testLogin();
+                    await this.testCheckoutFlow();
+                    
+                    this.log('All tests completed!', 'success');
+                } catch (e) {
+                    this.log('Test error: ' + e, 'error');
+                }
+                
+                document.getElementById('run-tests').disabled = false;
+            },
+            
+            async testPageLoading() {
+                this.log('Testing page loading...', 'info');
+                const pages = [
+                    { name: 'index.html', title: 'Home' },
+                    { name: 'teams.html', title: 'Teams' },
+                    { name: 'merchandise.html', title: 'Merchandise' },
+                    { name: 'tickets.html', title: 'Tickets' },
+                    { name: 'experiences.html', title: 'Experiences' },
+                    { name: 'calendar.html', title: 'Calendar' },
+                    { name: 'cart.html', title: 'Cart' },
+                    { name: 'login.html', title: 'Login' },
+                    { name: 'register.html', title: 'Register' },
+                    { name: 'checkout.html', title: 'Checkout' },
+                    { name: 'confirmation.html', title: 'Confirmation' }
+                ];
+                
+                for (const page of pages) {
+                    try {
+                        const win = await this.loadPage(page.name);
+                        const hasHeader = win.document.querySelector('.header') !== null;
+                        const hasFooter = win.document.querySelector('.footer') !== null;
+                        const hasStyles = win.document.querySelector('link[href="styles.css"]') !== null;
+                        const hasAnalytics = win.document.querySelector('script[src="analytics.js"]') !== null;
+                        const hasApp = win.document.querySelector('script[src="app.js"]') !== null;
+                        
+                        const passed = hasHeader && hasFooter && hasStyles && hasAnalytics && hasApp;
+                        this.addResult('Page Loading', page.title + ' page loads correctly', passed, 
+                            !passed ? 'Missing: ' + (!hasHeader ? 'header ' : '') + (!hasFooter ? 'footer ' : '') + (!hasStyles ? 'styles ' : '') + (!hasAnalytics ? 'analytics ' : '') + (!hasApp ? 'app' : '') : null);
+                        this.log(page.title + ' page: ' + (passed ? 'OK' : 'FAILED'), passed ? 'success' : 'error');
+                    } catch (e) {
+                        this.addResult('Page Loading', page.title + ' page loads', false, e.toString());
+                        this.log(page.title + ' page: FAILED - ' + e, 'error');
+                    }
+                }
+            },
+            
+            async testAnalyticsSetup() {
+                this.log('Testing analytics setup...', 'info');
+                
+                try {
+                    const win = await this.loadPage('index.html');
+                    
+                    // Test dataLayer exists
+                    const hasDataLayer = Array.isArray(win.dataLayer);
+                    this.addResult('Analytics Setup', 'dataLayer initialized', hasDataLayer);
+                    
+                    // Test analytics object
+                    const hasAnalyticsObj = typeof win.racingF1Analytics === 'object';
+                    this.addResult('Analytics Setup', 'racingF1Analytics object exists', hasAnalyticsObj);
+                    
+                    // Test callback functions
+                    const hasEventCallback = typeof win.rf1EventCallback === 'function';
+                    this.addResult('Analytics Setup', 'rf1EventCallback function exists', hasEventCallback);
+                    
+                    const hasLinkCallback = typeof win.rf1LinkCallback === 'function';
+                    this.addResult('Analytics Setup', 'rf1LinkCallback function exists', hasLinkCallback);
+                    
+                    // Test data-track attribute elements exist
+                    const trackElements = win.document.querySelectorAll('[data-track]');
+                    const hasTrackElements = trackElements.length > 0;
+                    this.addResult('Analytics Setup', 'data-track attributes present (' + trackElements.length + ' found)', hasTrackElements);
+                    
+                    this.log('Analytics setup tests completed', 'success');
+                } catch (e) {
+                    this.addResult('Analytics Setup', 'Analytics initialization', false, e.toString());
+                    this.log('Analytics test error: ' + e, 'error');
+                }
+            },
+            
+            async testAddToCart() {
+                this.log('Testing add to cart functionality...', 'info');
+                
+                try {
+                    const win = await this.loadPage('teams.html');
+                    
+                    // Find add to cart button
+                    const addBtn = win.document.querySelector('.add-cart-btn');
+                    const hasAddBtn = addBtn !== null;
+                    this.addResult('Add to Cart', 'Add to cart button exists', hasAddBtn);
+                    
+                    if (addBtn) {
+                        // Get product data
+                        const productId = addBtn.dataset.productId;
+                        const productName = addBtn.dataset.productName;
+                        const productPrice = addBtn.dataset.productPrice;
+                        
+                        this.addResult('Add to Cart', 'Product ID attribute present', !!productId);
+                        this.addResult('Add to Cart', 'Product name attribute present', !!productName);
+                        this.addResult('Add to Cart', 'Product price attribute present', !!productPrice);
+                        
+                        // Click add to cart
+                        addBtn.click();
+                        
+                        // Wait for cart update
+                        await new Promise(r => setTimeout(r, 500));
+                        
+                        // Check cart count updated
+                        const cartCount = win.document.querySelector('.cart-count');
+                        const countUpdated = cartCount && parseInt(cartCount.textContent) > 0;
+                        this.addResult('Add to Cart', 'Cart count updates after add', countUpdated);
+                        
+                        // Check localStorage
+                        const cartData = JSON.parse(localStorage.getItem('rf1_cart') || '[]');
+                        const itemInCart = cartData.length > 0;
+                        this.addResult('Add to Cart', 'Item saved to localStorage', itemInCart);
+                        
+                        // Check button feedback
+                        const btnChanged = addBtn.textContent.includes('Added');
+                        this.addResult('Add to Cart', 'Button shows feedback', btnChanged);
+                        
+                        this.log('Add to cart tests completed', 'success');
+                    }
+                } catch (e) {
+                    this.addResult('Add to Cart', 'Add to cart functionality', false, e.toString());
+                    this.log('Add to cart test error: ' + e, 'error');
+                }
+            },
+            
+            async testCartPage() {
+                this.log('Testing cart page...', 'info');
+                
+                try {
+                    // First add an item
+                    localStorage.setItem('rf1_cart', JSON.stringify([{
+                        id: 'TEST-001',
+                        name: 'Test Product',
+                        price: 99.99,
+                        category: 'Test',
+                        image: 'Gemini_Generated_Image_1uzlq31uzlq31uzl.png',
+                        quantity: 2
+                    }]));
+                    
+                    const win = await this.loadPage('cart.html');
+                    
+                    // Check cart content shows
+                    const cartContent = win.document.getElementById('cart-content');
+                    const emptyCart = win.document.getElementById('empty-cart');
+                    
+                    const contentVisible = cartContent && cartContent.style.display !== 'none';
+                    const emptyHidden = emptyCart && emptyCart.style.display === 'none';
+                    
+                    this.addResult('Cart Page', 'Cart content displays when items exist', contentVisible);
+                    this.addResult('Cart Page', 'Empty cart message hidden when items exist', emptyHidden);
+                    
+                    // Check cart items rendered
+                    const cartItems = win.document.querySelectorAll('.cart-item');
+                    this.addResult('Cart Page', 'Cart items rendered', cartItems.length > 0);
+                    
+                    // Check quantity controls
+                    const qtyControls = win.document.querySelectorAll('.quantity-control');
+                    this.addResult('Cart Page', 'Quantity controls present', qtyControls.length > 0);
+                    
+                    // Check summary
+                    const subtotal = win.document.getElementById('cart-subtotal');
+                    const hasSubtotal = subtotal && subtotal.textContent.includes('$');
+                    this.addResult('Cart Page', 'Subtotal calculated', hasSubtotal);
+                    
+                    const total = win.document.getElementById('cart-total');
+                    const hasTotal = total && total.textContent.includes('$');
+                    this.addResult('Cart Page', 'Total calculated', hasTotal);
+                    
+                    // Check checkout button
+                    const checkoutBtn = win.document.getElementById('checkout-btn');
+                    this.addResult('Cart Page', 'Checkout button present', !!checkoutBtn);
+                    
+                    this.log('Cart page tests completed', 'success');
+                } catch (e) {
+                    this.addResult('Cart Page', 'Cart page functionality', false, e.toString());
+                    this.log('Cart page test error: ' + e, 'error');
+                }
+            },
+            
+            async testRegistration() {
+                this.log('Testing user registration...', 'info');
+                
+                try {
+                    const win = await this.loadPage('register.html');
+                    
+                    // Check form exists
+                    const form = win.document.getElementById('register-form');
+                    this.addResult('Registration', 'Registration form exists', !!form);
+                    
+                    // Check required fields
+                    const firstName = win.document.getElementById('firstName');
+                    const lastName = win.document.getElementById('lastName');
+                    const email = win.document.getElementById('email');
+                    const password = win.document.getElementById('password');
+                    const confirmPassword = win.document.getElementById('confirmPassword');
+                    const terms = win.document.getElementById('terms');
+                    
+                    this.addResult('Registration', 'First name field exists', !!firstName);
+                    this.addResult('Registration', 'Last name field exists', !!lastName);
+                    this.addResult('Registration', 'Email field exists', !!email);
+                    this.addResult('Registration', 'Password field exists', !!password);
+                    this.addResult('Registration', 'Confirm password field exists', !!confirmPassword);
+                    this.addResult('Registration', 'Terms checkbox exists', !!terms);
+                    
+                    // Fill form
+                    if (firstName) firstName.value = 'Test';
+                    if (lastName) lastName.value = 'User';
+                    if (email) email.value = 'test@example.com';
+                    if (password) password.value = 'password123';
+                    if (confirmPassword) confirmPassword.value = 'password123';
+                    if (terms) terms.checked = true;
+                    
+                    // Intercept alert and redirect
+                    let alertShown = false;
+                    win.alert = (msg) => { alertShown = msg.includes('Welcome'); };
+                    const originalLocation = win.location.href;
+                    
+                    // Submit form
+                    if (form) {
+                        form.dispatchEvent(new Event('submit'));
+                        await new Promise(r => setTimeout(r, 500));
+                    }
+                    
+                    // Check user saved
+                    const users = JSON.parse(localStorage.getItem('rf1_users') || '[]');
+                    const userCreated = users.some(u => u.email === 'test@example.com');
+                    this.addResult('Registration', 'User saved to localStorage', userCreated);
+                    
+                    this.log('Registration tests completed', 'success');
+                } catch (e) {
+                    this.addResult('Registration', 'Registration functionality', false, e.toString());
+                    this.log('Registration test error: ' + e, 'error');
+                }
+            },
+            
+            async testLogin() {
+                this.log('Testing user login...', 'info');
+                
+                try {
+                    // Ensure test user exists
+                    const users = JSON.parse(localStorage.getItem('rf1_users') || '[]');
+                    if (!users.some(u => u.email === 'test@example.com')) {
+                        users.push({
+                            firstName: 'Test',
+                            lastName: 'User',
+                            email: 'test@example.com',
+                            password: 'password123',
+                            favoriteTeam: 'redbull'
+                        });
+                        localStorage.setItem('rf1_users', JSON.stringify(users));
+                    }
+                    
+                    const win = await this.loadPage('login.html');
+                    
+                    // Check form exists
+                    const form = win.document.getElementById('login-form');
+                    this.addResult('Login', 'Login form exists', !!form);
+                    
+                    // Check fields
+                    const email = win.document.getElementById('email');
+                    const password = win.document.getElementById('password');
+                    
+                    this.addResult('Login', 'Email field exists', !!email);
+                    this.addResult('Login', 'Password field exists', !!password);
+                    
+                    // Fill form with correct credentials
+                    if (email) email.value = 'test@example.com';
+                    if (password) password.value = 'password123';
+                    
+                    // Intercept alert
+                    let loginSuccess = false;
+                    win.alert = (msg) => { loginSuccess = msg.includes('Welcome'); };
+                    
+                    // Submit form
+                    if (form) {
+                        form.dispatchEvent(new Event('submit'));
+                        await new Promise(r => setTimeout(r, 500));
+                    }
+                    
+                    // Check user session
+                    const currentUser = JSON.parse(localStorage.getItem('rf1_user') || 'null');
+                    this.addResult('Login', 'User session created on login', !!currentUser);
+                    
+                    // Test invalid login
+                    localStorage.removeItem('rf1_user');
+                    const win2 = await this.loadPage('login.html');
+                    const email2 = win2.document.getElementById('email');
+                    const password2 = win2.document.getElementById('password');
+                    const form2 = win2.document.getElementById('login-form');
+                    const errorEl = win2.document.getElementById('login-error');
+                    
+                    if (email2) email2.value = 'wrong@example.com';
+                    if (password2) password2.value = 'wrongpass';
+                    
+                    if (form2) {
+                        form2.dispatchEvent(new Event('submit'));
+                        await new Promise(r => setTimeout(r, 500));
+                    }
+                    
+                    const errorShown = errorEl && errorEl.style.display !== 'none';
+                    this.addResult('Login', 'Error shown for invalid credentials', errorShown);
+                    
+                    this.log('Login tests completed', 'success');
+                } catch (e) {
+                    this.addResult('Login', 'Login functionality', false, e.toString());
+                    this.log('Login test error: ' + e, 'error');
+                }
+            },
+            
+            async testCheckoutFlow() {
+                this.log('Testing checkout flow...', 'info');
+                
+                try {
+                    // Set up cart with items
+                    localStorage.setItem('rf1_cart', JSON.stringify([{
+                        id: 'TEST-001',
+                        name: 'Test Product',
+                        price: 99.99,
+                        category: 'Test',
+                        image: 'Gemini_Generated_Image_1uzlq31uzlq31uzl.png',
+                        quantity: 1
+                    }]));
+                    
+                    const win = await this.loadPage('checkout.html');
+                    
+                    // Check form sections
+                    const contactSection = win.document.querySelector('.form-section');
+                    this.addResult('Checkout', 'Checkout form sections present', !!contactSection);
+                    
+                    // Check order summary
+                    const checkoutItems = win.document.getElementById('checkout-items');
+                    const hasItems = checkoutItems && checkoutItems.innerHTML.includes('Test Product');
+                    this.addResult('Checkout', 'Order items displayed in summary', hasItems);
+                    
+                    // Check shipping options
+                    const shippingOptions = win.document.querySelectorAll('input[name="shipping"]');
+                    this.addResult('Checkout', 'Shipping options present', shippingOptions.length >= 3);
+                    
+                    // Check totals
+                    const checkoutTotal = win.document.getElementById('checkout-total');
+                    const hasTotal = checkoutTotal && checkoutTotal.textContent.includes('$');
+                    this.addResult('Checkout', 'Checkout total calculated', hasTotal);
+                    
+                    // Fill checkout form
+                    const emailField = win.document.getElementById('checkout-email');
+                    const phoneField = win.document.getElementById('checkout-phone');
+                    const firstNameField = win.document.getElementById('ship-firstName');
+                    const lastNameField = win.document.getElementById('ship-lastName');
+                    const addressField = win.document.getElementById('ship-address');
+                    const cityField = win.document.getElementById('ship-city');
+                    const stateField = win.document.getElementById('ship-state');
+                    const zipField = win.document.getElementById('ship-zip');
+                    
+                    if (emailField) emailField.value = 'test@example.com';
+                    if (phoneField) phoneField.value = '555-1234';
+                    if (firstNameField) firstNameField.value = 'Test';
+                    if (lastNameField) lastNameField.value = 'User';
+                    if (addressField) addressField.value = '123 Test St';
+                    if (cityField) cityField.value = 'Test City';
+                    if (stateField) stateField.value = 'TS';
+                    if (zipField) zipField.value = '12345';
+                    
+                    // Submit order
+                    const form = win.document.getElementById('checkout-form');
+                    if (form) {
+                        form.dispatchEvent(new Event('submit'));
+                        await new Promise(r => setTimeout(r, 500));
+                    }
+                    
+                    // Check order saved
+                    const lastOrder = JSON.parse(localStorage.getItem('rf1_last_order') || 'null');
+                    this.addResult('Checkout', 'Order data saved after checkout', !!lastOrder);
+                    
+                    if (lastOrder) {
+                        this.addResult('Checkout', 'Order has order number', !!lastOrder.orderNumber);
+                        this.addResult('Checkout', 'Order has shipping info', !!lastOrder.shipping);
+                        this.addResult('Checkout', 'Order has items', lastOrder.items && lastOrder.items.length > 0);
+                        this.addResult('Checkout', 'Order has total', typeof lastOrder.total === 'number');
+                    }
+                    
+                    // Check cart cleared
+                    const cartAfter = JSON.parse(localStorage.getItem('rf1_cart') || '[]');
+                    this.addResult('Checkout', 'Cart cleared after order', cartAfter.length === 0);
+                    
+                    // Test confirmation page
+                    const confWin = await this.loadPage('confirmation.html');
+                    const orderNumber = confWin.document.getElementById('order-number');
+                    const orderNumberShown = orderNumber && orderNumber.textContent.includes('RF1-');
+                    this.addResult('Checkout', 'Confirmation shows order number', orderNumberShown);
+                    
+                    const confItems = confWin.document.getElementById('confirmation-items');
+                    const confItemsShown = confItems && confItems.innerHTML.length > 0;
+                    this.addResult('Checkout', 'Confirmation shows order items', confItemsShown);
+                    
+                    this.log('Checkout flow tests completed', 'success');
+                } catch (e) {
+                    this.addResult('Checkout', 'Checkout functionality', false, e.toString());
+                    this.log('Checkout test error: ' + e, 'error');
+                }
+            }
+        };
+        
+        document.getElementById('run-tests').addEventListener('click', () => TestRunner.runTests());
+        document.getElementById('clear-storage').addEventListener('click', () => {
+            localStorage.clear();
+            TestRunner.log('localStorage cleared', 'info');
+        });
+    </script>
+</body>
+</html>

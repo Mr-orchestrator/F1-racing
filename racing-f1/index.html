@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Racing F1 - Premium Motorsport Shop</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+    </script>
+
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <a href="index.html" data-track="navigation-header_click_logo">
+                    <span class="logo-text">RACING<span class="accent">F1</span></span>
+                </a>
+            </div>
+            <nav class="main-nav">
+                <a href="teams.html" data-track="navigation-main_click_teams" class="nav-link">Teams</a>
+                <a href="merchandise.html" data-track="navigation-main_click_merchandise" class="nav-link">Merchandise</a>
+                <a href="tickets.html" data-track="navigation-main_click_tickets" class="nav-link">Race Tickets</a>
+                <a href="experiences.html" data-track="navigation-main_click_experiences" class="nav-link">VIP Experiences</a>
+                <a href="calendar.html" data-track="navigation-main_click_calendar" class="nav-link">Calendar</a>
+            </nav>
+            <div class="header-actions">
+                <button data-track="header-actions_click_search" class="icon-btn" aria-label="Search">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </button>
+                <button data-track="header-actions_click_wishlist" class="icon-btn" aria-label="Wishlist">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                </button>
+                <a href="cart.html" data-track="header-actions_click_cart" class="icon-btn cart-btn" aria-label="Cart">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                    <span class="cart-count">0</span>
+                </a>
+                <a href="login.html" data-track="header-actions_click_account" class="icon-btn" aria-label="Account">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section with Video Background -->
+    <section class="hero">
+        <div class="hero-video-bg">
+            <video autoplay muted loop playsinline class="hero-video">
+                <source src="hero-desktop.mp4" type="video/mp4">
+            </video>
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-badge">2024 SEASON</div>
+            <h1 class="hero-title">FEEL THE <span class="gradient-text">SPEED</span></h1>
+            <p class="hero-subtitle">Premium F1 Merchandise & Exclusive Race Experiences</p>
+            <div class="hero-buttons">
+                <a href="merchandise.html" data-track="hero-cta_click_shop-now" class="btn btn-primary">
+                    Shop Collection
+                </a>
+                <a href="experiences.html" data-track="hero-cta_click_book-experience" class="btn btn-secondary">
+                    Book Experience
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Teams Section -->
+    <section id="teams" class="teams-section">
+        <div class="container">
+            <h2 class="section-title">OFFICIAL TEAM STORES</h2>
+            <div class="teams-grid">
+                <a href="teams.html#redbull" class="team-card team-redbull" data-track="teams-grid_click_redbull-racing">
+                    <h3>Red Bull Racing</h3>
+                    <p class="team-drivers">Verstappen - Perez</p>
+                    <span class="team-badge">Champion 2023</span>
+                </a>
+                <a href="teams.html#ferrari" class="team-card team-ferrari" data-track="teams-grid_click_scuderia-ferrari">
+                    <h3>Scuderia Ferrari</h3>
+                    <p class="team-drivers">Leclerc - Sainz</p>
+                    <span class="team-badge legendary">Since 1950</span>
+                </a>
+                <a href="teams.html#mercedes" class="team-card team-mercedes" data-track="teams-grid_click_mercedes-amg">
+                    <h3>Mercedes-AMG</h3>
+                    <p class="team-drivers">Hamilton - Russell</p>
+                    <span class="team-badge">8x Champion</span>
+                </a>
+                <a href="teams.html#mclaren" class="team-card team-mclaren" data-track="teams-grid_click_mclaren-racing">
+                    <h3>McLaren Racing</h3>
+                    <p class="team-drivers">Norris - Piastri</p>
+                    <span class="team-badge rising">Rising Stars</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="merchandise" class="products-section">
+        <div class="container">
+            <h2 class="section-title">FEATURED PRODUCTS</h2>
+            <div class="products-filter">
+                <button data-track="products-filter_click_all" class="filter-btn active">All</button>
+                <button data-track="products-filter_click_apparel" class="filter-btn">Apparel</button>
+                <button data-track="products-filter_click_accessories" class="filter-btn">Accessories</button>
+                <button data-track="products-filter_click_collectibles" class="filter-btn">Collectibles</button>
+            </div>
+            <div class="products-grid">
+                <!-- Product 1 -->
+                <article class="product-card">
+                    <div class="product-image" data-track="product-card_view_rb-team-jacket">
+                        <div class="product-badge sale">-20%</div>
+                        <img src="Gemini_Generated_Image_1uzlq31uzlq31uzl.png" alt="Team Jacket" class="product-img">
+                        <button data-track="product-actions_click_quick-view" class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <span class="product-brand">Red Bull Racing</span>
+                        <h3 class="product-name">2024 Team Jacket</h3>
+                        <div class="product-pricing">
+                            <span class="current-price">$159.99</span>
+                            <span class="original-price">$199.99</span>
+                        </div>
+                        <div class="product-actions">
+                            <button data-track="product-actions_click_add-to-cart" 
+                                    class="btn btn-primary btn-sm add-cart-btn"
+                                    data-product-id="RB-JKT-2024"
+                                    data-product-name="2024 Team Jacket"
+                                    data-product-price="159.99"
+                                    data-product-category="Apparel"
+                                    data-product-image="Gemini_Generated_Image_1uzlq31uzlq31uzl.png">
+                                Add to Cart
+                            </button>
+                            <button data-track="product-actions_click_add-wishlist" class="wishlist-btn">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Product 2 -->
+                <article class="product-card">
+                    <div class="product-image" data-track="product-card_view_ferrari-cap">
+                        <div class="product-badge new">NEW</div>
+                        <img src="Gemini_Generated_Image_1uzlq31uzlq31uzl-(1).png" alt="Ferrari Cap" class="product-img">
+                        <button data-track="product-actions_click_quick-view" class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <span class="product-brand">Scuderia Ferrari</span>
+                        <h3 class="product-name">Leclerc Signature Cap</h3>
+                        <div class="product-pricing">
+                            <span class="current-price">$45.00</span>
+                        </div>
+                        <div class="product-actions">
+                            <button data-track="product-actions_click_add-to-cart" 
+                                    class="btn btn-primary btn-sm add-cart-btn"
+                                    data-product-id="FER-CAP-LC16"
+                                    data-product-name="Leclerc Signature Cap"
+                                    data-product-price="45.00"
+                                    data-product-category="Accessories"
+                                    data-product-image="Gemini_Generated_Image_1uzlq31uzlq31uzl-(1).png">
+                                Add to Cart
+                            </button>
+                            <button data-track="product-actions_click_add-wishlist" class="wishlist-btn">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Product 3 -->
+                <article class="product-card">
+                    <div class="product-image" data-track="product-card_view_mclaren-model">
+                        <div class="product-badge limited">LIMITED</div>
+                        <img src="Gemini_Generated_Image_1uzlq31uzlq31uzl-(2).png" alt="F1 Model" class="product-img">
+                        <button data-track="product-actions_click_quick-view" class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <span class="product-brand">McLaren Racing</span>
+                        <h3 class="product-name">MCL38 1:18 Scale Model</h3>
+                        <div class="product-pricing">
+                            <span class="current-price">$249.99</span>
+                        </div>
+                        <div class="product-actions">
+                            <button data-track="product-actions_click_add-to-cart" 
+                                    class="btn btn-primary btn-sm add-cart-btn"
+                                    data-product-id="MCL-MOD-38"
+                                    data-product-name="MCL38 1:18 Scale Model"
+                                    data-product-price="249.99"
+                                    data-product-category="Collectibles"
+                                    data-product-image="Gemini_Generated_Image_1uzlq31uzlq31uzl-(2).png">
+                                Add to Cart
+                            </button>
+                            <button data-track="product-actions_click_add-wishlist" class="wishlist-btn">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Product 4 -->
+                <article class="product-card">
+                    <div class="product-image" data-track="product-card_view_mercedes-polo">
+                        <img src="Gemini_Generated_Image_1uzlq31uzlq31uzl-(3).png" alt="Team Polo" class="product-img">
+                        <button data-track="product-actions_click_quick-view" class="quick-view-btn">Quick View</button>
+                    </div>
+                    <div class="product-info">
+                        <span class="product-brand">Mercedes-AMG</span>
+                        <h3 class="product-name">Team Polo Shirt</h3>
+                        <div class="product-pricing">
+                            <span class="current-price">$79.99</span>
+                        </div>
+                        <div class="product-actions">
+                            <button data-track="product-actions_click_add-to-cart" 
+                                    class="btn btn-primary btn-sm add-cart-btn"
+                                    data-product-id="MER-PLO-2024"
+                                    data-product-name="Team Polo Shirt"
+                                    data-product-price="79.99"
+                                    data-product-category="Apparel"
+                                    data-product-image="Gemini_Generated_Image_1uzlq31uzlq31uzl-(3).png">
+                                Add to Cart
+                            </button>
+                            <button data-track="product-actions_click_add-wishlist" class="wishlist-btn">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+            </div>
+            <div class="section-cta">
+                <a href="merchandise.html" data-track="products-section_click_view-all-products" class="btn btn-outline">
+                    View All Products
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Race Tickets Section -->
+    <section id="tickets" class="tickets-section">
+        <div class="container">
+            <h2 class="section-title">UPCOMING RACES</h2>
+            <div class="races-grid">
+                <a href="tickets.html#monaco" class="race-card" data-track="race-card_click_monaco-gp">
+                    <div class="race-flag">
+                        <img src="https://flagcdn.com/w80/mc.png" alt="Monaco" class="flag-img">
+                    </div>
+                    <div class="race-info">
+                        <span class="race-date">May 23-26, 2024</span>
+                        <h3>Monaco Grand Prix</h3>
+                        <p class="race-circuit">Circuit de Monaco</p>
+                    </div>
+                    <div class="race-pricing">
+                        <span class="from-label">From</span>
+                        <span class="race-price">$450</span>
+                    </div>
+                    <button data-track="race-actions_click_book-tickets" class="btn btn-accent">Book Now</button>
+                </a>
+
+                <a href="tickets.html#silverstone" class="race-card" data-track="race-card_click_silverstone-gp">
+                    <div class="race-flag">
+                        <img src="https://flagcdn.com/w80/gb.png" alt="UK" class="flag-img">
+                    </div>
+                    <div class="race-info">
+                        <span class="race-date">July 5-7, 2024</span>
+                        <h3>British Grand Prix</h3>
+                        <p class="race-circuit">Silverstone Circuit</p>
+                    </div>
+                    <div class="race-pricing">
+                        <span class="from-label">From</span>
+                        <span class="race-price">$289</span>
+                    </div>
+                    <button data-track="race-actions_click_book-tickets" class="btn btn-accent">Book Now</button>
+                </a>
+
+                <a href="tickets.html#monza" class="race-card" data-track="race-card_click_monza-gp">
+                    <div class="race-flag">
+                        <img src="https://flagcdn.com/w80/it.png" alt="Italy" class="flag-img">
+                    </div>
+                    <div class="race-info">
+                        <span class="race-date">Aug 30 - Sep 1, 2024</span>
+                        <h3>Italian Grand Prix</h3>
+                        <p class="race-circuit">Autodromo Nazionale Monza</p>
+                    </div>
+                    <div class="race-pricing">
+                        <span class="from-label">From</span>
+                        <span class="race-price">$195</span>
+                    </div>
+                    <button data-track="race-actions_click_book-tickets" class="btn btn-accent">Book Now</button>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- VIP Experiences with Video -->
+    <section id="experiences" class="experiences-section">
+        <div class="experiences-video-bg">
+            <video autoplay muted loop playsinline class="experiences-video">
+                <source src="F_Hero_Video_Brief_Generation.mp4" type="video/mp4">
+            </video>
+            <div class="experiences-overlay"></div>
+        </div>
+        <div class="container">
+            <h2 class="section-title">VIP EXPERIENCES</h2>
+            <div class="experiences-grid">
+                <div class="experience-card premium" data-track="experience-card_click_paddock-club">
+                    <div class="experience-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    </div>
+                    <h3>Paddock Club</h3>
+                    <p>Ultimate hospitality with pit lane access, team garage tours, and gourmet dining</p>
+                    <ul class="experience-features">
+                        <li>Pit Lane Walk</li>
+                        <li>Team Garage Visit</li>
+                        <li>Open Bar & Dining</li>
+                        <li>Driver Meet & Greet</li>
+                    </ul>
+                    <div class="experience-price">From $4,500</div>
+                    <button data-track="experience-actions_click_enquire-paddock" class="btn btn-gold">Enquire Now</button>
+                </div>
+
+                <div class="experience-card" data-track="experience-card_click_grid-walk">
+                    <div class="experience-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <h3>Grid Walk Experience</h3>
+                    <p>Walk the grid before race start and feel the electric atmosphere</p>
+                    <ul class="experience-features">
+                        <li>Pre-race Grid Access</li>
+                        <li>Photo Opportunities</li>
+                        <li>Premium Grandstand</li>
+                    </ul>
+                    <div class="experience-price">From $1,200</div>
+                    <button data-track="experience-actions_click_enquire-grid" class="btn btn-primary">Enquire Now</button>
+                </div>
+
+                <div class="experience-card" data-track="experience-card_click_hot-laps">
+                    <div class="experience-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+                    </div>
+                    <h3>Hot Laps</h3>
+                    <p>Experience the thrill as a passenger in a high-performance vehicle</p>
+                    <ul class="experience-features">
+                        <li>Professional Driver</li>
+                        <li>3 Hot Laps</li>
+                        <li>In-car Video</li>
+                    </ul>
+                    <div class="experience-price">From $800</div>
+                    <button data-track="experience-actions_click_enquire-hotlaps" class="btn btn-primary">Enquire Now</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter-section">
+        <div class="container">
+            <div class="newsletter-content">
+                <h2>JOIN THE GRID</h2>
+                <p>Get exclusive access to new releases, race updates, and special offers</p>
+                <form class="newsletter-form" data-track="newsletter-form_submit_signup">
+                    <input type="email" placeholder="Enter your email" required>
+                    <button type="submit" data-track="newsletter-actions_click_subscribe" class="btn btn-primary">
+                        Subscribe
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <span class="logo-text">RACING<span class="accent">F1</span></span>
+                    </div>
+                    <p>Your premium destination for official F1 merchandise and race experiences.</p>
+                    <div class="social-links">
+                        <a href="https://instagram.com/f1" target="_blank" rel="noopener" data-track="footer-social_click_instagram" aria-label="Instagram">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                        </a>
+                        <a href="https://twitter.com/f1" target="_blank" rel="noopener" data-track="footer-social_click_twitter" aria-label="Twitter">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
+                        </a>
+                        <a href="https://youtube.com/f1" target="_blank" rel="noopener" data-track="footer-social_click_youtube" aria-label="YouTube">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>
+                        </a>
+                        <a href="https://facebook.com/formula1" target="_blank" rel="noopener" data-track="footer-social_click_facebook" aria-label="Facebook">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h4>Shop</h4>
+                    <a href="teams.html" data-track="footer-nav_click_all-teams">All Teams</a>
+                    <a href="merchandise.html#apparel" data-track="footer-nav_click_apparel">Apparel</a>
+                    <a href="merchandise.html#accessories" data-track="footer-nav_click_accessories">Accessories</a>
+                    <a href="merchandise.html#collectibles" data-track="footer-nav_click_collectibles">Collectibles</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Experiences</h4>
+                    <a href="tickets.html" data-track="footer-nav_click_race-tickets">Race Tickets</a>
+                    <a href="experiences.html" data-track="footer-nav_click_vip-packages">VIP Packages</a>
+                    <a href="experiences.html#track-days" data-track="footer-nav_click_track-days">Track Days</a>
+                    <a href="merchandise.html" data-track="footer-nav_click_gift-cards">Gift Cards</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Support</h4>
+                    <a href="support.html#contact" data-track="footer-nav_click_contact-us">Contact Us</a>
+                    <a href="support.html#shipping" data-track="footer-nav_click_shipping">Shipping Info</a>
+                    <a href="support.html#returns" data-track="footer-nav_click_returns">Returns</a>
+                    <a href="support.html#faq" data-track="footer-nav_click_faq">FAQ</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>2024 Racing F1. All rights reserved.</p>
+                <div class="footer-legal">
+                    <a href="privacy.html" data-track="footer-legal_click_privacy">Privacy Policy</a>
+                    <a href="terms.html" data-track="footer-legal_click_terms">Terms of Service</a>
+                    <a href="javascript:void(0)" onclick="window.racingF1Analytics && window.racingF1Analytics.linkCallback('cookie-settings', {action:'click',label:'open-modal'})" data-track="footer-legal_click_cookies">Cookie Settings</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Debug Panel -->
+    <div id="debug-panel" class="debug-panel">
+        <div class="debug-header">
+            <h3>DataLayer Events</h3>
+            <button id="clear-debug" class="debug-clear">Clear</button>
+        </div>
+        <div id="debug-output" class="debug-output"></div>
+    </div>
+    <button id="toggle-debug" class="toggle-debug-btn">Debug</button>
+
+    <!-- Analytics Scripts -->
+    <script src="analytics.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
