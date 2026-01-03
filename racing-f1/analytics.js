@@ -12,25 +12,29 @@
  * - Callback functions for GTM integration
  * 
  * Architecture:
- * ┌─────────────────────────────────────────────────────┐
- * │                    GRIDBOX                          │
- * ├─────────────────────────────────────────────────────┤
- * │  digitalData (W3C)     │    dataLayer (GTM)        │
- * │  ├─ page               │    ├─ event               │
- * │  ├─ user               │    ├─ page_*              │
- * │  ├─ product            │    ├─ user_*              │
- * │  ├─ cart               │    └─ ecommerce           │
- * │  ├─ transaction        │                           │
- * │  └─ event[]            │                           │
- * └─────────────────────────────────────────────────────┘
+ * ┌──────────────────────────────────────────────────────────────┐
+ * │                         GRIDBOX                              │
+ * ├──────────────────────────────────────────────────────────────┤
+ * │  digitalData (W3C) │ gridboxLayer   │  dataLayer (GTM)      │
+ * │  ├─ page           │ (GridBox)      │  (GTM/GA4 only)       │
+ * │  ├─ user           │ ├─ events[]    │  ├─ pushed by GridBox │
+ * │  ├─ product        │ └─ tracking    │  └─ consumed by tags  │
+ * │  ├─ cart           │                │                       │
+ * │  ├─ transaction    │                │                       │
+ * │  └─ event[]        │                │                       │
+ * └──────────────────────────────────────────────────────────────┘
  */
 
 (function(window, document) {
     'use strict';
 
     // =========================================
-    // INITIALIZE DATALAYER & DIGITALDATA
+    // INITIALIZE LAYERS
     // =========================================
+    // GridBox Layer - Our internal tracking layer
+    window.gridboxLayer = window.gridboxLayer || [];
+    
+    // GTM dataLayer - Separate for GTM/GA4 tags
     window.dataLayer = window.dataLayer || [];
     
     // W3C Customer Experience Digital Data Layer (like lhgData/digitalData)
@@ -285,8 +289,9 @@
                 eventObject.eventNamespace = namespace;
             }
             
-            // Push to dataLayer
-            window.dataLayer.push(eventObject);
+            // Push to both layers
+            window.gridboxLayer.push(eventObject);  // Internal tracking
+            window.dataLayer.push(eventObject);      // For GTM/GA4
             
             this.logDebug('FIRED: retail_event', eventObject);
             this.updateDebugPanel(eventObject, true);
@@ -398,8 +403,9 @@
                 eventObject.eventValue = eventValue;
             }
             
-            // Push to dataLayer
-            window.dataLayer.push(eventObject);
+            // Push to both layers
+            window.gridboxLayer.push(eventObject);  // Internal tracking
+            window.dataLayer.push(eventObject);      // For GTM/GA4
             
             this.logDebug('LINK FIRED: retail_event', eventObject);
             this.updateDebugPanel(eventObject, true);
@@ -575,8 +581,8 @@
             };
             window.digitalData.event.push(eventObj);
             
-            // Push to dataLayer for GTM
-            window.dataLayer.push({
+            // Push to both layers
+            const pageViewEvent = {
                 event: 'gridbox_page_view',
                 page_name: mergedData.page_name || document.title,
                 page_type: mergedData.page_type || '',
@@ -584,7 +590,9 @@
                 page_url: window.location.href,
                 page_path: window.location.pathname,
                 ...mergedData
-            });
+            };
+            window.gridboxLayer.push(pageViewEvent);  // Internal tracking
+            window.dataLayer.push(pageViewEvent);      // For GTM/GA4
             
             this.logDebug('gridbox.view() fired', mergedData);
             
@@ -629,8 +637,8 @@
             // Build action_type for gridbox format
             const actionType = this.config.eventPrefix + eventCategory + '_' + eventAction + '_' + (eventLabel || 'unknown');
             
-            // Push to dataLayer
-            window.dataLayer.push({
+            // Push to both layers
+            const linkEvent = {
                 event: this.config.dataLayerEvent,
                 action_type: actionType,
                 event_name: eventName,
@@ -638,7 +646,9 @@
                 event_action: eventAction,
                 event_label: eventLabel,
                 ...mergedData
-            });
+            };
+            window.gridboxLayer.push(linkEvent);  // Internal tracking
+            window.dataLayer.push(linkEvent);      // For GTM/GA4
             
             this.logDebug('gridbox.link() fired', { actionType, mergedData });
             this.updateDebugPanel({ action_type: actionType, ...mergedData }, true);
@@ -790,8 +800,8 @@
                 item: transactionData.items || []
             };
             
-            // Also push to dataLayer for GTM
-            window.dataLayer.push({
+            // Also push to both layers
+            const purchaseEvent = {
                 event: 'purchase',
                 ecommerce: {
                     transaction_id: transactionData.orderId,
@@ -810,7 +820,9 @@
                         };
                     })
                 }
-            });
+            };
+            window.gridboxLayer.push(purchaseEvent);  // Internal tracking
+            window.dataLayer.push(purchaseEvent);      // For GTM/GA4
         },
 
         // =========================================

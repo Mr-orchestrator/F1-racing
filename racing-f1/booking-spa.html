@@ -776,7 +776,8 @@
         // DIGITALDATA EVENT LAYER (W3C Format)
         // =============================================
         window.digitalData = window.digitalData || { event: [] };
-        window.dataLayer = window.dataLayer || [];
+        window.gridboxLayer = window.gridboxLayer || [];  // GridBox internal layer
+        window.dataLayer = window.dataLayer || [];        // GTM/GA4 layer
 
         // Generate unique page instance ID
         function generatePageInstanceId() {
@@ -812,6 +813,17 @@
 
             // Push to digitalData.event array
             window.digitalData.event.push(event);
+
+            // Push to GridBox layer (internal tracking)
+            window.gridboxLayer.push({
+                event: 'digitalData_event',
+                eventCategory: category,
+                eventName: eventInfo.eventName,
+                eventKey: eventInfo.key,
+                pageId: pageState.currentPageId,
+                pageInstanceId: pageState.pageInstanceId,
+                eventData: event
+            });
 
             // Also push to GTM dataLayer for tag firing
             window.dataLayer.push({

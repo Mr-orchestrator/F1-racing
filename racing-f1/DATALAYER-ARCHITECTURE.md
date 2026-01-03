@@ -7,6 +7,20 @@ GridBox is an enterprise-grade analytics data layer implementation that follows 
 ## Architecture Diagram
 
 ```
+┌────────────────────┐
+┌────────────────────────────────────────────────────────────────┐
+│                         GRIDBOX                                │
+├────────────────────────────────────────────────────────────────┤
+│  digitalData (W3C) │ gridboxLayer      │  dataLayer (GTM)     │
+│  ├─ page           │ (GridBox Internal)│  (GTM/GA4 Only)      │
+│  ├─ user           │ ├─ events[]       │  ├─ pushed by GridBox│
+│  ├─ product        │ └─ tracking       │  └─ consumed by tags │
+│  ├─ cart           │                   │                      │
+│  ├─ transaction    │                   │                      │
+│  └─ event[]        │                   │                      │
+└────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
 ┌──────────────────────────────────────────────────────────────────────────┐
 │                           BROWSER WINDOW                                  │
 ├──────────────────────────────────────────────────────────────────────────┤

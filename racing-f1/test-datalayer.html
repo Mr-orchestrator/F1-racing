@@ -395,21 +395,21 @@
         <div class="test-grid">
             <div class="card">
                 <div class="card-header">
-                    <h2>dataLayer Contents</h2>
-                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" id="btn-refresh-dl">Refresh</button>
+                    <h2>gridboxLayer Contents (Internal)</h2>
+                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" id="btn-refresh-gb">Refresh</button>
                 </div>
                 <div class="card-body">
-                    <div class="data-viewer" id="datalayer-viewer">Loading...</div>
+                    <div class="data-viewer" id="gridboxlayer-viewer">Loading...</div>
                 </div>
             </div>
             
             <div class="card">
                 <div class="card-header">
-                    <h2>digitalData.event[] Contents</h2>
-                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" id="btn-refresh-dd">Refresh</button>
+                    <h2>dataLayer Contents (GTM/GA4)</h2>
+                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" id="btn-refresh-dl">Refresh</button>
                 </div>
                 <div class="card-body">
-                    <div class="data-viewer" id="digitaldata-viewer">Loading...</div>
+                    <div class="data-viewer" id="datalayer-viewer">Loading...</div>
                 </div>
             </div>
         </div>
@@ -825,10 +825,10 @@
         
         // Refresh Data Viewers
         function refreshDataViewers() {
+            document.getElementById('gridboxlayer-viewer').textContent = 
+                JSON.stringify(window.gridboxLayer, null, 2);
             document.getElementById('datalayer-viewer').textContent = 
                 JSON.stringify(window.dataLayer, null, 2);
-            document.getElementById('digitaldata-viewer').textContent = 
-                JSON.stringify(window.digitalData.event, null, 2);
         }
         
         // Reset Tests
@@ -863,8 +863,8 @@
         document.getElementById('btn-clear-log').addEventListener('click', () => {
             document.getElementById('test-log').innerHTML = '';
         });
+        document.getElementById('btn-refresh-gb').addEventListener('click', refreshDataViewers);
         document.getElementById('btn-refresh-dl').addEventListener('click', refreshDataViewers);
-        document.getElementById('btn-refresh-dd').addEventListener('click', refreshDataViewers);
         
         // Initialize
         state.total = Object.keys(tests).length;

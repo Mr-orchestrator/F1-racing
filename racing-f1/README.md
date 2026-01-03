@@ -86,12 +86,15 @@ gridboxSPA.trackUserEvent(
 
 ## Data Layer Objects
 
-| Object | Description |
-|--------|-------------|
-| `window.digitalData` | W3C Customer Experience Digital Data Layer |
-| `window.dataLayer` | GTM-compatible data layer array |
-| `window.gridbox_data` | Flat key-value data object (like utag_data) |
-| `window.gridbox` | GridBox API namespace |
+| Object | Description | Purpose |
+|--------|-------------|---------|
+| `window.digitalData` | W3C Customer Experience Digital Data Layer | Structured data storage |
+| `window.gridboxLayer` | GridBox internal tracking layer | GridBox event tracking (independent) |
+| `window.dataLayer` | GTM-compatible data layer array | GTM/GA4 tag firing only |
+| `window.gridbox_data` | Flat key-value data object (like utag_data) | Merged into all events |
+| `window.gridbox` | GridBox API namespace | Public API methods |
+
+**Important:** `gridboxLayer` is separate from GTM's `dataLayer` to avoid conflicts. GridBox pushes to both layers automatically.
 
 ## Event Categories (SPA)
 
