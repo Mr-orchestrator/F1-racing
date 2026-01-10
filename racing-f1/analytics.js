@@ -29,12 +29,35 @@
     'use strict';
 
     // =========================================
-    // INITIALIZE LAYERS
+    // INITIALIZE GRIDBOX LAYER (W3C Format)
     // =========================================
-    // GridBox Layer - Internal tracking
-    window.gridboxLayer = window.gridboxLayer || [];
-    // GTM dataLayer - For GTM/GA4 tags
-    window.dataLayer = window.dataLayer || [];
+    window.gridboxLayer = window.gridboxLayer || {
+        version: "2.11.0",
+        libVersion: "1.0.0",
+        event: [],
+        page: {
+            pageInfo: {
+                pageID: "",
+                pageName: ""
+            },
+            category: {
+                primaryCategory: ""
+            }
+        },
+        user: [{
+            profile: [{
+                profileInfo: {
+                    OS: "",
+                    deviceType: "",
+                    userAgent: "",
+                    loginStatus: false
+                }
+            }]
+        }],
+        product: [],
+        cart: {},
+        transaction: {}
+    };
 
     // =========================================
     // gridbox_data - Flat data object (like utag_data)
@@ -226,11 +249,23 @@
                 eventObject.eventNamespace = namespace;
             }
             
-            // Push to both layers
-            window.gridboxLayer.push(eventObject);
-            window.dataLayer.push(eventObject);
+            // Push to gridboxLayer event array (W3C format)
+            const w3cEvent = {
+                category: {
+                    primaryCategory: "UserEvent"
+                },
+                eventInfo: {
+                    eventName: eventName,
+                    key: actionType,
+                    timeStamp: new Date().toISOString()
+                },
+                attributes: Object.keys(filteredCD).map(function(key) {
+                    return { key: key, value: String(filteredCD[key]) };
+                })
+            };
+            window.gridboxLayer.event.push(w3cEvent);
             
-            this.logDebug('FIRED: retail_event', eventObject);
+            this.logDebug('FIRED: retail_event', w3cEvent);
             this.updateDebugPanel(eventObject, true);
             
             return true;
@@ -335,16 +370,28 @@
                 ...filteredCD
             };
             
-            // Add eventValue only if provided
+            // Add eventValue to filtered data if provided
             if (eventValue !== null && eventValue !== undefined) {
-                eventObject.eventValue = eventValue;
+                filteredCD.eventValue = eventValue;
             }
             
-            // Push to both layers
-            window.gridboxLayer.push(eventObject);
-            window.dataLayer.push(eventObject);
+            // Push to gridboxLayer event array (W3C format)
+            const w3cLinkEvent = {
+                category: {
+                    primaryCategory: "UserEvent"
+                },
+                eventInfo: {
+                    eventName: eventLabel || eventAction,
+                    key: actionType,
+                    timeStamp: new Date().toISOString()
+                },
+                attributes: Object.keys(filteredCD).map(function(key) {
+                    return { key: key, value: String(filteredCD[key]) };
+                })
+            };
+            window.gridboxLayer.event.push(w3cLinkEvent);
             
-            this.logDebug('LINK FIRED: retail_event', eventObject);
+            this.logDebug('LINK FIRED: retail_event', w3cLinkEvent);
             this.updateDebugPanel(eventObject, true);
             
             return true;
@@ -485,7 +532,7 @@
         // =========================================
         // GRIDBOX.VIEW() - Page View Tracking (like utag.view)
         // =========================================
-        // Fires on page load, updates digitalData and pushes to dataLayer
+        // ONLY for SPA - manual page view tracking
         view: function(data, callback) {
             const self = this;
             data = data || {};
@@ -493,20 +540,26 @@
             // Merge with gridbox_data
             const mergedData = Object.assign({}, window.gridbox_data, data);
             
-            // Push page_view event to GridBox Layer
+            // Push PageView event to gridboxLayer (W3C format)
             const pageViewEvent = {
-                event: 'gridbox_page_view',
-                page_name: mergedData.page_name || document.title,
-                page_type: mergedData.page_type || '',
-                page_category: mergedData.page_category || '',
-                page_url: window.location.href,
-                page_path: window.location.pathname,
-                timestamp: new Date().toISOString(),
-                ...mergedData
+                category: {
+                    primaryCategory: "PageView"
+                },
+                eventInfo: {
+                    eventName: "PageView",
+                    pageId: mergedData.page_id || mergedData.page_type || "UNKNOWN",
+                    pageInstanceId: Date.now().toString(),
+                    timeStamp: new Date().toISOString()
+                }
             };
-            window.gridboxLayer.push(pageViewEvent);
+            window.gridboxLayer.event.push(pageViewEvent);
             
-            this.logDebug('gridbox.view() fired', mergedData);
+            // Update page info
+            window.gridboxLayer.page.pageInfo.pageID = pageViewEvent.eventInfo.pageId;
+            window.gridboxLayer.page.pageInfo.pageName = mergedData.page_name || document.title;
+            window.gridboxLayer.page.category.primaryCategory = mergedData.page_category || "";
+            
+            this.logDebug('gridbox.view() fired (SPA only)', mergedData);
             
             // Execute callback if provided
             if (typeof callback === 'function') {
@@ -536,18 +589,21 @@
             // Build action_type for gridbox format
             const actionType = this.config.eventPrefix + eventCategory + '_' + eventAction + '_' + (eventLabel || 'unknown');
             
-            // Push to GridBox Layer
+            // Push to gridboxLayer event array (W3C format)
             const linkEvent = {
-                event: this.config.dataLayerEvent,
-                action_type: actionType,
-                event_name: eventName,
-                event_category: eventCategory,
-                event_action: eventAction,
-                event_label: eventLabel,
-                timestamp: new Date().toISOString(),
-                ...mergedData
+                category: {
+                    primaryCategory: "UserEvent"
+                },
+                eventInfo: {
+                    eventName: eventName,
+                    key: actionType,
+                    timeStamp: new Date().toISOString()
+                },
+                attributes: Object.keys(mergedData).map(function(key) {
+                    return { key: key, value: String(mergedData[key]) };
+                })
             };
-            window.gridboxLayer.push(linkEvent);
+            window.gridboxLayer.event.push(linkEvent);
             
             this.logDebug('gridbox.link() fired', { actionType, mergedData });
             this.updateDebugPanel({ action_type: actionType, ...mergedData }, true);
@@ -562,26 +618,33 @@
         
         // Set transaction data
         setTransaction: function(transactionData) {
-            const purchaseEvent = {
-                event: 'purchase',
-                transaction_id: transactionData.orderId,
-                value: transactionData.total,
-                tax: transactionData.tax,
-                shipping: transactionData.shippingCost,
-                currency: 'USD',
-                timestamp: new Date().toISOString(),
-                items: (transactionData.items || []).map(function(item, index) {
-                    return {
-                        item_id: item.id,
-                        item_name: item.name,
-                        item_category: item.category,
-                        price: item.price,
-                        quantity: item.quantity,
-                        index: index
-                    };
-                })
+            window.gridboxLayer.transaction = {
+                transactionID: transactionData.orderId,
+                total: {
+                    totalPrice: {
+                        amount: transactionData.total,
+                        currency: 'USD'
+                    }
+                }
             };
-            window.gridboxLayer.push(purchaseEvent);
+            
+            // Push transaction event
+            const purchaseEvent = {
+                category: {
+                    primaryCategory: "UserEvent"
+                },
+                eventInfo: {
+                    eventName: "Purchase",
+                    key: "PurchaseComplete",
+                    timeStamp: new Date().toISOString()
+                },
+                attributes: [
+                    { key: "transactionID", value: transactionData.orderId },
+                    { key: "totalAmount", value: String(transactionData.total) },
+                    { key: "currency", value: "USD" }
+                ]
+            };
+            window.gridboxLayer.event.push(purchaseEvent);
         },
 
         // =========================================
@@ -621,8 +684,16 @@
             window.gridbox_data.page_url = window.location.href;
             window.gridbox_data.page_path = window.location.pathname;
             
-            // Auto-fire page view
-            this.view(window.gridbox_data);
+            // Update page info (no auto PageView - only for SPA)
+            window.gridboxLayer.page.pageInfo.pageID = pageType.toUpperCase();
+            window.gridboxLayer.page.pageInfo.pageName = document.title;
+            window.gridboxLayer.page.category.primaryCategory = pageCategory;
+            
+            // Detect user agent
+            const ua = navigator.userAgent;
+            window.gridboxLayer.user[0].profile[0].profileInfo.userAgent = ua;
+            window.gridboxLayer.user[0].profile[0].profileInfo.deviceType = /Mobile|Android|iPhone/.test(ua) ? 'mobile' : 'desktop';
+            window.gridboxLayer.user[0].profile[0].profileInfo.OS = /Windows/.test(ua) ? 'Windows' : /Mac/.test(ua) ? 'Mac' : /Linux/.test(ua) ? 'Linux' : 'Unknown';
             
             this.logDebug('GridBox Analytics Ready');
             this.logDebug('gridbox.view() and gridbox.link() available globally');

@@ -786,10 +786,35 @@
         'use strict';
 
         // =============================================
-        // TRACKING LAYERS
+        // GRIDBOX LAYER (W3C Format)
         // =============================================
-        window.gridboxLayer = window.gridboxLayer || [];
-        window.dataLayer = window.dataLayer || [];
+        window.gridboxLayer = window.gridboxLayer || {
+            version: "2.11.0",
+            libVersion: "1.0.0",
+            event: [],
+            page: {
+                pageInfo: {
+                    pageID: "",
+                    pageName: ""
+                },
+                category: {
+                    primaryCategory: "Booking"
+                }
+            },
+            user: [{
+                profile: [{
+                    profileInfo: {
+                        OS: "",
+                        deviceType: "",
+                        userAgent: navigator.userAgent,
+                        loginStatus: false
+                    }
+                }]
+            }],
+            product: [],
+            cart: {},
+            transaction: {}
+        };
 
         // Generate unique page instance ID
         function generatePageInstanceId() {
@@ -803,23 +828,24 @@
         };
 
         // =============================================
-        // PUSH EVENT TO GRIDBOX LAYER
+        // PUSH EVENT TO GRIDBOX LAYER (W3C Format)
         // =============================================
         function pushEvent(category, eventInfo, attributes) {
             const event = {
-                event: 'spa_event',
-                category: category,
-                eventName: eventInfo.eventName,
-                eventKey: eventInfo.key,
-                pageId: pageState.currentPageId,
-                pageInstanceId: pageState.pageInstanceId,
-                timeStamp: new Date().toISOString(),
+                category: {
+                    primaryCategory: category
+                },
+                eventInfo: {
+                    ...eventInfo,
+                    timeStamp: new Date().toISOString(),
+                    pageId: pageState.currentPageId,
+                    pageInstanceId: pageState.pageInstanceId
+                },
                 attributes: attributes || []
             };
 
-            // Push to both layers
-            window.gridboxLayer.push(event);
-            window.dataLayer.push(event);
+            // Push to gridboxLayer.event array
+            window.gridboxLayer.event.push(event);
 
             console.log('[GridBox SPA] Event pushed:', event);
             return event;
