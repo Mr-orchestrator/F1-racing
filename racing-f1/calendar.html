@@ -21,8 +21,18 @@
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
     
-    <script>window.gridboxLayer = window.gridboxLayer || [];</script>
-        window.dataLayer = window.dataLayer || [];
+    <script>
+        window.gridboxLayer = window.gridboxLayer || {
+            version: "2.11.0",
+            libVersion: "1.0.0",
+            event: [],
+            page: { pageInfo: { pageID: "", pageName: "" }, category: { primaryCategory: "" } },
+            user: [{ profile: [{ profileInfo: { OS: "", deviceType: "", userAgent: "", loginStatus: false } }] }],
+            product: [],
+            cart: {},
+            transaction: {}
+        };
+    </script>
 
     <!-- Header -->
     <header class="header">
@@ -324,6 +334,7 @@
     <script src="app.js"></script>
 </body>
 </html>
+
 
 
 
