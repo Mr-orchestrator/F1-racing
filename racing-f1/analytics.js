@@ -29,10 +29,12 @@
     'use strict';
 
     // =========================================
-    // INITIALIZE GRIDBOX LAYER (UNIVERSAL)
+    // INITIALIZE LAYERS
     // =========================================
-    // GridBox Layer - Universal tracking layer (replaces all others)
+    // GridBox Layer - Internal tracking
     window.gridboxLayer = window.gridboxLayer || [];
+    // GTM dataLayer - For GTM/GA4 tags
+    window.dataLayer = window.dataLayer || [];
 
     // =========================================
     // gridbox_data - Flat data object (like utag_data)
@@ -46,7 +48,7 @@
         
         // Configuration
         config: {
-            debug: true,
+            debug: false,
             eventPrefix: 'gb_',
             trackAttribute: 'data-track',
             dataLayerEvent: 'retail_event'
@@ -224,8 +226,9 @@
                 eventObject.eventNamespace = namespace;
             }
             
-            // Push to GridBox Layer (universal)
+            // Push to both layers
             window.gridboxLayer.push(eventObject);
+            window.dataLayer.push(eventObject);
             
             this.logDebug('FIRED: retail_event', eventObject);
             this.updateDebugPanel(eventObject, true);
@@ -337,8 +340,9 @@
                 eventObject.eventValue = eventValue;
             }
             
-            // Push to GridBox Layer (universal)
+            // Push to both layers
             window.gridboxLayer.push(eventObject);
+            window.dataLayer.push(eventObject);
             
             this.logDebug('LINK FIRED: retail_event', eventObject);
             this.updateDebugPanel(eventObject, true);
