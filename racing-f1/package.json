@@ -4,6 +4,7 @@
   "description": "GridBox Analytics - Enterprise-grade W3C event tracking for e-commerce",
   "main": "analytics.js",
   "scripts": {
+    "start": "npx serve . -l 3000",
     "test": "npx playwright test",
     "test:headed": "npx playwright test --headed",
     "test:ui": "npx playwright test --ui",
@@ -11,13 +12,26 @@
     "test:firefox": "npx playwright test --project=firefox",
     "test:safari": "npx playwright test --project=webkit",
     "test:mobile": "npx playwright test --project='Mobile Chrome'",
+    "test:tablet": "npx playwright test --project=Tablet",
     "test:report": "npx playwright show-report",
-    "test:debug": "npx playwright test --debug"
+    "test:debug": "npx playwright test --debug",
+    "test:trace": "npx playwright test --trace on",
+    "test:codegen": "npx playwright codegen http://localhost:3000",
+    "test:show-trace": "npx playwright show-trace",
+    "playwright:install": "npx playwright install --with-deps"
   },
-  "keywords": ["analytics", "datalayer", "w3c", "gtm", "ga4", "tracking"],
+  "keywords": [
+    "analytics",
+    "datalayer",
+    "w3c",
+    "gtm",
+    "ga4",
+    "tracking"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@playwright/test": "^1.40.0"
+    "@playwright/test": "^1.57.0",
+    "serve": "^14.2.5"
   }
 }
