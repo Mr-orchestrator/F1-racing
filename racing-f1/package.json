@@ -1,0 +1,23 @@
+{
+  "name": "racing-f1",
+  "version": "1.0.0",
+  "description": "GridBox Analytics - Enterprise-grade W3C event tracking for e-commerce",
+  "main": "analytics.js",
+  "scripts": {
+    "test": "npx playwright test",
+    "test:headed": "npx playwright test --headed",
+    "test:ui": "npx playwright test --ui",
+    "test:chrome": "npx playwright test --project=chromium",
+    "test:firefox": "npx playwright test --project=firefox",
+    "test:safari": "npx playwright test --project=webkit",
+    "test:mobile": "npx playwright test --project='Mobile Chrome'",
+    "test:report": "npx playwright show-report",
+    "test:debug": "npx playwright test --debug"
+  },
+  "keywords": ["analytics", "datalayer", "w3c", "gtm", "ga4", "tracking"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
+  }
+}
