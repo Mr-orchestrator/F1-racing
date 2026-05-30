@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -14,6 +14,10 @@
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-5BMV9KLC');</script>
     <!-- End Google Tag Manager -->
+    <!-- Adobe Experience Platform Launch -->
+    <script>window.adobeDataLayer = window.adobeDataLayer || [];</script>
+    <script src="https://assets.adobedtm.com/236ca7d75265/a5282319db5b/launch-53116e4becf9.min.js" async></script>
+    <!-- End Adobe Experience Platform Launch -->
 </head>
 <body data-page-type="support" data-page-category="help">
     <!-- Google Tag Manager (noscript) -->
@@ -23,14 +27,16 @@
     
     <script>
         window.gridboxLayer = window.gridboxLayer || {
-            version: "2.11.0",
-            libVersion: "1.0.0",
+            version: "2.12.0",
+            libVersion: "1.1.0",
             event: [],
-            page: { pageInfo: { pageID: "", pageName: "" }, category: { primaryCategory: "" } },
-            user: [{ profile: [{ profileInfo: { OS: "", deviceType: "", userAgent: "", loginStatus: false } }] }],
+            page: { pageInfo: { pageID: "", pageName: "", pageURL: "", referringURL: "", language: "", sysEnv: "" }, category: { primaryCategory: "", pageType: "" } },
+            user: [{ profile: [{ profileInfo: { anonymousId: "", profileID: "", userName: "", email: "", sessionId: "", isNewSession: true, loginStatus: false, deviceType: "desktop", OS: "", browser: "", screenResolution: "", viewportSize: "", touchSupport: false, cookieEnabled: true, doNotTrack: false, isBot: false }, attributes: { userType: "guest", customerTier: "" } }] }],
             product: [],
-            cart: {},
-            transaction: {}
+            cart: { cartInfo: { cartID: "", creationDate: "" }, price: { totalPrice: { currency: "USD", amount: 0 }, priceBreakdown: { tax: { surcharge: { amount: 0, currency: "USD" }, totalTax: { amount: 0, currency: "USD" } } }, pricePerTravellerType: [] }, item: [] },
+            transaction: {},
+            session: {},
+            context: {}
         };
     </script>
 
@@ -50,6 +56,12 @@
                 <a href="calendar.html" data-track="navigation-main_click_calendar" class="nav-link">Calendar</a>
             </nav>
             <div class="header-actions">
+                <button data-track="header-actions_click_search" class="icon-btn" aria-label="Search">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </button>
+                <button data-track="header-actions_click_wishlist" class="icon-btn" aria-label="Wishlist">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                </button>
                 <a href="cart.html" data-track="header-actions_click_cart" class="icon-btn cart-btn" aria-label="Cart">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
                     <span class="cart-count">0</span>

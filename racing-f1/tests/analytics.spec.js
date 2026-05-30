@@ -43,7 +43,7 @@ test.describe('GridBox Analytics Layer - All Pages', () => {
   test('gridboxLayer has version', async ({ page }) => {
     await page.goto('/');
     const version = await page.evaluate(() => window.gridboxLayer?.version);
-    expect(version).toBe('2.11.0');
+    expect(version).toBe('2.12.0');
   });
 
 });

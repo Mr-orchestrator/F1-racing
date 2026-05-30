@@ -96,15 +96,63 @@
     // =========================================
     const Cart = {
         storageKey: 'rf1_cart',
-        
+        discountRate: 0,
+        appliedPromo: null,
+
         init: function() {
             const self = this;
             this.loadCart();
+            this.hydrateGridboxLayer();
             this.updateCartCount();
             this.initAddToCartButtons();
+            this.initTicketBookingButtons();
             this.initCartPage();
             this.initCheckoutPage();
             this.initConfirmationPage();
+        },
+
+        // Rebuild the in-memory gridboxLayer from the persisted cart so the
+        // data layer stays consistent across page loads. gridboxLayer is reset
+        // on every navigation, so without this the cart would appear empty
+        // (and syncFromGridboxLayer would wipe the saved cart).
+        hydrateGridboxLayer: function() {
+            if (!window.gridboxLayer || !window.gridboxLayer.cart) return;
+            if (!this.items || this.items.length === 0) return;
+            // Only hydrate a fresh/empty data layer; never clobber live state.
+            if (window.gridboxLayer.cart.item.length > 0) return;
+
+            this.items.forEach(function(item) {
+                const category = item.category || 'Product';
+                const brand = item.brand || '';
+                window.gridboxLayer.product.push({
+                    category: { primaryCategory: category },
+                    productInfo: {
+                        productID: item.id,
+                        brand: brand,
+                        productDetails: {
+                            [category.toLowerCase()]: {
+                                name: item.name,
+                                brand: brand,
+                                price: { totalPrice: { amount: item.price, currency: 'USD' } },
+                                image: item.image
+                            }
+                        },
+                        characteristics: []
+                    }
+                });
+                window.gridboxLayer.cart.item.push({
+                    productInfo: { productID: item.id, quantity: item.quantity }
+                });
+            });
+
+            const subtotal = this.getSubtotal();
+            const tax = this.getTax(subtotal);
+            window.gridboxLayer.cart.price.totalPrice.amount = parseFloat((subtotal + tax).toFixed(2));
+            window.gridboxLayer.cart.price.priceBreakdown.tax.totalTax.amount = parseFloat(tax.toFixed(2));
+            if (!window.gridboxLayer.cart.cartInfo.cartID) {
+                window.gridboxLayer.cart.cartInfo.cartID = 'rf1_' + Date.now();
+                window.gridboxLayer.cart.cartInfo.creationDate = new Date().toISOString();
+            }
         },
         
         loadCart: function() {
@@ -131,33 +179,58 @@
                     const productPrice = btn.dataset.productPrice;
                     const productCategory = btn.dataset.productCategory;
                     const productImage = btn.dataset.productImage || 'Gemini_Generated_Image_1uzlq31uzlq31uzl.png';
+                    // Brand isn't on the button, so read it from the card markup.
+                    const card = btn.closest('.product-card');
+                    const brandEl = card ? card.querySelector('.product-brand') : null;
+                    const productBrand = btn.dataset.productBrand || (brandEl ? brandEl.textContent.trim() : '');
+
+                    if (!window.gridbox) return;
                     
-                    self.addItem({
-                        id: productId,
-                        name: productName,
-                        price: parseFloat(productPrice),
-                        category: productCategory,
-                        image: productImage,
-                        quantity: 1
+                    // STEP 1: Track click event in gridboxLayer.event[]
+                    window.gridbox.track('gb_product_add_to_cart_click', {
+                        CD: {
+                            product_id: productId,
+                            product_name: productName,
+                            product_price: productPrice,
+                            product_category: productCategory,
+                            click_element: 'add-to-cart-button'
+                        }
                     });
                     
-                    if (window.racingF1Analytics) {
-                        window.racingF1Analytics.linkCallback('ecommerce-cart', {
-                            action: 'click',
-                            label: 'add-item',
-                            value: parseFloat(productPrice),
-                            price: productPrice,
-                            rank: self.items.length,
-                            CD: {
-                                product_id: productId,
-                                product_name: productName,
-                                product_price: productPrice,
-                                product_category: productCategory,
-                                product_quantity: '1'
-                            }
-                        });
-                    }
+                    // STEP 2: Add product to gridboxLayer.product[]
+                    window.gridbox.addProduct({
+                        id: productId,
+                        product_id: productId,
+                        name: productName,
+                        product_name: productName,
+                        price: productPrice,
+                        product_price: productPrice,
+                        category: productCategory,
+                        product_category: productCategory,
+                        brand: productBrand,
+                        product_brand: productBrand,
+                        image: productImage,
+                        product_image: productImage
+                    });
+
+                    // STEP 3: Add to cart in gridboxLayer.cart
+                    window.gridbox.addToCart({
+                        id: productId,
+                        product_id: productId,
+                        name: productName,
+                        product_name: productName,
+                        price: productPrice,
+                        product_price: productPrice,
+                        category: productCategory,
+                        product_category: productCategory,
+                        brand: productBrand,
+                        product_brand: productBrand,
+                        image: productImage,
+                        product_image: productImage
+                    }, 1);
                     
+                    // Sync local cart from gridboxLayer
+                    self.syncFromGridboxLayer();
                     self.updateCartCount();
                     
                     btn.textContent = 'Added!';
@@ -169,6 +242,150 @@
                     }, 1500);
                 });
             });
+        },
+        
+        initTicketBookingButtons: function() {
+            const self = this;
+            
+            // Handle all ticket booking buttons with data-track attributes
+            const ticketBtns = document.querySelectorAll('[data-track*="ticket-actions_click_book"]');
+            
+            ticketBtns.forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Get race information from closest race-detail-card
+                    const raceCard = btn.closest('.race-detail-card');
+                    const raceId = raceCard ? raceCard.id : '';
+                    const raceName = raceCard ? raceCard.querySelector('h3')?.textContent : '';
+                    const ticketType = btn.closest('.ticket-option')?.querySelector('.ticket-type')?.textContent || '';
+                    const ticketPrice = btn.closest('.ticket-option')?.querySelector('.ticket-price')?.textContent || '';
+                    
+                    // Create product data for ticket
+                    const productId = 'TICKET-' + raceId.toUpperCase() + '-' + ticketType.toUpperCase().replace(/\s+/g, '-');
+                    const productName = raceName + ' - ' + ticketType;
+                    const productPrice = ticketPrice.replace(/[$,]/g, '');
+                    const productCategory = 'Race Tickets';
+                    
+                    if (!window.gridbox) return;
+                    
+                    // STEP 1: Track ticket selection event
+                    window.gridbox.track('gb_ticket_add_to_cart_click', {
+                        CD: {
+                            product_id: productId,
+                            product_name: productName,
+                            product_price: productPrice,
+                            product_category: productCategory,
+                            race_name: raceName,
+                            ticket_type: ticketType,
+                            click_element: 'ticket-book-button'
+                        }
+                    });
+                    
+                    // STEP 2: Add ticket to gridboxLayer.product[]
+                    window.gridbox.addProduct({
+                        id: productId,
+                        product_id: productId,
+                        name: productName,
+                        product_name: productName,
+                        price: productPrice,
+                        product_price: productPrice,
+                        category: productCategory,
+                        product_category: productCategory,
+                        image: 'Gemini_Generated_Image_1uzlq31uzlq31uzl.png',
+                        product_image: 'Gemini_Generated_Image_1uzlq31uzlq31uzl.png'
+                    });
+                    
+                    // STEP 3: Add ticket to cart in gridboxLayer.cart
+                    window.gridbox.addToCart({
+                        id: productId,
+                        product_id: productId,
+                        name: productName,
+                        product_name: productName,
+                        price: productPrice,
+                        product_price: productPrice,
+                        category: productCategory,
+                        product_category: productCategory,
+                        image: 'Gemini_Generated_Image_1uzlq31uzlq31uzl.png',
+                        product_image: 'Gemini_Generated_Image_1uzlq31uzlq31uzl.png'
+                    }, 1);
+                    
+                    // Sync local cart from gridboxLayer
+                    self.syncFromGridboxLayer();
+                    self.updateCartCount();
+                    
+                    // Update button state
+                    const originalText = btn.textContent;
+                    btn.textContent = 'Added to Cart!';
+                    btn.style.background = 'linear-gradient(135deg, #39ff14 0%, #00f0ff 100%)';
+                    btn.disabled = true;
+                    
+                    setTimeout(function() {
+                        btn.textContent = originalText;
+                        btn.style.background = '';
+                        btn.disabled = false;
+                    }, 2000);
+                    
+                    console.log('Ticket added to cart:', { productId, productName, productPrice });
+                });
+            });
+        },
+        
+        syncFromGridboxLayer: function() {
+            if (window.gridboxLayer && window.gridboxLayer.cart && window.gridboxLayer.cart.item) {
+                const products = window.gridboxLayer.product || [];
+                
+                this.items = window.gridboxLayer.cart.item.map(function(cartItem) {
+                    // Cart item has reference: { productInfo: { productID, quantity } }
+                    const productID = cartItem.productInfo ? cartItem.productInfo.productID : '';
+                    const quantity = cartItem.productInfo ? (cartItem.productInfo.quantity || 1) : 1;
+                    
+                    // Find full product details in product[] array
+                    const product = products.find(function(p) {
+                        return p.productInfo && p.productInfo.productID === productID;
+                    });
+                    
+                    // Extract data from product[] using the correct structure
+                    let name = productID;
+                    let price = 0;
+                    let category = '';
+                    let brand = '';
+                    let image = 'Gemini_Generated_Image_1uzlq31uzlq31uzl.png';
+
+                    if (product) {
+                        category = product.category ? product.category.primaryCategory : '';
+                        brand = (product.productInfo && product.productInfo.brand) || '';
+
+                        // Get details from productDetails (keyed by category lowercase)
+                        if (product.productInfo && product.productInfo.productDetails) {
+                            const categoryKey = category.toLowerCase();
+                            const details = product.productInfo.productDetails[categoryKey];
+                            if (details) {
+                                name = details.name || productID;
+                                if (details.price && details.price.totalPrice) {
+                                    price = details.price.totalPrice.amount || 0;
+                                }
+                                image = details.image || image;
+                                brand = brand || details.brand || '';
+                            }
+                        }
+                    }
+
+                    return {
+                        id: productID,
+                        name: name,
+                        price: price,
+                        category: category,
+                        brand: brand,
+                        image: image,
+                        quantity: quantity
+                    };
+                });
+                this.saveCart();
+                console.log('Cart synced from gridboxLayer:', this.items);
+                console.log('gridboxLayer.product count:', products.length);
+                console.log('gridboxLayer.cart.item count:', window.gridboxLayer.cart.item.length);
+            }
         },
         
         addItem: function(item) {
@@ -183,17 +400,20 @@
         },
         
         removeItem: function(productId) {
-            this.items = this.items.filter(i => i.id !== productId);
-            this.saveCart();
+            // Use gridbox.removeFromCart() API
+            if (window.gridbox && window.gridbox.removeFromCart) {
+                window.gridbox.removeFromCart(productId);
+            }
+            this.syncFromGridboxLayer();
             this.updateCartCount();
         },
         
         updateQuantity: function(productId, quantity) {
-            const item = this.items.find(i => i.id === productId);
-            if (item) {
-                item.quantity = Math.max(1, quantity);
-                this.saveCart();
+            // Use gridbox.updateCartQuantity() API
+            if (window.gridbox && window.gridbox.updateCartQuantity) {
+                window.gridbox.updateCartQuantity(productId, quantity);
             }
+            this.syncFromGridboxLayer();
         },
         
         getSubtotal: function() {
@@ -229,6 +449,9 @@
             
             if (!cartItemsList) return;
             
+            // Sync from gridboxLayer on page load
+            this.syncFromGridboxLayer();
+            
             if (this.items.length === 0) {
                 if (emptyCart) emptyCart.style.display = 'block';
                 if (cartContent) cartContent.style.display = 'none';
@@ -245,17 +468,41 @@
             if (applyPromo) {
                 applyPromo.addEventListener('click', function() {
                     const promoInput = document.getElementById('promo-input');
-                    if (promoInput && promoInput.value.toUpperCase() === 'RF1SAVE10') {
-                        alert('Promo code applied! 10% discount');
+                    const feedback = document.getElementById('promo-feedback');
+                    const code = promoInput ? promoInput.value.trim().toUpperCase() : '';
+                    const codes = { 'RF1SAVE10': 0.10, 'RACE20': 0.20 };
+                    const shippingInput = document.querySelector('input[name="shipping"]:checked');
+                    const shippingPrice = shippingInput ? parseFloat(shippingInput.dataset.price) : 9.99;
+                    const showFeedback = function(msg, ok) {
+                        if (!feedback) return;
+                        feedback.textContent = msg;
+                        feedback.style.display = '';
+                        feedback.style.color = ok ? 'var(--success, #22c55e)' : 'var(--primary-red, #e10600)';
+                    };
+                    if (codes[code]) {
+                        self.discountRate = codes[code];
+                        self.appliedPromo = code;
+                        self.updateCartSummary(shippingPrice);
+                        showFeedback('Promo "' + code + '" applied: ' + (codes[code] * 100) + '% off', true);
                         if (window.racingF1Analytics) {
                             window.racingF1Analytics.linkCallback('cart-promo', {
                                 action: 'click',
                                 label: 'apply-success',
-                                CD: { promo_code: promoInput.value }
+                                CD: { promo_code: code, discount_rate: String(codes[code]) }
                             });
                         }
                     } else {
-                        alert('Invalid promo code');
+                        self.discountRate = 0;
+                        self.appliedPromo = null;
+                        self.updateCartSummary(shippingPrice);
+                        showFeedback('Invalid promo code', false);
+                        if (window.racingF1Analytics) {
+                            window.racingF1Analytics.linkCallback('cart-promo', {
+                                action: 'click',
+                                label: 'apply-failed',
+                                CD: { promo_code: code }
+                            });
+                        }
                     }
                 });
             }
@@ -332,18 +579,30 @@
         
         updateCartSummary: function(shipping) {
             const subtotal = this.getSubtotal();
-            const tax = this.getTax(subtotal);
-            const total = this.getTotal(subtotal, shipping, tax);
-            
+            const discount = subtotal * (this.discountRate || 0);
+            const discountedSubtotal = subtotal - discount;
+            const tax = this.getTax(discountedSubtotal);
+            const total = this.getTotal(discountedSubtotal, shipping, tax);
+
             const subtotalEl = document.getElementById('cart-subtotal');
             const shippingEl = document.getElementById('cart-shipping');
             const taxEl = document.getElementById('cart-tax');
             const totalEl = document.getElementById('cart-total');
-            
+            const discountRow = document.getElementById('cart-discount-row');
+            const discountEl = document.getElementById('cart-discount');
+
             if (subtotalEl) subtotalEl.textContent = '$' + subtotal.toFixed(2);
             if (shippingEl) shippingEl.textContent = '$' + shipping.toFixed(2);
             if (taxEl) taxEl.textContent = '$' + tax.toFixed(2);
             if (totalEl) totalEl.textContent = '$' + total.toFixed(2);
+            if (discountRow && discountEl) {
+                if (discount > 0) {
+                    discountRow.style.display = '';
+                    discountEl.textContent = '-$' + discount.toFixed(2);
+                } else {
+                    discountRow.style.display = 'none';
+                }
+            }
         },
         
         initCheckoutPage: function() {
@@ -372,7 +631,12 @@
             }).join('');
             
             this.updateCheckoutSummary(9.99);
-            
+
+            // Fire BeginCheckout now that the cart is hydrated into the datalayer.
+            if (window.gridbox && window.gridbox.beginCheckout) {
+                window.gridbox.beginCheckout({});
+            }
+
             const shippingInputs = document.querySelectorAll('input[name="shipping"]');
             shippingInputs.forEach(function(input) {
                 input.addEventListener('change', function() {
@@ -439,8 +703,23 @@
             };
             
             localStorage.setItem('rf1_last_order', JSON.stringify(orderData));
-            
-            if (window.racingF1Analytics) {
+
+            // Populate gridboxLayer.transaction and fire the Purchase event.
+            // gridbox.purchase() also clears the datalayer cart.
+            const currentUser = Auth.getCurrentUser();
+            if (window.gridbox && window.gridbox.purchase) {
+                window.gridbox.purchase({
+                    orderId: orderNumber,
+                    total: total,
+                    subtotal: subtotal,
+                    tax: tax,
+                    shipping: shippingPrice,
+                    currency: 'USD',
+                    userId: currentUser ? currentUser.email : '',
+                    userName: currentUser ? (currentUser.firstName + ' ' + currentUser.lastName) : '',
+                    address: orderData.shipping
+                });
+            } else if (window.racingF1Analytics) {
                 window.racingF1Analytics.linkCallback('ecommerce-purchase', {
                     action: 'submit',
                     label: 'order-complete',
@@ -454,10 +733,10 @@
                     }
                 });
             }
-            
+
             localStorage.removeItem(this.storageKey);
             this.items = [];
-            
+
             window.location.href = 'confirmation.html';
         },
         
@@ -587,6 +866,15 @@
                     favoriteTeam: user.favoriteTeam
                 }));
                 
+                if (window.gridbox && window.gridbox.setUser) {
+                    window.gridbox.setUser({
+                        id: user.email,
+                        name: user.firstName + ' ' + user.lastName,
+                        email: user.email,
+                        type: 'registered'
+                    });
+                }
+
                 if (window.racingF1Analytics) {
                     window.racingF1Analytics.linkCallback('login-form', {
                         action: 'submit',
@@ -594,7 +882,7 @@
                         CD: { user_type: 'registered' }
                     });
                 }
-                
+
                 alert('Welcome back, ' + user.firstName + '!');
                 window.location.href = 'index.html';
             });
@@ -669,6 +957,15 @@
                     favoriteTeam: newUser.favoriteTeam
                 }));
                 
+                if (window.gridbox && window.gridbox.setUser) {
+                    window.gridbox.setUser({
+                        id: newUser.email,
+                        name: firstName + ' ' + lastName,
+                        email: newUser.email,
+                        type: 'new'
+                    });
+                }
+
                 if (window.racingF1Analytics) {
                     window.racingF1Analytics.linkCallback('register-form', {
                         action: 'submit',
@@ -679,20 +976,38 @@
                         }
                     });
                 }
-                
+
                 alert('Welcome to Racing F1, ' + firstName + '!');
                 window.location.href = 'index.html';
             });
         },
         
         updateAuthUI: function() {
+            const self = this;
             const user = this.getCurrentUser();
             const accountLinks = document.querySelectorAll('[href="login.html"]');
-            
+
             if (user) {
                 accountLinks.forEach(function(link) {
-                    link.setAttribute('title', 'Logged in as ' + user.firstName);
+                    link.setAttribute('title', 'Logged in as ' + user.firstName + ' — click to log out');
+                    link.setAttribute('data-track', 'header-actions_click_logout');
+                    link.setAttribute('href', '#');
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        self.logout();
+                    });
                 });
+
+                // Re-hydrate the datalayer user on every page so a logged-in
+                // visitor is not reported as a guest after navigation.
+                if (window.gridbox && window.gridbox.setUser) {
+                    window.gridbox.setUser({
+                        id: user.email,
+                        name: (user.firstName || '') + ' ' + (user.lastName || ''),
+                        email: user.email,
+                        type: 'registered'
+                    });
+                }
             }
         },
         
@@ -706,6 +1021,12 @@
         
         logout: function() {
             localStorage.removeItem(this.storageKey);
+            if (window.racingF1Analytics) {
+                window.racingF1Analytics.linkCallback('header-actions', {
+                    action: 'click',
+                    label: 'logout-success'
+                });
+            }
             window.location.href = 'index.html';
         }
     };
@@ -923,6 +1244,356 @@
     };
 
     // =========================================
+    // SHARED OVERLAY STYLES (injected once)
+    // =========================================
+    const OverlayStyles = {
+        injected: false,
+        inject: function() {
+            if (this.injected) return;
+            this.injected = true;
+            const css = `
+            .rf1-overlay { position: fixed; inset: 0; background: rgba(10,10,10,0.85); backdrop-filter: blur(6px); z-index: 9999; display: flex; align-items: flex-start; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .25s ease; }
+            .rf1-overlay.open { opacity: 1; pointer-events: auto; }
+            .rf1-search-box { width: min(680px, 92vw); margin-top: 12vh; }
+            .rf1-search-box input { width: 100%; padding: 18px 22px; font-size: 1.25rem; background: #141414; color: #fff; border: 2px solid #e10600; border-radius: 10px; outline: none; font-family: inherit; }
+            .rf1-search-results { margin-top: 14px; max-height: 50vh; overflow-y: auto; }
+            .rf1-search-result { display: flex; gap: 14px; align-items: center; padding: 12px 14px; background: #141414; border-radius: 8px; margin-bottom: 8px; color: #fff; text-decoration: none; border: 1px solid #222; transition: border-color .2s; }
+            .rf1-search-result:hover { border-color: #e10600; }
+            .rf1-search-result img { width: 52px; height: 52px; object-fit: cover; border-radius: 6px; }
+            .rf1-search-empty { color: #999; padding: 16px; text-align: center; }
+            .rf1-modal { width: min(760px, 94vw); margin-top: 8vh; background: #121212; border: 1px solid #2a2a2a; border-radius: 14px; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; box-shadow: 0 30px 80px rgba(0,0,0,.6); }
+            .rf1-modal-img { background: #1c1c1c; display: flex; align-items: center; justify-content: center; }
+            .rf1-modal-img img { width: 100%; height: 100%; object-fit: cover; }
+            .rf1-modal-body { padding: 28px; color: #fff; }
+            .rf1-modal-brand { color: #e10600; text-transform: uppercase; letter-spacing: 1px; font-size: .8rem; font-weight: 700; }
+            .rf1-modal-name { font-size: 1.6rem; margin: 8px 0 14px; font-family: 'Orbitron', sans-serif; }
+            .rf1-modal-price { font-size: 1.5rem; font-weight: 700; margin-bottom: 22px; }
+            .rf1-modal-actions { display: flex; gap: 12px; }
+            .rf1-modal-close { position: absolute; top: 20px; right: 24px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; line-height: 1; }
+            .rf1-wishlist-panel { position: fixed; top: 0; right: 0; height: 100vh; width: min(380px, 90vw); background: #121212; border-left: 1px solid #2a2a2a; z-index: 10000; transform: translateX(100%); transition: transform .3s ease; color: #fff; display: flex; flex-direction: column; }
+            .rf1-wishlist-panel.open { transform: translateX(0); }
+            .rf1-wishlist-header { padding: 20px; border-bottom: 1px solid #2a2a2a; display: flex; justify-content: space-between; align-items: center; font-family: 'Orbitron', sans-serif; }
+            .rf1-wishlist-items { flex: 1; overflow-y: auto; padding: 12px; }
+            .rf1-wishlist-item { display: flex; gap: 12px; align-items: center; padding: 10px; border-radius: 8px; background: #1a1a1a; margin-bottom: 8px; }
+            .rf1-wishlist-item img { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; }
+            .rf1-wishlist-item .rf1-wl-remove { margin-left: auto; background: none; border: none; color: #e10600; cursor: pointer; font-size: 1.2rem; }
+            .rf1-wishlist-empty { color: #999; text-align: center; padding: 40px 20px; }
+            .rf1-card-actions { position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; gap: 8px; z-index: 3; }
+            .rf1-card-actions .wishlist-btn, .rf1-card-actions .quick-view-btn { width: 36px; height: 36px; border-radius: 50%; border: none; background: rgba(20,20,20,0.85); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background .2s, transform .2s; padding: 0; }
+            .rf1-card-actions .wishlist-btn:hover, .rf1-card-actions .quick-view-btn:hover { background: #e10600; transform: scale(1.08); }
+            .wishlist-btn.active svg { fill: #e10600; stroke: #e10600; }
+            .rf1-wl-badge { position: absolute; top: -6px; right: -6px; background: #e10600; color: #fff; border-radius: 50%; min-width: 16px; height: 16px; font-size: 10px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+            @media (max-width: 600px) { .rf1-modal { grid-template-columns: 1fr; } .rf1-modal-img { max-height: 220px; } }
+            `;
+            const style = document.createElement('style');
+            style.id = 'rf1-overlay-styles';
+            style.textContent = css;
+            document.head.appendChild(style);
+        }
+    };
+
+    // =========================================
+    // PRODUCT SEARCH
+    // =========================================
+    const Search = {
+        init: function() {
+            const btn = document.querySelector('[data-track="header-actions_click_search"]');
+            if (!btn) return;
+            OverlayStyles.inject();
+
+            const overlay = document.createElement('div');
+            overlay.className = 'rf1-overlay';
+            overlay.innerHTML = `
+                <div class="rf1-search-box">
+                    <input type="text" placeholder="Search products..." aria-label="Search products" />
+                    <div class="rf1-search-results"></div>
+                </div>`;
+            document.body.appendChild(overlay);
+
+            const input = overlay.querySelector('input');
+            const results = overlay.querySelector('.rf1-search-results');
+            const self = this;
+
+            const open = function() {
+                overlay.classList.add('open');
+                setTimeout(function() { input.focus(); }, 50);
+                if (window.gridbox) window.gridbox.track('gb_search_open', { CD: { source: 'header' } });
+            };
+            const close = function() { overlay.classList.remove('open'); input.value = ''; results.innerHTML = ''; };
+
+            btn.addEventListener('click', function(e) { e.preventDefault(); open(); });
+            overlay.addEventListener('click', function(e) { if (e.target === overlay) close(); });
+            document.addEventListener('keydown', function(e) { if (e.key === 'Escape') close(); });
+
+            input.addEventListener('input', function() {
+                const q = input.value.trim().toLowerCase();
+                if (!q) { results.innerHTML = ''; return; }
+                const matches = self.getCatalog().filter(function(p) {
+                    return p.name.toLowerCase().indexOf(q) > -1 || p.brand.toLowerCase().indexOf(q) > -1 || p.category.toLowerCase().indexOf(q) > -1;
+                });
+                if (window.gridbox) window.gridbox.track('gb_search_query', { CD: { query: q, results: String(matches.length) } });
+                if (matches.length === 0) { results.innerHTML = '<div class="rf1-search-empty">No products found for "' + q + '"</div>'; return; }
+                results.innerHTML = matches.map(function(p) {
+                    return '<a class="rf1-search-result" href="' + p.href + '">' +
+                        '<img src="' + p.image + '" alt=""><div><div style="font-weight:600">' + p.name + '</div>' +
+                        '<div style="color:#999;font-size:.85rem">' + p.brand + ' &middot; $' + p.price + '</div></div></a>';
+                }).join('');
+            });
+        },
+        // Build a catalog from product cards on the page; fall back to a static list.
+        getCatalog: function() {
+            const cards = document.querySelectorAll('.product-card');
+            if (cards.length > 0) {
+                return Array.prototype.map.call(cards, function(card) {
+                    const btn = card.querySelector('.add-cart-btn');
+                    const brandEl = card.querySelector('.product-brand');
+                    const nameEl = card.querySelector('.product-name');
+                    const priceEl = card.querySelector('.current-price');
+                    const imgEl = card.querySelector('img');
+                    return {
+                        id: btn ? btn.dataset.productId : '',
+                        name: (nameEl ? nameEl.textContent : (btn ? btn.dataset.productName : '')).trim(),
+                        brand: brandEl ? brandEl.textContent.trim() : '',
+                        category: btn ? (btn.dataset.productCategory || '') : '',
+                        price: btn ? btn.dataset.productPrice : (priceEl ? priceEl.textContent.replace('$', '') : ''),
+                        image: imgEl ? imgEl.getAttribute('src') : '',
+                        href: 'merchandise.html'
+                    };
+                });
+            }
+            return [
+                { id: 'RB-JKT-2024', name: '2024 Team Jacket', brand: 'Red Bull Racing', category: 'Apparel', price: '159.99', image: 'Gemini_Generated_Image_1uzlq31uzlq31uzl.png', href: 'merchandise.html' },
+                { id: 'FER-CAP', name: 'Ferrari Team Cap', brand: 'Scuderia Ferrari', category: 'Accessories', price: '49.99', image: 'Gemini_Generated_Image_1uzlq31uzlq31uzl.png', href: 'merchandise.html' }
+            ];
+        }
+    };
+
+    // =========================================
+    // WISHLIST
+    // =========================================
+    const Wishlist = {
+        storageKey: 'rf1_wishlist',
+        items: [],
+        panel: null,
+        init: function() {
+            OverlayStyles.inject();
+            this.load();
+            this.buildPanel();
+            this.bindHeaderButton();
+            this.bindProductButtons();
+            this.updateBadge();
+        },
+        load: function() {
+            try { this.items = JSON.parse(localStorage.getItem(this.storageKey) || '[]'); }
+            catch (e) { this.items = []; }
+        },
+        save: function() { localStorage.setItem(this.storageKey, JSON.stringify(this.items)); },
+        has: function(id) { return this.items.some(function(i) { return i.id === id; }); },
+        toggle: function(product) {
+            const idx = this.items.findIndex(function(i) { return i.id === product.id; });
+            let added;
+            if (idx >= 0) { this.items.splice(idx, 1); added = false; }
+            else { this.items.push(product); added = true; }
+            this.save();
+            this.updateBadge();
+            this.renderPanel();
+            if (window.gridbox) {
+                window.gridbox.track(added ? 'gb_wishlist_add' : 'gb_wishlist_remove', {
+                    CD: { product_id: product.id, product_name: product.name }
+                });
+            }
+            return added;
+        },
+        bindHeaderButton: function() {
+            const btn = document.querySelector('[data-track="header-actions_click_wishlist"]');
+            if (!btn) return;
+            btn.style.position = 'relative';
+            const self = this;
+            btn.addEventListener('click', function(e) { e.preventDefault(); self.openPanel(); });
+        },
+        bindProductButtons: function() {
+            const self = this;
+            document.querySelectorAll('.wishlist-btn').forEach(function(btn) {
+                const card = btn.closest('.product-card');
+                if (!card) return;
+                const cartBtn = card.querySelector('.add-cart-btn');
+                const product = self.productFromCard(card, cartBtn);
+                if (self.has(product.id)) btn.classList.add('active');
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const added = self.toggle(product);
+                    btn.classList.toggle('active', added);
+                });
+            });
+        },
+        productFromCard: function(card, cartBtn) {
+            const brandEl = card.querySelector('.product-brand');
+            const nameEl = card.querySelector('.product-name');
+            const priceEl = card.querySelector('.current-price');
+            const imgEl = card.querySelector('img');
+            return {
+                id: cartBtn ? cartBtn.dataset.productId : (nameEl ? nameEl.textContent.trim() : ''),
+                name: (nameEl ? nameEl.textContent : (cartBtn ? cartBtn.dataset.productName : '')).trim(),
+                brand: brandEl ? brandEl.textContent.trim() : '',
+                price: cartBtn ? cartBtn.dataset.productPrice : (priceEl ? priceEl.textContent.replace('$', '') : ''),
+                category: cartBtn ? (cartBtn.dataset.productCategory || '') : '',
+                image: imgEl ? imgEl.getAttribute('src') : ''
+            };
+        },
+        buildPanel: function() {
+            const panel = document.createElement('div');
+            panel.className = 'rf1-wishlist-panel';
+            panel.innerHTML = `
+                <div class="rf1-wishlist-header"><span>Wishlist</span><button class="rf1-modal-close" style="position:static;font-size:1.6rem">&times;</button></div>
+                <div class="rf1-wishlist-items"></div>`;
+            document.body.appendChild(panel);
+            this.panel = panel;
+            const self = this;
+            panel.querySelector('.rf1-modal-close').addEventListener('click', function() { self.closePanel(); });
+        },
+        openPanel: function() { this.renderPanel(); this.panel.classList.add('open'); },
+        closePanel: function() { this.panel.classList.remove('open'); },
+        renderPanel: function() {
+            if (!this.panel) return;
+            const list = this.panel.querySelector('.rf1-wishlist-items');
+            if (this.items.length === 0) { list.innerHTML = '<div class="rf1-wishlist-empty">Your wishlist is empty.</div>'; return; }
+            const self = this;
+            list.innerHTML = this.items.map(function(p) {
+                return '<div class="rf1-wishlist-item" data-id="' + p.id + '">' +
+                    '<img src="' + p.image + '" alt=""><div><div style="font-weight:600">' + p.name + '</div>' +
+                    '<div style="color:#999;font-size:.85rem">$' + p.price + '</div></div>' +
+                    '<button class="rf1-wl-remove" aria-label="Remove">&times;</button></div>';
+            }).join('');
+            list.querySelectorAll('.rf1-wl-remove').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const id = btn.closest('.rf1-wishlist-item').dataset.id;
+                    const product = self.items.find(function(i) { return i.id === id; });
+                    if (product) self.toggle(product);
+                    document.querySelectorAll('.product-card').forEach(function(card) {
+                        const cartBtn = card.querySelector('.add-cart-btn');
+                        if (cartBtn && cartBtn.dataset.productId === id) {
+                            const wb = card.querySelector('.wishlist-btn');
+                            if (wb) wb.classList.remove('active');
+                        }
+                    });
+                });
+            });
+        },
+        updateBadge: function() {
+            const btn = document.querySelector('[data-track="header-actions_click_wishlist"]');
+            if (!btn) return;
+            let badge = btn.querySelector('.rf1-wl-badge');
+            if (this.items.length === 0) { if (badge) badge.remove(); return; }
+            if (!badge) { badge = document.createElement('span'); badge.className = 'rf1-wl-badge'; btn.appendChild(badge); }
+            badge.textContent = this.items.length;
+        }
+    };
+
+    // =========================================
+    // PRODUCT CARD ENHANCER
+    // Injects wishlist + quick-view trigger buttons into each product card so
+    // the Wishlist and QuickView modules have controls to bind to. Runs before
+    // those modules. Skips cards that already have the buttons (idempotent).
+    // =========================================
+    const ProductCardEnhancer = {
+        init: function() {
+            const cards = document.querySelectorAll('.product-card');
+            cards.forEach(function(card) {
+                const imgWrap = card.querySelector('.product-image') || card;
+                if (imgWrap.querySelector('.rf1-card-actions')) return;
+                const actions = document.createElement('div');
+                actions.className = 'rf1-card-actions';
+                const wl = document.createElement('button');
+                wl.className = 'wishlist-btn';
+                wl.type = 'button';
+                wl.setAttribute('aria-label', 'Add to wishlist');
+                wl.setAttribute('data-track', 'product-actions_click_wishlist');
+                wl.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>';
+                const qv = document.createElement('button');
+                qv.className = 'quick-view-btn';
+                qv.type = 'button';
+                qv.setAttribute('aria-label', 'Quick view');
+                qv.setAttribute('data-track', 'product-actions_click_quick-view');
+                qv.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>';
+                actions.appendChild(wl);
+                actions.appendChild(qv);
+                imgWrap.style.position = imgWrap.style.position || 'relative';
+                imgWrap.appendChild(actions);
+            });
+        }
+    };
+
+    // =========================================
+    // QUICK VIEW
+    // =========================================
+    const QuickView = {
+        modal: null,
+        init: function() {
+            const btns = document.querySelectorAll('.quick-view-btn');
+            if (btns.length === 0) return;
+            OverlayStyles.inject();
+            this.buildModal();
+            const self = this;
+            btns.forEach(function(btn) {
+                const card = btn.closest('.product-card');
+                if (!card) return;
+                btn.addEventListener('click', function(e) { e.preventDefault(); self.open(card); });
+            });
+        },
+        buildModal: function() {
+            const overlay = document.createElement('div');
+            overlay.className = 'rf1-overlay';
+            overlay.innerHTML = `
+                <div class="rf1-modal" style="position:relative">
+                    <button class="rf1-modal-close" aria-label="Close">&times;</button>
+                    <div class="rf1-modal-img"><img src="" alt=""></div>
+                    <div class="rf1-modal-body">
+                        <div class="rf1-modal-brand"></div>
+                        <h3 class="rf1-modal-name"></h3>
+                        <div class="rf1-modal-price"></div>
+                        <div class="rf1-modal-actions">
+                            <button class="btn btn-primary rf1-qv-add">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>`;
+            document.body.appendChild(overlay);
+            this.modal = overlay;
+            const self = this;
+            overlay.querySelector('.rf1-modal-close').addEventListener('click', function() { self.close(); });
+            overlay.addEventListener('click', function(e) { if (e.target === overlay) self.close(); });
+            document.addEventListener('keydown', function(e) { if (e.key === 'Escape') self.close(); });
+        },
+        open: function(card) {
+            const brandEl = card.querySelector('.product-brand');
+            const nameEl = card.querySelector('.product-name');
+            const priceEl = card.querySelector('.current-price');
+            const imgEl = card.querySelector('img');
+            const cartBtn = card.querySelector('.add-cart-btn');
+
+            this.modal.querySelector('.rf1-modal-img img').src = imgEl ? imgEl.getAttribute('src') : '';
+            this.modal.querySelector('.rf1-modal-brand').textContent = brandEl ? brandEl.textContent.trim() : '';
+            this.modal.querySelector('.rf1-modal-name').textContent = nameEl ? nameEl.textContent.trim() : '';
+            this.modal.querySelector('.rf1-modal-price').textContent = priceEl ? priceEl.textContent.trim() : '';
+
+            // Reuse the card's real add-to-cart handler so tracking stays identical.
+            const addBtn = this.modal.querySelector('.rf1-qv-add');
+            const self = this;
+            addBtn.onclick = function() {
+                if (cartBtn) cartBtn.click();
+                self.close();
+            };
+
+            this.modal.classList.add('open');
+            if (window.gridbox && cartBtn) {
+                window.gridbox.track('gb_quick_view', {
+                    CD: { product_id: cartBtn.dataset.productId, product_name: cartBtn.dataset.productName }
+                });
+            }
+        },
+        close: function() { this.modal.classList.remove('open'); }
+    };
+
+    // =========================================
     // INITIALIZE ALL MODULES
     // =========================================
     function init() {
@@ -936,6 +1607,10 @@
         ErrorTracking.init();
         SmoothScroll.init();
         HeaderEffect.init();
+        Search.init();
+        ProductCardEnhancer.init();
+        Wishlist.init();
+        QuickView.init();
         
         console.log('%cRacing F1 App Initialized', 'color: #e10600; font-weight: bold; font-size: 14px;');
         

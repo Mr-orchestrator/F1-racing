@@ -15,8 +15,12 @@
     
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Adobe Experience Platform Launch -->
+    <script>window.adobeDataLayer = window.adobeDataLayer || [];</script>
+    <script src="https://assets.adobedtm.com/236ca7d75265/a5282319db5b/launch-53116e4becf9.min.js" async></script>
+    <!-- End Adobe Experience Platform Launch -->
 </head>
-<body>
+<body data-page-type="home" data-page-category="general">
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5BMV9KLC"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -24,14 +28,16 @@
     
         <script>
         window.gridboxLayer = window.gridboxLayer || {
-            version: "2.11.0",
-            libVersion: "1.0.0",
+            version: "2.12.0",
+            libVersion: "1.1.0",
             event: [],
-            page: { pageInfo: { pageID: "", pageName: "" }, category: { primaryCategory: "" } },
-            user: [{ profile: [{ profileInfo: { OS: "", deviceType: "", userAgent: "", loginStatus: false } }] }],
+            page: { pageInfo: { pageID: "", pageName: "", pageURL: "", referringURL: "", language: "", sysEnv: "" }, category: { primaryCategory: "", pageType: "" } },
+            user: [{ profile: [{ profileInfo: { anonymousId: "", profileID: "", userName: "", email: "", sessionId: "", isNewSession: true, loginStatus: false, deviceType: "desktop", OS: "", browser: "", screenResolution: "", viewportSize: "", touchSupport: false, cookieEnabled: true, doNotTrack: false, isBot: false }, attributes: { userType: "guest", customerTier: "" } }] }],
             product: [],
-            cart: {},
-            transaction: {}
+            cart: { cartInfo: { cartID: "", creationDate: "" }, price: { totalPrice: { currency: "USD", amount: 0 }, priceBreakdown: { tax: { surcharge: { amount: 0, currency: "USD" }, totalTax: { amount: 0, currency: "USD" } } }, pricePerTravellerType: [] }, item: [] },
+            transaction: {},
+            session: {},
+            context: {}
         };
     </script>
 
