@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GridboxLayer Unit Tests</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #00f0ff;
+        }
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        button {
+            background: linear-gradient(135deg, #e10600 0%, #ff6b6b 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        .summary {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+        }
+        .stat {
+            background: #16213e;
+            padding: 20px 40px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+        }
+        .stat-label {
+            color: #888;
+            margin-top: 5px;
+        }
+        .passed .stat-value { color: #39ff14; }
+        .failed .stat-value { color: #ff4444; }
+        .total .stat-value { color: #00f0ff; }
+        
+        #test-output {
+            background: #0f0f23;
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .test-pass {
+            color: #39ff14;
+        }
+        .test-fail {
+            color: #ff4444;
+        }
+        .test-section {
+            color: #00f0ff;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        
+        .data-layer-view {
+            margin-top: 30px;
+        }
+        .data-layer-view h2 {
+            color: #00f0ff;
+            margin-bottom: 15px;
+        }
+        .json-view {
+            background: #0f0f23;
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 400px;
+            overflow: auto;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .tab {
+            background: #16213e;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .tab.active {
+            border-color: #00f0ff;
+            color: #00f0ff;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏎️ GridboxLayer Unit Tests</h1>
+    
+    <div class="controls">
+        <button onclick="runTests()">▶ Run All Tests</button>
+        <button onclick="clearOutput()">🗑 Clear Output</button>
+        <button onclick="viewDataLayer()">📊 View Data Layer</button>
+    </div>
+    
+    <div class="summary" id="summary" style="display: none;">
+        <div class="stat passed">
+            <div class="stat-value" id="passed-count">0</div>
+            <div class="stat-label">Passed</div>
+        </div>
+        <div class="stat failed">
+            <div class="stat-value" id="failed-count">0</div>
+            <div class="stat-label">Failed</div>
+        </div>
+        <div class="stat total">
+            <div class="stat-value" id="total-count">0</div>
+            <div class="stat-label">Total</div>
+        </div>
+    </div>
+    
+    <div id="test-output"></div>
+    
+    <div class="data-layer-view" id="data-layer-section" style="display: none;">
+        <h2>GridboxLayer State</h2>
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('event')">Events</div>
+            <div class="tab" onclick="showTab('product')">Products</div>
+            <div class="tab" onclick="showTab('cart')">Cart</div>
+            <div class="tab" onclick="showTab('user')">User</div>
+            <div class="tab" onclick="showTab('full')">Full Layer</div>
+        </div>
+        <div class="json-view" id="json-view"></div>
+    </div>
+
+    <!-- Load analytics.js first -->
+    <script src="../analytics.js"></script>
+    
+    <!-- Load test file -->
+    <script src="gridbox-layer.test.js"></script>
+    
+    <script>
+        const output = document.getElementById('test-output');
+        
+        // Override console.log for test output
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const msg = args.join(' ');
+            if (msg.includes('--- Test:')) {
+                output.innerHTML += `<div class="test-section">${msg}</div>`;
+            } else if (msg.includes('✓ PASS:')) {
+                output.innerHTML += `<div class="test-pass">${msg}</div>`;
+            } else if (msg.includes('========')) {
+                output.innerHTML += `<div style="color: #888;">${msg}</div>`;
+            } else {
+                output.innerHTML += `<div>${msg}</div>`;
+            }
+            output.scrollTop = output.scrollHeight;
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            const msg = args.join(' ');
+            if (msg.includes('✗ FAIL:')) {
+                output.innerHTML += `<div class="test-fail">${msg}</div>`;
+            } else {
+                output.innerHTML += `<div class="test-fail">${msg}</div>`;
+            }
+            output.scrollTop = output.scrollHeight;
+        };
+        
+        function runTests() {
+            clearOutput();
+            
+            // Reset gridboxLayer for clean test
+            if (window.gridboxLayer) {
+                window.gridboxLayer.event = [];
+                window.gridboxLayer.product = [];
+                window.gridboxLayer.cart.item = [];
+                window.gridboxLayer.cart.cartInfo.cartID = '';
+                window.gridboxLayer.cart.cartInfo.creationDate = '';
+                window.gridboxLayer.cart.price.basePrice = 0;
+                window.gridboxLayer.cart.price.cartTotal = 0;
+                window.gridboxLayer.cart.price.totalPrice.amount = 0;
+            }
+            
+            // Initialize analytics if not already
+            if (window.GridBoxAnalytics && window.GridBoxAnalytics.init) {
+                window.GridBoxAnalytics.init();
+            }
+            
+            // Run tests
+            const results = window.GridboxLayerTests.runAllTests();
+            
+            // Update summary
+            document.getElementById('summary').style.display = 'flex';
+            document.getElementById('passed-count').textContent = results.passed;
+            document.getElementById('failed-count').textContent = results.failed;
+            document.getElementById('total-count').textContent = results.passed + results.failed;
+        }
+        
+        function clearOutput() {
+            output.innerHTML = '';
+            document.getElementById('summary').style.display = 'none';
+        }
+        
+        function viewDataLayer() {
+            document.getElementById('data-layer-section').style.display = 'block';
+            showTab('event');
+        }
+        
+        function showTab(tab) {
+            // Update tab styles
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show data
+            const jsonView = document.getElementById('json-view');
+            let data;
+            
+            switch(tab) {
+                case 'event':
+                    data = window.gridboxLayer.event;
+                    break;
+                case 'product':
+                    data = window.gridboxLayer.product;
+                    break;
+                case 'cart':
+                    data = window.gridboxLayer.cart;
+                    break;
+                case 'user':
+                    data = window.gridboxLayer.user;
+                    break;
+                case 'full':
+                    data = window.gridboxLayer;
+                    break;
+            }
+            
+            jsonView.textContent = JSON.stringify(data, null, 2);
+        }
+    </script>
+</body>
+</html>

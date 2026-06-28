@@ -1,0 +1,78 @@
+{
+  "$schema": "reference-only — recreate in AEP Schema Builder",
+  "title": "F1 - Web ExperienceEvent",
+  "class": "https://ns.adobe.com/xdm/context/experienceevent",
+  "description": "ExperienceEvent schema for F1 Racing Store. Profile-enabled. Tenant namespace shown as _f1racingstore (replace with your org tenant id, e.g. _ageo1xxlon).",
+  "fieldGroups": [
+    "Adobe Experience Platform Web SDK ExperienceEvent",
+    "Commerce Details",
+    "Product List Items",
+    "Consents and Preferences",
+    "Environment Details",
+    "Web Details",
+    "F1 Racing Store - Event Details (custom)"
+  ],
+  "sampleEvent": {
+    "_id": "<uuid>",
+    "timestamp": "2026-06-01T10:00:00.000Z",
+    "eventType": "commerce.order",
+    "identityMap": {
+      "ECID": [{ "id": "<ecid>", "primary": true }],
+      "crmId": [{ "id": "user_123" }],
+      "Email_LC_SHA256": [{ "id": "<sha256-hex>" }]
+    },
+    "web": {
+      "webPageDetails": { "name": "checkout", "URL": "https://racing-f1-rho.vercel.app/checkout", "pageViews": { "value": 1 } },
+      "webInteraction": { "name": "Purchase", "type": "other", "linkClicks": { "value": 1 } }
+    },
+    "commerce": {
+      "purchases": { "value": 1 },
+      "productViews": { "value": 0 },
+      "productListAdds": { "value": 0 },
+      "productListRemovals": { "value": 0 },
+      "checkouts": { "value": 0 },
+      "order": {
+        "purchaseID": "TXN-1001",
+        "priceTotal": 319.98,
+        "currencyCode": "USD",
+        "payments": [{ "paymentType": "credit_card", "currencyCode": "USD", "paymentAmount": 319.98 }]
+      }
+    },
+    "productListItems": [
+      { "SKU": "RB-JKT-2024", "name": "2024 Team Jacket", "quantity": 1, "priceTotal": 159.99, "currencyCode": "USD", "productCategories": [{ "categoryID": "Apparel" }] },
+      { "SKU": "FER-CAP-LC16", "name": "Leclerc Signature Cap", "quantity": 2, "priceTotal": 90.0, "currencyCode": "USD", "productCategories": [{ "categoryID": "Accessories" }] }
+    ],
+    "consents": { "collect": { "val": "y" } },
+    "_f1racingstore": {
+      "eventInfo": { "name": "Purchase completed", "key": "gb_purchase_complete", "category": "Ecommerce" },
+      "race": { "name": "", "location": "", "date": "", "circuit": "" },
+      "ticket": { "type": "", "category": "", "stand": "", "price": 0 },
+      "seat": { "id": "", "row": "", "section": "", "price": 0 },
+      "team": { "name": "" },
+      "driver": { "name": "", "number": "" },
+      "experience": { "name": "", "type": "", "price": 0 },
+      "hospitality": { "package": "", "price": 0 },
+      "promo": { "code": "", "discount": 0 },
+      "search": { "term": "", "results": 0 },
+      "step": { "name": "", "direction": "" }
+    }
+  },
+  "customFieldGroup_f1racingstore": {
+    "_f1racingstore": {
+      "type": "object",
+      "properties": {
+        "eventInfo": { "type": "object", "properties": { "name": {"type":"string"}, "key": {"type":"string"}, "category": {"type":"string"}, "errorType": {"type":"string"}, "errorMessage": {"type":"string"} } },
+        "race": { "type": "object", "properties": { "name": {"type":"string"}, "location": {"type":"string"}, "date": {"type":"string"}, "circuit": {"type":"string"} } },
+        "ticket": { "type": "object", "properties": { "type": {"type":"string"}, "category": {"type":"string"}, "stand": {"type":"string"}, "price": {"type":"number"} } },
+        "seat": { "type": "object", "properties": { "id": {"type":"string"}, "row": {"type":"string"}, "section": {"type":"string"}, "price": {"type":"number"} } },
+        "team": { "type": "object", "properties": { "name": {"type":"string"} } },
+        "driver": { "type": "object", "properties": { "name": {"type":"string"}, "number": {"type":"string"} } },
+        "experience": { "type": "object", "properties": { "name": {"type":"string"}, "type": {"type":"string"}, "price": {"type":"number"} } },
+        "hospitality": { "type": "object", "properties": { "package": {"type":"string"}, "price": {"type":"number"} } },
+        "promo": { "type": "object", "properties": { "code": {"type":"string"}, "discount": {"type":"number"} } },
+        "search": { "type": "object", "properties": { "term": {"type":"string"}, "results": {"type":"integer"} } },
+        "step": { "type": "object", "properties": { "name": {"type":"string"}, "direction": {"type":"string"} } }
+      }
+    }
+  }
+}

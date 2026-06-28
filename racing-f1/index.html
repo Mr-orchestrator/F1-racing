@@ -19,6 +19,20 @@
     <script>window.adobeDataLayer = window.adobeDataLayer || [];</script>
     <script src="https://assets.adobedtm.com/236ca7d75265/a5282319db5b/launch-53116e4becf9.min.js" async></script>
     <!-- End Adobe Experience Platform Launch -->
+        <!-- Free Consent (CookieConsent) — load before Tealium so consent is ready -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3.1.0/dist/cookieconsent.css">
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3.1.0/dist/cookieconsent.umd.js"></script>
+    <script src="cookieconsent-init.js"></script>
+    <!-- End Free Consent -->
+<!-- Tealium Universal Tag -->
+    <script type="text/javascript">
+    (function(a,b,c,d){
+    a='https://tags.tiqcdn.com/utag/cognizant-sandbox/f1racing/qa/utag.js';
+    b=document;c='script';d=b.createElement(c);d.src=a;d.type='text/java'+c;d.async=true;
+    a=b.getElementsByTagName(c)[0];a.parentNode.insertBefore(d,a);
+    })();
+    </script>
+    <!-- End Tealium Universal Tag -->
 </head>
 <body data-page-type="home" data-page-category="general">
     <!-- Google Tag Manager (noscript) -->

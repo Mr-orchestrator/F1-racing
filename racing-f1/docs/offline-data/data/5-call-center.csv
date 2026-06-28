@@ -1,0 +1,344 @@
+eventType,timestamp,callId,customerId,email,channel,callReason,callCategory,agentId,durationSeconds,resolved,satisfactionRating,escalated,followUpRequired
+customerService.interaction,2026-01-28T10:41:01.156Z,CALL-0000000001,CRM-00100004,rf1-w15-s1-vip-4-f768e9@f1traffic.com,whatsapp,Race ticket question,events,AGT-022,401,true,3,false,false
+customerService.interaction,2026-04-12T08:38:22.653Z,CALL-0000000002,CRM-00100006,rf1-w19-s59-vip-6-899f5b@f1traffic.com,email,Order status inquiry,orders,AGT-001,698,false,2,false,true
+customerService.interaction,2026-01-31T16:20:41.358Z,CALL-0000000003,CRM-00100006,rf1-w19-s59-vip-6-899f5b@f1traffic.com,whatsapp,Refund request,returns,AGT-019,175,true,4,false,false
+customerService.interaction,2026-06-01T22:59:27.237Z,CALL-0000000004,CRM-00100006,rf1-w19-s59-vip-6-899f5b@f1traffic.com,whatsapp,Positive feedback,support,AGT-008,748,true,4,false,false
+customerService.interaction,2026-04-06T15:12:22.997Z,CALL-0000000005,CRM-00100007,rf1-w6-s63-vip-7-7c02ee@f1traffic.com,email,Product question,support,AGT-027,939,true,5,false,false
+customerService.interaction,2026-05-30T05:08:21.098Z,CALL-0000000006,CRM-00100007,rf1-w6-s63-vip-7-7c02ee@f1traffic.com,whatsapp,Product question,support,AGT-002,290,true,4,false,false
+customerService.interaction,2025-12-24T13:00:42.298Z,CALL-0000000007,CRM-00100007,rf1-w6-s63-vip-7-7c02ee@f1traffic.com,email,Product question,support,AGT-020,514,true,3,false,false
+customerService.interaction,2026-04-24T18:54:12.968Z,CALL-0000000008,CRM-00100008,rf1-w8-s12-gold-8-e7cd58@f1traffic.com,chat,Race ticket question,events,AGT-019,282,true,5,false,false
+customerService.interaction,2026-01-01T07:43:16.074Z,CALL-0000000009,CRM-00100008,rf1-w8-s12-gold-8-e7cd58@f1traffic.com,whatsapp,Hospitality booking,events,AGT-011,79,true,3,false,false
+customerService.interaction,2026-03-29T13:21:31.653Z,CALL-0000000010,CRM-00100008,rf1-w8-s12-gold-8-e7cd58@f1traffic.com,chat,Return request,returns,AGT-014,267,true,4,false,false
+customerService.interaction,2026-03-14T16:34:14.407Z,CALL-0000000011,CRM-00100008,rf1-w8-s12-gold-8-e7cd58@f1traffic.com,whatsapp,Complaint,support,AGT-023,318,false,2,true,true
+customerService.interaction,2026-06-10T06:08:17.809Z,CALL-0000000012,CRM-00100009,rf1-w3-s15-vip-9-34a4de@f1traffic.com,phone,Positive feedback,support,AGT-002,659,true,5,false,false
+customerService.interaction,2026-04-30T13:13:29.242Z,CALL-0000000013,CRM-00100009,rf1-w3-s15-vip-9-34a4de@f1traffic.com,chat,Return request,returns,AGT-018,310,true,3,false,false
+customerService.interaction,2026-04-23T05:12:50.116Z,CALL-0000000014,CRM-00100013,rf1-w15-s5-gold-13-bd6938@f1traffic.com,email,Race ticket question,events,AGT-015,875,true,3,false,false
+customerService.interaction,2026-02-03T23:46:48.077Z,CALL-0000000015,CRM-00100013,rf1-w15-s5-gold-13-bd6938@f1traffic.com,phone,Shipping question,orders,AGT-013,175,false,2,false,true
+customerService.interaction,2026-01-07T10:09:29.086Z,CALL-0000000016,CRM-00100013,rf1-w15-s5-gold-13-bd6938@f1traffic.com,whatsapp,Complaint,support,AGT-016,675,true,4,false,false
+customerService.interaction,2026-03-25T12:44:57.871Z,CALL-0000000017,CRM-00100013,rf1-w15-s5-gold-13-bd6938@f1traffic.com,phone,Return request,returns,AGT-013,177,true,4,false,false
+customerService.interaction,2026-05-26T03:35:31.339Z,CALL-0000000018,CRM-00100013,rf1-w15-s5-gold-13-bd6938@f1traffic.com,whatsapp,Shipping question,orders,AGT-008,78,true,3,false,false
+customerService.interaction,2026-05-11T15:09:31.077Z,CALL-0000000019,CRM-00100014,rf1-w14-s25-vip-14-3b21c0@f1traffic.com,whatsapp,Order status inquiry,orders,AGT-001,947,true,4,false,false
+customerService.interaction,2026-03-30T05:54:05.248Z,CALL-0000000020,CRM-00100015,rf1-w14-s47-standard-15-be8801@f1traffic.com,email,Product question,support,AGT-018,942,true,5,false,false
+customerService.interaction,2026-05-02T01:07:24.964Z,CALL-0000000021,CRM-00100015,rf1-w14-s47-standard-15-be8801@f1traffic.com,email,Shipping question,orders,AGT-002,317,true,5,false,false
+customerService.interaction,2026-04-29T13:11:18.512Z,CALL-0000000022,CRM-00100015,rf1-w14-s47-standard-15-be8801@f1traffic.com,chat,Positive feedback,support,AGT-005,282,true,3,false,false
+customerService.interaction,2026-01-04T23:49:40.899Z,CALL-0000000023,CRM-00100015,rf1-w14-s47-standard-15-be8801@f1traffic.com,chat,Return request,returns,AGT-027,84,true,3,false,false
+customerService.interaction,2026-03-12T03:22:47.842Z,CALL-0000000024,CRM-00100015,rf1-w14-s47-standard-15-be8801@f1traffic.com,email,Product question,support,AGT-010,495,true,3,false,false
+customerService.interaction,2026-01-27T09:41:46.614Z,CALL-0000000025,CRM-00100016,rf1-w14-s58-standard-16-73fdf7@f1traffic.com,phone,Positive feedback,support,AGT-001,275,true,3,false,false
+customerService.interaction,2026-04-29T13:13:26.472Z,CALL-0000000026,CRM-00100016,rf1-w14-s58-standard-16-73fdf7@f1traffic.com,chat,Loyalty inquiry,loyalty,AGT-028,536,true,5,false,false
+customerService.interaction,2026-02-24T09:48:27.776Z,CALL-0000000027,CRM-00100016,rf1-w14-s58-standard-16-73fdf7@f1traffic.com,phone,Order status inquiry,orders,AGT-010,439,true,4,false,false
+customerService.interaction,2026-03-27T03:23:59.112Z,CALL-0000000028,CRM-00100018,rf1-w18-s57-gold-18-def170@f1traffic.com,chat,Positive feedback,support,AGT-023,369,true,5,false,false
+customerService.interaction,2026-01-28T15:34:29.851Z,CALL-0000000029,CRM-00100019,rf1-w9-s69-gold-19-25aaf6@f1traffic.com,email,Product question,support,AGT-024,711,true,3,false,false
+customerService.interaction,2026-02-24T11:31:02.497Z,CALL-0000000030,CRM-00100019,rf1-w9-s69-gold-19-25aaf6@f1traffic.com,whatsapp,Return request,returns,AGT-026,603,true,3,false,false
+customerService.interaction,2026-02-17T11:39:25.386Z,CALL-0000000031,CRM-00100020,rf1-w1-s48-vip-20-0e5946@f1traffic.com,phone,Product question,support,AGT-021,541,true,5,false,false
+customerService.interaction,2026-02-12T11:17:01.011Z,CALL-0000000032,CRM-00100023,rf1-w15-s49-gold-23-475cfc@f1traffic.com,chat,Refund request,returns,AGT-021,636,true,4,false,false
+customerService.interaction,2026-02-12T15:49:55.771Z,CALL-0000000033,CRM-00100024,rf1-w14-s70-gold-24-26a904@f1traffic.com,chat,Order status inquiry,orders,AGT-014,424,true,4,false,false
+customerService.interaction,2026-01-29T22:33:48.145Z,CALL-0000000034,CRM-00100024,rf1-w14-s70-gold-24-26a904@f1traffic.com,chat,Refund request,returns,AGT-029,139,false,1,false,true
+customerService.interaction,2026-01-25T11:00:37.607Z,CALL-0000000035,CRM-00100026,rf1-w3-s41-standard-26-4c0321@f1traffic.com,chat,Product question,support,AGT-007,500,true,3,false,false
+customerService.interaction,2026-04-16T11:55:08.178Z,CALL-0000000036,CRM-00100026,rf1-w3-s41-standard-26-4c0321@f1traffic.com,email,Refund request,returns,AGT-004,680,true,3,false,false
+customerService.interaction,2026-01-23T05:34:28.319Z,CALL-0000000037,CRM-00100026,rf1-w3-s41-standard-26-4c0321@f1traffic.com,email,Shipping question,orders,AGT-003,572,true,5,false,false
+customerService.interaction,2025-12-16T22:51:09.412Z,CALL-0000000038,CRM-00100026,rf1-w3-s41-standard-26-4c0321@f1traffic.com,chat,Race ticket question,events,AGT-005,819,true,3,false,false
+customerService.interaction,2026-05-13T13:20:08.115Z,CALL-0000000039,CRM-00100027,rf1-w17-s34-silver-27-7f7b09@f1traffic.com,chat,Shipping question,orders,AGT-027,345,true,5,false,false
+customerService.interaction,2026-01-24T22:43:10.202Z,CALL-0000000040,CRM-00100027,rf1-w17-s34-silver-27-7f7b09@f1traffic.com,email,Positive feedback,support,AGT-027,878,true,3,false,false
+customerService.interaction,2026-03-25T11:39:57.454Z,CALL-0000000041,CRM-00100027,rf1-w17-s34-silver-27-7f7b09@f1traffic.com,chat,Product question,support,AGT-001,97,false,1,true,true
+customerService.interaction,2026-03-15T18:56:51.680Z,CALL-0000000042,CRM-00100029,rf1-w2-s26-gold-29-cee7a2@f1traffic.com,chat,Hospitality booking,events,AGT-012,926,true,3,false,false
+customerService.interaction,2026-01-16T09:39:06.922Z,CALL-0000000043,CRM-00100030,rf1-w5-s46-vip-30-4d913e@f1traffic.com,email,Return request,returns,AGT-007,895,true,5,false,false
+customerService.interaction,2026-05-23T18:53:28.432Z,CALL-0000000044,CRM-00100030,rf1-w5-s46-vip-30-4d913e@f1traffic.com,chat,Shipping question,orders,AGT-005,378,true,4,false,false
+customerService.interaction,2025-12-29T08:01:31.306Z,CALL-0000000045,CRM-00100031,rf1-w14-s56-standard-31-b9eb16@f1traffic.com,phone,Race ticket question,events,AGT-015,440,true,3,false,false
+customerService.interaction,2026-06-01T06:13:43.822Z,CALL-0000000046,CRM-00100031,rf1-w14-s56-standard-31-b9eb16@f1traffic.com,chat,Race ticket question,events,AGT-025,953,false,2,false,true
+customerService.interaction,2026-04-19T07:37:47.184Z,CALL-0000000047,CRM-00100031,rf1-w14-s56-standard-31-b9eb16@f1traffic.com,chat,Loyalty inquiry,loyalty,AGT-019,404,true,3,false,false
+customerService.interaction,2026-05-27T21:43:53.073Z,CALL-0000000048,CRM-00100033,rf1-w0-s73-gold-33-e7eee4@f1traffic.com,phone,Account issue,support,AGT-001,78,true,5,false,false
+customerService.interaction,2026-01-19T07:49:03.693Z,CALL-0000000049,CRM-00100033,rf1-w0-s73-gold-33-e7eee4@f1traffic.com,whatsapp,Product question,support,AGT-028,628,true,3,false,false
+customerService.interaction,2026-01-02T21:42:11.197Z,CALL-0000000050,CRM-00100033,rf1-w0-s73-gold-33-e7eee4@f1traffic.com,whatsapp,Return request,returns,AGT-001,762,true,5,false,false
+customerService.interaction,2026-01-12T09:31:19.068Z,CALL-0000000051,CRM-00100033,rf1-w0-s73-gold-33-e7eee4@f1traffic.com,whatsapp,Promotion question,support,AGT-025,176,true,3,false,false
+customerService.interaction,2026-05-13T00:45:56.151Z,CALL-0000000052,CRM-00100034,rf1-w15-s20-silver-34-6a6e9e@f1traffic.com,whatsapp,Race ticket question,events,AGT-014,833,true,4,false,false
+customerService.interaction,2026-04-13T14:38:10.635Z,CALL-0000000053,CRM-00100034,rf1-w15-s20-silver-34-6a6e9e@f1traffic.com,phone,Positive feedback,support,AGT-008,305,true,3,false,false
+customerService.interaction,2026-01-28T08:05:17.109Z,CALL-0000000054,CRM-00100034,rf1-w15-s20-silver-34-6a6e9e@f1traffic.com,email,Return request,returns,AGT-001,484,true,5,false,false
+customerService.interaction,2026-06-05T04:59:09.836Z,CALL-0000000055,CRM-00100034,rf1-w15-s20-silver-34-6a6e9e@f1traffic.com,email,Shipping question,orders,AGT-019,178,true,4,false,false
+customerService.interaction,2026-04-26T19:06:33.170Z,CALL-0000000056,CRM-00100035,rf1-w15-s49-standard-35-6d7f02@f1traffic.com,chat,Hospitality booking,events,AGT-005,234,true,5,false,false
+customerService.interaction,2026-02-26T14:45:28.827Z,CALL-0000000057,CRM-00100035,rf1-w15-s49-standard-35-6d7f02@f1traffic.com,whatsapp,Race ticket question,events,AGT-028,652,true,3,false,false
+customerService.interaction,2026-06-02T09:33:34.023Z,CALL-0000000058,CRM-00100036,rf1-w14-s24-silver-36-9db543@f1traffic.com,phone,Return request,returns,AGT-029,726,false,1,true,true
+customerService.interaction,2026-04-09T23:48:14.708Z,CALL-0000000059,CRM-00100036,rf1-w14-s24-silver-36-9db543@f1traffic.com,chat,Loyalty inquiry,loyalty,AGT-020,411,true,3,false,false
+customerService.interaction,2026-03-20T12:40:25.994Z,CALL-0000000060,CRM-00100039,rf1-w12-s15-standard-39-32de87@f1traffic.com,email,Loyalty inquiry,loyalty,AGT-027,178,true,5,false,false
+customerService.interaction,2025-12-29T00:01:35.432Z,CALL-0000000061,CRM-00100039,rf1-w12-s15-standard-39-32de87@f1traffic.com,phone,Order status inquiry,orders,AGT-005,246,true,5,false,false
+customerService.interaction,2026-04-17T22:52:57.566Z,CALL-0000000062,CRM-00100039,rf1-w12-s15-standard-39-32de87@f1traffic.com,whatsapp,Order status inquiry,orders,AGT-001,844,true,4,false,false
+customerService.interaction,2025-12-30T16:43:21.493Z,CALL-0000000063,CRM-00100039,rf1-w12-s15-standard-39-32de87@f1traffic.com,email,Race ticket question,events,AGT-029,457,true,3,false,false
+customerService.interaction,2026-03-04T23:11:54.765Z,CALL-0000000064,CRM-00100039,rf1-w12-s15-standard-39-32de87@f1traffic.com,phone,Return request,returns,AGT-025,457,true,3,false,false
+customerService.interaction,2026-02-19T15:51:18.913Z,CALL-0000000065,CRM-00100040,rf1-w10-s15-standard-40-326b80@f1traffic.com,chat,Product question,support,AGT-025,152,true,5,false,false
+customerService.interaction,2026-04-10T14:17:26.860Z,CALL-0000000066,CRM-00100040,rf1-w10-s15-standard-40-326b80@f1traffic.com,email,Complaint,support,AGT-019,655,true,4,false,false
+customerService.interaction,2026-03-14T03:47:19.710Z,CALL-0000000067,CRM-00100041,rf1-w14-s58-standard-41-f4ae98@f1traffic.com,phone,Return request,returns,AGT-023,787,true,4,false,false
+customerService.interaction,2026-01-19T10:05:52.475Z,CALL-0000000068,CRM-00100041,rf1-w14-s58-standard-41-f4ae98@f1traffic.com,phone,Shipping question,orders,AGT-020,754,true,5,false,false
+customerService.interaction,2026-06-05T18:40:14.699Z,CALL-0000000069,CRM-00100041,rf1-w14-s58-standard-41-f4ae98@f1traffic.com,chat,Order status inquiry,orders,AGT-019,735,true,5,false,false
+customerService.interaction,2026-06-06T07:09:42.156Z,CALL-0000000070,CRM-00100042,rf1-w19-s10-silver-42-368e09@f1traffic.com,phone,Complaint,support,AGT-001,279,true,4,false,false
+customerService.interaction,2026-03-30T16:32:56.441Z,CALL-0000000071,CRM-00100043,rf1-w7-s38-silver-43-80afeb@f1traffic.com,email,Refund request,returns,AGT-015,804,true,4,false,false
+customerService.interaction,2026-02-11T13:54:17.770Z,CALL-0000000072,CRM-00100043,rf1-w7-s38-silver-43-80afeb@f1traffic.com,email,Account issue,support,AGT-011,354,true,3,false,false
+customerService.interaction,2026-03-12T11:27:32.347Z,CALL-0000000073,CRM-00100043,rf1-w7-s38-silver-43-80afeb@f1traffic.com,whatsapp,Product question,support,AGT-014,94,true,5,false,false
+customerService.interaction,2026-02-12T19:50:21.643Z,CALL-0000000074,CRM-00100043,rf1-w7-s38-silver-43-80afeb@f1traffic.com,whatsapp,Order status inquiry,orders,AGT-004,100,true,5,false,false
+customerService.interaction,2026-03-06T18:28:13.452Z,CALL-0000000075,CRM-00100046,rf1-w19-s40-gold-46-6698bf@f1traffic.com,chat,Return request,returns,AGT-018,167,true,5,false,false
+customerService.interaction,2026-06-10T08:41:50.789Z,CALL-0000000076,CRM-00100046,rf1-w19-s40-gold-46-6698bf@f1traffic.com,email,Account issue,support,AGT-017,579,false,1,true,true
+customerService.interaction,2026-01-18T18:18:57.259Z,CALL-0000000077,CRM-00100046,rf1-w19-s40-gold-46-6698bf@f1traffic.com,chat,Race ticket question,events,AGT-021,415,true,4,false,false
+customerService.interaction,2026-01-20T20:17:04.954Z,CALL-0000000078,CRM-00100046,rf1-w19-s40-gold-46-6698bf@f1traffic.com,email,Complaint,support,AGT-005,804,true,4,false,false
+customerService.interaction,2026-05-30T23:03:10.418Z,CALL-0000000079,CRM-00100046,rf1-w19-s40-gold-46-6698bf@f1traffic.com,email,Refund request,returns,AGT-003,425,true,3,false,false
+customerService.interaction,2026-02-20T22:36:30.574Z,CALL-0000000080,CRM-00100047,rf1-w0-s20-standard-47-ac90b5@f1traffic.com,whatsapp,Race ticket question,events,AGT-002,145,true,5,false,false
+customerService.interaction,2026-03-01T10:23:17.957Z,CALL-0000000081,CRM-00100047,rf1-w0-s20-standard-47-ac90b5@f1traffic.com,whatsapp,Race ticket question,events,AGT-004,595,true,3,false,false
+customerService.interaction,2026-02-19T09:27:26.006Z,CALL-0000000082,CRM-00100047,rf1-w0-s20-standard-47-ac90b5@f1traffic.com,email,Product question,support,AGT-011,92,true,5,false,false
+customerService.interaction,2026-01-21T05:19:11.078Z,CALL-0000000083,CRM-00100048,rf1-w11-s30-vip-48-fb8aa3@f1traffic.com,chat,Hospitality booking,events,AGT-030,112,true,5,false,false
+customerService.interaction,2026-05-27T11:43:51.100Z,CALL-0000000084,CRM-00100048,rf1-w11-s30-vip-48-fb8aa3@f1traffic.com,email,Account issue,support,AGT-005,686,true,5,false,false
+customerService.interaction,2026-02-16T23:04:08.643Z,CALL-0000000085,CRM-00100049,rf1-w13-s3-vip-49-5dbdf5@f1traffic.com,phone,Order status inquiry,orders,AGT-019,274,true,5,false,false
+customerService.interaction,2026-05-28T16:00:14.468Z,CALL-0000000086,CRM-00100049,rf1-w13-s3-vip-49-5dbdf5@f1traffic.com,phone,Positive feedback,support,AGT-009,449,true,5,false,false
+customerService.interaction,2026-03-19T14:07:10.505Z,CALL-0000000087,CRM-00100049,rf1-w13-s3-vip-49-5dbdf5@f1traffic.com,chat,Product question,support,AGT-013,150,true,3,false,false
+customerService.interaction,2026-01-29T21:15:31.903Z,CALL-0000000088,CRM-00100049,rf1-w13-s3-vip-49-5dbdf5@f1traffic.com,whatsapp,Account issue,support,AGT-011,481,true,3,false,false
+customerService.interaction,2026-05-03T02:42:37.846Z,CALL-0000000089,CRM-00100052,rf1-w2-s42-gold-52-4321fa@f1traffic.com,chat,Shipping question,orders,AGT-004,534,true,3,false,false
+customerService.interaction,2026-03-23T23:12:45.794Z,CALL-0000000090,CRM-00100052,rf1-w2-s42-gold-52-4321fa@f1traffic.com,whatsapp,Return request,returns,AGT-014,730,true,3,false,false
+customerService.interaction,2026-01-24T05:30:46.203Z,CALL-0000000091,CRM-00100053,rf1-w6-s13-silver-53-805afa@f1traffic.com,whatsapp,Account issue,support,AGT-024,698,true,5,false,false
+customerService.interaction,2026-03-09T14:39:24.664Z,CALL-0000000092,CRM-00100053,rf1-w6-s13-silver-53-805afa@f1traffic.com,phone,Product question,support,AGT-025,143,true,4,false,false
+customerService.interaction,2026-05-30T08:33:20.548Z,CALL-0000000093,CRM-00100053,rf1-w6-s13-silver-53-805afa@f1traffic.com,email,Return request,returns,AGT-013,508,true,5,false,false
+customerService.interaction,2026-01-02T13:11:08.990Z,CALL-0000000094,CRM-00100053,rf1-w6-s13-silver-53-805afa@f1traffic.com,email,Refund request,returns,AGT-006,926,true,5,false,false
+customerService.interaction,2026-04-16T17:41:39.373Z,CALL-0000000095,CRM-00100054,rf1-w15-s22-gold-54-8554a8@f1traffic.com,chat,Positive feedback,support,AGT-001,559,true,5,false,false
+customerService.interaction,2026-04-27T04:54:51.053Z,CALL-0000000096,CRM-00100054,rf1-w15-s22-gold-54-8554a8@f1traffic.com,whatsapp,Promotion question,support,AGT-009,841,true,4,false,false
+customerService.interaction,2026-02-12T14:16:02.703Z,CALL-0000000097,CRM-00100059,rf1-w15-s54-vip-59-180e39@f1traffic.com,chat,Refund request,returns,AGT-008,668,false,1,false,true
+customerService.interaction,2026-01-31T11:13:23.771Z,CALL-0000000098,CRM-00100060,rf1-w8-s69-silver-60-eac0e4@f1traffic.com,whatsapp,Promotion question,support,AGT-019,789,false,2,false,true
+customerService.interaction,2026-05-24T06:08:24.630Z,CALL-0000000099,CRM-00100060,rf1-w8-s69-silver-60-eac0e4@f1traffic.com,chat,Product question,support,AGT-014,596,true,4,false,false
+customerService.interaction,2025-12-19T15:38:40.604Z,CALL-0000000100,CRM-00100060,rf1-w8-s69-silver-60-eac0e4@f1traffic.com,whatsapp,Complaint,support,AGT-015,897,true,4,false,false
+customerService.interaction,2026-06-06T05:17:37.346Z,CALL-0000000101,CRM-00100060,rf1-w8-s69-silver-60-eac0e4@f1traffic.com,chat,Product question,support,AGT-011,459,true,5,false,false
+customerService.interaction,2026-04-02T08:32:30.027Z,CALL-0000000102,CRM-00100060,rf1-w8-s69-silver-60-eac0e4@f1traffic.com,whatsapp,Product question,support,AGT-029,275,true,4,false,false
+customerService.interaction,2026-05-06T15:09:44.832Z,CALL-0000000103,CRM-00100061,rf1-w6-s67-silver-61-c47d4b@f1traffic.com,email,Product question,support,AGT-012,163,true,5,false,false
+customerService.interaction,2026-03-05T01:53:54.191Z,CALL-0000000104,CRM-00100061,rf1-w6-s67-silver-61-c47d4b@f1traffic.com,phone,Return request,returns,AGT-017,840,true,4,false,false
+customerService.interaction,2026-01-31T01:44:14.724Z,CALL-0000000105,CRM-00100061,rf1-w6-s67-silver-61-c47d4b@f1traffic.com,whatsapp,Race ticket question,events,AGT-007,563,true,5,false,false
+customerService.interaction,2026-05-06T17:18:49.761Z,CALL-0000000106,CRM-00100061,rf1-w6-s67-silver-61-c47d4b@f1traffic.com,whatsapp,Positive feedback,support,AGT-006,663,true,5,false,false
+customerService.interaction,2026-04-16T18:45:39.995Z,CALL-0000000107,CRM-00100061,rf1-w6-s67-silver-61-c47d4b@f1traffic.com,email,Hospitality booking,events,AGT-029,107,true,4,false,false
+customerService.interaction,2026-01-14T16:26:36.368Z,CALL-0000000108,CRM-00100062,rf1-w3-s44-gold-62-8061b4@f1traffic.com,phone,Positive feedback,support,AGT-011,454,true,5,false,false
+customerService.interaction,2026-01-07T20:27:11.195Z,CALL-0000000109,CRM-00100062,rf1-w3-s44-gold-62-8061b4@f1traffic.com,whatsapp,Shipping question,orders,AGT-017,853,true,3,false,false
+customerService.interaction,2026-01-23T13:01:02.295Z,CALL-0000000110,CRM-00100062,rf1-w3-s44-gold-62-8061b4@f1traffic.com,email,Promotion question,support,AGT-006,115,true,3,false,false
+customerService.interaction,2026-06-07T17:22:22.779Z,CALL-0000000111,CRM-00100063,rf1-w1-s62-gold-63-6d409d@f1traffic.com,chat,Hospitality booking,events,AGT-012,810,true,4,false,false
+customerService.interaction,2026-01-28T14:53:51.049Z,CALL-0000000112,CRM-00100063,rf1-w1-s62-gold-63-6d409d@f1traffic.com,email,Product question,support,AGT-005,471,true,4,false,false
+customerService.interaction,2026-02-22T12:49:42.742Z,CALL-0000000113,CRM-00100063,rf1-w1-s62-gold-63-6d409d@f1traffic.com,email,Refund request,returns,AGT-007,130,true,4,false,false
+customerService.interaction,2026-02-03T00:43:35.075Z,CALL-0000000114,CRM-00100063,rf1-w1-s62-gold-63-6d409d@f1traffic.com,chat,Promotion question,support,AGT-022,768,true,5,false,false
+customerService.interaction,2026-05-10T18:37:07.670Z,CALL-0000000115,CRM-00100064,rf1-w2-s18-standard-64-c662a5@f1traffic.com,phone,Account issue,support,AGT-029,595,true,3,false,false
+customerService.interaction,2026-02-16T09:40:33.050Z,CALL-0000000116,CRM-00100067,rf1-w6-s48-silver-67-364c6b@f1traffic.com,whatsapp,Account issue,support,AGT-022,74,false,1,true,true
+customerService.interaction,2026-01-14T03:19:23.169Z,CALL-0000000117,CRM-00100067,rf1-w6-s48-silver-67-364c6b@f1traffic.com,whatsapp,Complaint,support,AGT-002,720,true,5,false,false
+customerService.interaction,2026-04-11T06:44:29.023Z,CALL-0000000118,CRM-00100067,rf1-w6-s48-silver-67-364c6b@f1traffic.com,email,Account issue,support,AGT-023,604,true,5,false,false
+customerService.interaction,2026-01-25T08:03:15.751Z,CALL-0000000119,CRM-00100069,rf1-w6-s52-gold-69-0b548d@f1traffic.com,chat,Hospitality booking,events,AGT-028,665,true,3,false,false
+customerService.interaction,2025-12-30T12:08:09.733Z,CALL-0000000120,CRM-00100072,rf1-w18-s24-vip-72-fa77ab@f1traffic.com,email,Shipping question,orders,AGT-027,845,true,5,false,false
+customerService.interaction,2026-04-13T12:49:45.070Z,CALL-0000000121,CRM-00100072,rf1-w18-s24-vip-72-fa77ab@f1traffic.com,whatsapp,Account issue,support,AGT-007,293,false,2,true,true
+customerService.interaction,2026-04-16T16:13:22.134Z,CALL-0000000122,CRM-00100072,rf1-w18-s24-vip-72-fa77ab@f1traffic.com,phone,Refund request,returns,AGT-026,817,true,4,false,false
+customerService.interaction,2026-04-09T09:42:38.743Z,CALL-0000000123,CRM-00100072,rf1-w18-s24-vip-72-fa77ab@f1traffic.com,phone,Return request,returns,AGT-027,795,true,3,false,false
+customerService.interaction,2026-02-05T02:19:23.958Z,CALL-0000000124,CRM-00100073,rf1-w4-s32-gold-73-785d75@f1traffic.com,whatsapp,Promotion question,support,AGT-028,68,true,4,false,false
+customerService.interaction,2026-02-23T08:13:20.687Z,CALL-0000000125,CRM-00100073,rf1-w4-s32-gold-73-785d75@f1traffic.com,email,Positive feedback,support,AGT-014,199,false,2,true,true
+customerService.interaction,2026-06-04T02:36:08.027Z,CALL-0000000126,CRM-00100073,rf1-w4-s32-gold-73-785d75@f1traffic.com,phone,Positive feedback,support,AGT-015,290,true,4,false,false
+customerService.interaction,2026-04-25T17:07:12.880Z,CALL-0000000127,CRM-00100073,rf1-w4-s32-gold-73-785d75@f1traffic.com,email,Positive feedback,support,AGT-019,149,true,4,false,false
+customerService.interaction,2026-01-21T21:55:14.126Z,CALL-0000000128,CRM-00100075,rf1-w17-s42-silver-75-7d189b@f1traffic.com,whatsapp,Product question,support,AGT-011,726,true,3,false,false
+customerService.interaction,2026-05-28T11:49:29.443Z,CALL-0000000129,CRM-00100075,rf1-w17-s42-silver-75-7d189b@f1traffic.com,chat,Return request,returns,AGT-016,493,true,4,false,false
+customerService.interaction,2026-02-08T03:16:48.048Z,CALL-0000000130,CRM-00100075,rf1-w17-s42-silver-75-7d189b@f1traffic.com,chat,Return request,returns,AGT-010,780,true,3,false,false
+customerService.interaction,2026-04-28T16:59:43.697Z,CALL-0000000131,CRM-00100075,rf1-w17-s42-silver-75-7d189b@f1traffic.com,phone,Return request,returns,AGT-026,636,true,3,false,false
+customerService.interaction,2026-01-05T18:53:23.402Z,CALL-0000000132,CRM-00100075,rf1-w17-s42-silver-75-7d189b@f1traffic.com,whatsapp,Product question,support,AGT-023,641,false,1,false,true
+customerService.interaction,2026-05-20T02:38:05.645Z,CALL-0000000133,CRM-00100077,rf1-w6-s31-standard-77-d6d460@f1traffic.com,phone,Return request,returns,AGT-005,871,false,1,false,true
+customerService.interaction,2026-05-19T09:45:50.244Z,CALL-0000000134,CRM-00100077,rf1-w6-s31-standard-77-d6d460@f1traffic.com,whatsapp,Positive feedback,support,AGT-011,501,true,5,false,false
+customerService.interaction,2026-05-01T16:24:00.976Z,CALL-0000000135,CRM-00100077,rf1-w6-s31-standard-77-d6d460@f1traffic.com,whatsapp,Shipping question,orders,AGT-013,349,true,5,false,false
+customerService.interaction,2025-12-18T18:51:56.009Z,CALL-0000000136,CRM-00100078,rf1-w1-s55-gold-78-997925@f1traffic.com,email,Loyalty inquiry,loyalty,AGT-015,233,true,4,false,false
+customerService.interaction,2026-01-01T16:12:09.844Z,CALL-0000000137,CRM-00100079,rf1-w13-s23-vip-79-dd9bc0@f1traffic.com,email,Return request,returns,AGT-020,214,true,5,false,false
+customerService.interaction,2026-01-21T04:10:56.475Z,CALL-0000000138,CRM-00100080,rf1-w4-s45-vip-80-cb662e@f1traffic.com,chat,Race ticket question,events,AGT-026,885,true,5,false,false
+customerService.interaction,2026-03-15T01:40:36.082Z,CALL-0000000139,CRM-00100081,rf1-w19-s13-vip-81-265666@f1traffic.com,phone,Promotion question,support,AGT-008,232,true,5,false,false
+customerService.interaction,2026-05-30T20:11:49.084Z,CALL-0000000140,CRM-00100081,rf1-w19-s13-vip-81-265666@f1traffic.com,phone,Loyalty inquiry,loyalty,AGT-015,868,true,4,false,false
+customerService.interaction,2026-02-12T01:07:36.365Z,CALL-0000000141,CRM-00100081,rf1-w19-s13-vip-81-265666@f1traffic.com,email,Loyalty inquiry,loyalty,AGT-012,212,true,4,false,false
+customerService.interaction,2026-01-05T17:07:57.080Z,CALL-0000000142,CRM-00100083,rf1-w6-s26-vip-83-cae64e@f1traffic.com,whatsapp,Promotion question,support,AGT-025,199,true,4,false,false
+customerService.interaction,2025-12-26T21:47:36.728Z,CALL-0000000143,CRM-00100083,rf1-w6-s26-vip-83-cae64e@f1traffic.com,email,Race ticket question,events,AGT-004,949,true,5,false,false
+customerService.interaction,2026-06-02T11:05:07.398Z,CALL-0000000144,CRM-00100083,rf1-w6-s26-vip-83-cae64e@f1traffic.com,email,Refund request,returns,AGT-012,836,true,5,false,false
+customerService.interaction,2025-12-25T08:16:31.325Z,CALL-0000000145,CRM-00100083,rf1-w6-s26-vip-83-cae64e@f1traffic.com,email,Complaint,support,AGT-016,510,true,5,false,false
+customerService.interaction,2026-02-02T09:01:59.342Z,CALL-0000000146,CRM-00100083,rf1-w6-s26-vip-83-cae64e@f1traffic.com,email,Refund request,returns,AGT-016,846,false,2,true,true
+customerService.interaction,2026-04-15T06:24:27.870Z,CALL-0000000147,CRM-00100084,rf1-w18-s14-standard-84-f889fd@f1traffic.com,whatsapp,Account issue,support,AGT-002,678,true,4,false,false
+customerService.interaction,2026-04-19T03:15:15.263Z,CALL-0000000148,CRM-00100084,rf1-w18-s14-standard-84-f889fd@f1traffic.com,chat,Product question,support,AGT-023,508,true,4,false,false
+customerService.interaction,2026-03-05T12:39:34.150Z,CALL-0000000149,CRM-00100084,rf1-w18-s14-standard-84-f889fd@f1traffic.com,phone,Account issue,support,AGT-020,289,false,2,false,true
+customerService.interaction,2025-12-26T22:19:13.664Z,CALL-0000000150,CRM-00100086,rf1-w18-s2-silver-86-98be03@f1traffic.com,whatsapp,Order status inquiry,orders,AGT-020,686,true,4,false,false
+customerService.interaction,2026-02-22T19:56:21.603Z,CALL-0000000151,CRM-00100086,rf1-w18-s2-silver-86-98be03@f1traffic.com,whatsapp,Race ticket question,events,AGT-018,350,true,4,false,false
+customerService.interaction,2026-03-06T22:33:03.083Z,CALL-0000000152,CRM-00100088,rf1-w5-s13-silver-88-718567@f1traffic.com,email,Promotion question,support,AGT-003,539,true,3,false,false
+customerService.interaction,2026-06-03T07:31:04.604Z,CALL-0000000153,CRM-00100088,rf1-w5-s13-silver-88-718567@f1traffic.com,whatsapp,Positive feedback,support,AGT-024,293,true,5,false,false
+customerService.interaction,2026-04-07T02:27:08.810Z,CALL-0000000154,CRM-00100088,rf1-w5-s13-silver-88-718567@f1traffic.com,whatsapp,Account issue,support,AGT-007,358,false,1,false,true
+customerService.interaction,2026-04-08T08:35:13.108Z,CALL-0000000155,CRM-00100088,rf1-w5-s13-silver-88-718567@f1traffic.com,whatsapp,Product question,support,AGT-029,767,true,4,false,false
+customerService.interaction,2026-01-30T08:32:37.176Z,CALL-0000000156,CRM-00100089,rf1-w7-s58-vip-89-32362e@f1traffic.com,email,Complaint,support,AGT-023,447,true,5,false,false
+customerService.interaction,2026-05-20T10:07:53.842Z,CALL-0000000157,CRM-00100089,rf1-w7-s58-vip-89-32362e@f1traffic.com,phone,Hospitality booking,events,AGT-021,125,false,2,true,true
+customerService.interaction,2025-12-21T22:09:15.623Z,CALL-0000000158,CRM-00100089,rf1-w7-s58-vip-89-32362e@f1traffic.com,phone,Shipping question,orders,AGT-019,746,true,3,false,false
+customerService.interaction,2025-12-28T18:15:13.091Z,CALL-0000000159,CRM-00100090,rf1-w18-s25-standard-90-9e2cb8@f1traffic.com,whatsapp,Hospitality booking,events,AGT-014,847,true,4,false,false
+customerService.interaction,2026-03-14T20:56:45.654Z,CALL-0000000160,CRM-00100090,rf1-w18-s25-standard-90-9e2cb8@f1traffic.com,chat,Complaint,support,AGT-011,927,true,5,false,false
+customerService.interaction,2025-12-29T05:40:54.544Z,CALL-0000000161,CRM-00100090,rf1-w18-s25-standard-90-9e2cb8@f1traffic.com,phone,Account issue,support,AGT-005,348,true,4,false,false
+customerService.interaction,2026-01-23T04:29:29.104Z,CALL-0000000162,CRM-00100090,rf1-w18-s25-standard-90-9e2cb8@f1traffic.com,whatsapp,Complaint,support,AGT-015,186,true,5,false,false
+customerService.interaction,2025-12-25T19:44:24.126Z,CALL-0000000163,CRM-00100091,rf1-w4-s22-vip-91-5a6430@f1traffic.com,whatsapp,Loyalty inquiry,loyalty,AGT-018,303,true,3,false,false
+customerService.interaction,2026-03-23T02:53:24.095Z,CALL-0000000164,CRM-00100091,rf1-w4-s22-vip-91-5a6430@f1traffic.com,phone,Loyalty inquiry,loyalty,AGT-014,951,true,5,false,false
+customerService.interaction,2026-04-10T02:06:14.390Z,CALL-0000000165,CRM-00100092,rf1-w10-s5-silver-92-ba549a@f1traffic.com,chat,Race ticket question,events,AGT-011,739,true,4,false,false
+customerService.interaction,2026-05-22T22:59:44.915Z,CALL-0000000166,CRM-00100092,rf1-w10-s5-silver-92-ba549a@f1traffic.com,chat,Refund request,returns,AGT-013,771,true,3,false,false
+customerService.interaction,2026-04-22T08:55:00.924Z,CALL-0000000167,CRM-00100092,rf1-w10-s5-silver-92-ba549a@f1traffic.com,chat,Refund request,returns,AGT-015,72,true,4,false,false
+customerService.interaction,2025-12-17T15:55:10.263Z,CALL-0000000168,CRM-00100092,rf1-w10-s5-silver-92-ba549a@f1traffic.com,phone,Promotion question,support,AGT-009,269,false,1,false,true
+customerService.interaction,2026-01-26T10:22:42.417Z,CALL-0000000169,CRM-00100094,rf1-w19-s28-silver-94-2f116a@f1traffic.com,phone,Loyalty inquiry,loyalty,AGT-011,412,true,5,false,false
+customerService.interaction,2026-03-18T12:19:38.937Z,CALL-0000000170,CRM-00100094,rf1-w19-s28-silver-94-2f116a@f1traffic.com,chat,Hospitality booking,events,AGT-016,261,true,5,false,false
+customerService.interaction,2026-06-10T14:35:54.624Z,CALL-0000000171,CRM-00100094,rf1-w19-s28-silver-94-2f116a@f1traffic.com,whatsapp,Return request,returns,AGT-009,839,true,3,false,false
+customerService.interaction,2026-03-12T11:19:41.497Z,CALL-0000000172,CRM-00100097,rf1-w19-s47-gold-97-08f6df@f1traffic.com,email,Product question,support,AGT-016,137,true,3,false,false
+customerService.interaction,2026-05-08T18:42:49.575Z,CALL-0000000173,CRM-00100103,rf1-w17-s19-standard-103-5c06d1@f1traffic.com,phone,Promotion question,support,AGT-015,586,false,1,true,true
+customerService.interaction,2026-02-13T20:28:05.226Z,CALL-0000000174,CRM-00100103,rf1-w17-s19-standard-103-5c06d1@f1traffic.com,chat,Race ticket question,events,AGT-010,233,true,3,false,false
+customerService.interaction,2026-06-14T09:18:51.273Z,CALL-0000000175,CRM-00100105,rf1-w18-s22-gold-105-17c147@f1traffic.com,email,Shipping question,orders,AGT-026,64,true,5,false,false
+customerService.interaction,2026-03-10T20:56:26.348Z,CALL-0000000176,CRM-00100105,rf1-w18-s22-gold-105-17c147@f1traffic.com,whatsapp,Shipping question,orders,AGT-020,561,false,1,false,true
+customerService.interaction,2026-01-23T09:16:42.511Z,CALL-0000000177,CRM-00100106,rf1-w10-s48-gold-106-7a807f@f1traffic.com,whatsapp,Complaint,support,AGT-016,168,true,5,false,false
+customerService.interaction,2025-12-25T11:45:00.866Z,CALL-0000000178,CRM-00100108,rf1-w0-s43-gold-108-d1c3c2@f1traffic.com,chat,Order status inquiry,orders,AGT-022,665,true,3,false,false
+customerService.interaction,2026-02-17T03:59:54.764Z,CALL-0000000179,CRM-00100108,rf1-w0-s43-gold-108-d1c3c2@f1traffic.com,whatsapp,Account issue,support,AGT-011,333,true,4,false,false
+customerService.interaction,2026-03-02T07:00:48.999Z,CALL-0000000180,CRM-00100108,rf1-w0-s43-gold-108-d1c3c2@f1traffic.com,whatsapp,Refund request,returns,AGT-028,524,true,3,false,false
+customerService.interaction,2026-01-26T03:48:55.291Z,CALL-0000000181,CRM-00100109,rf1-w0-s11-vip-109-dfd9bf@f1traffic.com,phone,Order status inquiry,orders,AGT-009,593,true,3,false,false
+customerService.interaction,2026-02-14T17:51:22.844Z,CALL-0000000182,CRM-00100109,rf1-w0-s11-vip-109-dfd9bf@f1traffic.com,phone,Positive feedback,support,AGT-006,452,true,5,false,false
+customerService.interaction,2026-03-17T12:14:58.933Z,CALL-0000000183,CRM-00100109,rf1-w0-s11-vip-109-dfd9bf@f1traffic.com,phone,Order status inquiry,orders,AGT-010,727,true,5,false,false
+customerService.interaction,2026-05-26T10:29:30.663Z,CALL-0000000184,CRM-00100112,rf1-w9-s71-standard-112-415b7d@f1traffic.com,phone,Complaint,support,AGT-001,306,false,2,false,true
+customerService.interaction,2026-04-19T09:45:35.663Z,CALL-0000000185,CRM-00100112,rf1-w9-s71-standard-112-415b7d@f1traffic.com,phone,Order status inquiry,orders,AGT-019,169,true,5,false,false
+customerService.interaction,2026-05-03T23:40:43.660Z,CALL-0000000186,CRM-00100113,rf1-w16-s14-vip-113-8ec719@f1traffic.com,whatsapp,Complaint,support,AGT-025,892,true,3,false,false
+customerService.interaction,2026-04-10T07:36:47.701Z,CALL-0000000187,CRM-00100114,rf1-w6-s12-silver-114-27539a@f1traffic.com,phone,Shipping question,orders,AGT-028,326,true,4,false,false
+customerService.interaction,2026-02-09T20:18:21.425Z,CALL-0000000188,CRM-00100114,rf1-w6-s12-silver-114-27539a@f1traffic.com,phone,Loyalty inquiry,loyalty,AGT-001,540,true,3,false,false
+customerService.interaction,2026-03-25T04:07:18.854Z,CALL-0000000189,CRM-00100114,rf1-w6-s12-silver-114-27539a@f1traffic.com,whatsapp,Loyalty inquiry,loyalty,AGT-013,205,false,2,false,true
+customerService.interaction,2026-04-20T10:41:11.634Z,CALL-0000000190,CRM-00100114,rf1-w6-s12-silver-114-27539a@f1traffic.com,whatsapp,Loyalty inquiry,loyalty,AGT-022,143,true,5,false,false
+customerService.interaction,2026-03-05T00:19:15.845Z,CALL-0000000191,CRM-00100114,rf1-w6-s12-silver-114-27539a@f1traffic.com,email,Loyalty inquiry,loyalty,AGT-010,91,false,1,true,true
+customerService.interaction,2026-05-16T20:07:40.531Z,CALL-0000000192,CRM-00100115,rf1-w4-s47-standard-115-a3b0e7@f1traffic.com,email,Product question,support,AGT-002,694,false,2,false,true
+customerService.interaction,2026-05-05T16:31:29.160Z,CALL-0000000193,CRM-00100115,rf1-w4-s47-standard-115-a3b0e7@f1traffic.com,email,Positive feedback,support,AGT-016,458,false,2,false,true
+customerService.interaction,2026-03-21T23:14:32.903Z,CALL-0000000194,CRM-00100115,rf1-w4-s47-standard-115-a3b0e7@f1traffic.com,phone,Loyalty inquiry,loyalty,AGT-028,797,true,3,false,false
+customerService.interaction,2026-05-22T02:26:43.974Z,CALL-0000000195,CRM-00100115,rf1-w4-s47-standard-115-a3b0e7@f1traffic.com,chat,Product question,support,AGT-007,425,true,3,false,false
+customerService.interaction,2026-01-10T18:42:19.925Z,CALL-0000000196,CRM-00100116,rf1-w10-s39-silver-116-add6c7@f1traffic.com,whatsapp,Loyalty inquiry,loyalty,AGT-010,214,true,4,false,false
+customerService.interaction,2026-04-19T18:52:10.061Z,CALL-0000000197,CRM-00100116,rf1-w10-s39-silver-116-add6c7@f1traffic.com,whatsapp,Return request,returns,AGT-019,278,true,4,false,false
+customerService.interaction,2026-03-10T15:50:11.486Z,CALL-0000000198,CRM-00100118,rf1-w13-s10-standard-118-d3455f@f1traffic.com,email,Return request,returns,AGT-007,890,true,4,false,false
+customerService.interaction,2026-03-11T20:04:34.628Z,CALL-0000000199,CRM-00100118,rf1-w13-s10-standard-118-d3455f@f1traffic.com,whatsapp,Return request,returns,AGT-017,259,true,3,false,false
+customerService.interaction,2026-06-04T04:04:12.431Z,CALL-0000000200,CRM-00100118,rf1-w13-s10-standard-118-d3455f@f1traffic.com,whatsapp,Hospitality booking,events,AGT-022,117,true,3,false,false
+customerService.interaction,2026-06-04T18:50:18.055Z,CALL-0000000201,CRM-00100118,rf1-w13-s10-standard-118-d3455f@f1traffic.com,whatsapp,Account issue,support,AGT-017,241,true,5,false,false
+customerService.interaction,2026-01-22T03:54:27.610Z,CALL-0000000202,CRM-00100118,rf1-w13-s10-standard-118-d3455f@f1traffic.com,chat,Hospitality booking,events,AGT-009,898,true,5,false,false
+customerService.interaction,2026-01-07T04:38:51.222Z,CALL-0000000203,CRM-00100119,rf1-w15-s33-silver-119-5b367a@f1traffic.com,phone,Complaint,support,AGT-013,770,false,2,true,true
+customerService.interaction,2026-03-07T22:59:52.181Z,CALL-0000000204,CRM-00100119,rf1-w15-s33-silver-119-5b367a@f1traffic.com,email,Complaint,support,AGT-020,712,true,3,false,false
+customerService.interaction,2026-04-20T13:00:36.833Z,CALL-0000000205,CRM-00100119,rf1-w15-s33-silver-119-5b367a@f1traffic.com,whatsapp,Hospitality booking,events,AGT-005,882,true,5,false,false
+customerService.interaction,2026-03-28T00:44:01.635Z,CALL-0000000206,CRM-00100119,rf1-w15-s33-silver-119-5b367a@f1traffic.com,chat,Account issue,support,AGT-015,146,true,5,false,false
+customerService.interaction,2026-03-16T05:14:56.078Z,CALL-0000000207,CRM-00100120,abigail.leclerc120@f1retail.com,chat,Refund request,returns,AGT-028,857,true,5,false,false
+customerService.interaction,2026-03-06T19:47:06.209Z,CALL-0000000208,CRM-00100120,abigail.leclerc120@f1retail.com,chat,Promotion question,support,AGT-025,69,false,1,false,true
+customerService.interaction,2026-05-31T18:19:42.763Z,CALL-0000000209,CRM-00100127,mia.tsunoda127@f1retail.com,phone,Account issue,support,AGT-013,813,true,4,false,false
+customerService.interaction,2025-12-27T20:09:47.094Z,CALL-0000000210,CRM-00100127,mia.tsunoda127@f1retail.com,phone,Complaint,support,AGT-023,114,true,3,false,false
+customerService.interaction,2026-03-03T01:04:22.571Z,CALL-0000000211,CRM-00100127,mia.tsunoda127@f1retail.com,email,Account issue,support,AGT-006,903,true,3,false,false
+customerService.interaction,2026-02-05T09:36:17.609Z,CALL-0000000212,CRM-00100127,mia.tsunoda127@f1retail.com,email,Positive feedback,support,AGT-026,692,true,5,false,false
+customerService.interaction,2026-05-29T11:17:10.078Z,CALL-0000000213,CRM-00100127,mia.tsunoda127@f1retail.com,email,Positive feedback,support,AGT-026,936,false,1,false,true
+customerService.interaction,2026-02-06T22:36:47.262Z,CALL-0000000214,CRM-00100129,hiroshi.williams129@f1retail.com,whatsapp,Product question,support,AGT-026,587,true,3,false,false
+customerService.interaction,2026-05-06T05:31:35.297Z,CALL-0000000215,CRM-00100129,hiroshi.williams129@f1retail.com,chat,Complaint,support,AGT-022,367,true,4,false,false
+customerService.interaction,2026-02-12T06:42:22.224Z,CALL-0000000216,CRM-00100129,hiroshi.williams129@f1retail.com,chat,Hospitality booking,events,AGT-011,161,true,4,false,false
+customerService.interaction,2026-01-26T08:10:18.975Z,CALL-0000000217,CRM-00100130,michael.russell130@f1retail.com,phone,Shipping question,orders,AGT-021,772,false,2,true,true
+customerService.interaction,2026-05-31T09:54:58.327Z,CALL-0000000218,CRM-00100130,michael.russell130@f1retail.com,email,Refund request,returns,AGT-014,133,true,5,false,false
+customerService.interaction,2025-12-29T00:18:56.571Z,CALL-0000000219,CRM-00100131,owen.ocon131@f1retail.com,whatsapp,Positive feedback,support,AGT-011,262,true,4,false,false
+customerService.interaction,2026-03-22T16:05:05.792Z,CALL-0000000220,CRM-00100131,owen.ocon131@f1retail.com,chat,Loyalty inquiry,loyalty,AGT-009,784,true,4,false,false
+customerService.interaction,2025-12-23T18:16:21.246Z,CALL-0000000221,CRM-00100131,owen.ocon131@f1retail.com,phone,Hospitality booking,events,AGT-002,906,true,5,false,false
+customerService.interaction,2026-04-11T18:46:48.508Z,CALL-0000000222,CRM-00100131,owen.ocon131@f1retail.com,whatsapp,Positive feedback,support,AGT-030,503,true,4,false,false
+customerService.interaction,2026-02-14T08:11:45.783Z,CALL-0000000223,CRM-00100132,ava.li132@f1retail.com,email,Loyalty inquiry,loyalty,AGT-026,197,false,1,false,true
+customerService.interaction,2026-03-27T15:37:27.293Z,CALL-0000000224,CRM-00100132,ava.li132@f1retail.com,phone,Return request,returns,AGT-024,523,true,5,false,false
+customerService.interaction,2026-01-11T19:50:00.062Z,CALL-0000000225,CRM-00100132,ava.li132@f1retail.com,chat,Shipping question,orders,AGT-024,811,false,1,true,true
+customerService.interaction,2026-03-31T04:41:57.820Z,CALL-0000000226,CRM-00100133,pierre.sainz133@f1retail.com,whatsapp,Order status inquiry,orders,AGT-029,862,true,3,false,false
+customerService.interaction,2026-01-24T19:08:33.664Z,CALL-0000000227,CRM-00100133,pierre.sainz133@f1retail.com,chat,Account issue,support,AGT-010,922,true,3,false,false
+customerService.interaction,2026-04-03T03:54:58.899Z,CALL-0000000228,CRM-00100133,pierre.sainz133@f1retail.com,chat,Account issue,support,AGT-020,595,true,5,false,false
+customerService.interaction,2026-02-19T11:57:06.805Z,CALL-0000000229,CRM-00100133,pierre.sainz133@f1retail.com,email,Positive feedback,support,AGT-009,103,true,3,false,false
+customerService.interaction,2026-03-04T00:15:28.852Z,CALL-0000000230,CRM-00100133,pierre.sainz133@f1retail.com,whatsapp,Positive feedback,support,AGT-020,396,true,5,false,false
+customerService.interaction,2026-02-21T02:49:37.128Z,CALL-0000000231,CRM-00100134,maya.gasly134@f1retail.com,whatsapp,Positive feedback,support,AGT-016,845,false,1,false,true
+customerService.interaction,2026-04-22T08:04:15.109Z,CALL-0000000232,CRM-00100134,maya.gasly134@f1retail.com,chat,Hospitality booking,events,AGT-026,582,false,2,true,true
+customerService.interaction,2026-01-14T12:30:16.524Z,CALL-0000000233,CRM-00100134,maya.gasly134@f1retail.com,chat,Shipping question,orders,AGT-016,268,true,3,false,false
+customerService.interaction,2026-02-08T17:10:43.125Z,CALL-0000000234,CRM-00100135,ishaan.ahmed135@f1retail.com,whatsapp,Refund request,returns,AGT-016,229,true,4,false,false
+customerService.interaction,2026-02-26T06:59:24.227Z,CALL-0000000235,CRM-00100135,ishaan.ahmed135@f1retail.com,email,Complaint,support,AGT-029,301,true,3,false,false
+customerService.interaction,2026-03-11T22:13:22.082Z,CALL-0000000236,CRM-00100135,ishaan.ahmed135@f1retail.com,email,Hospitality booking,events,AGT-012,100,true,5,false,false
+customerService.interaction,2025-12-28T02:36:26.845Z,CALL-0000000237,CRM-00100135,ishaan.ahmed135@f1retail.com,chat,Promotion question,support,AGT-026,918,true,3,false,false
+customerService.interaction,2026-06-05T09:40:32.255Z,CALL-0000000238,CRM-00100139,diego.martinez139@f1retail.com,phone,Product question,support,AGT-019,283,true,5,false,false
+customerService.interaction,2026-02-09T09:08:22.012Z,CALL-0000000239,CRM-00100139,diego.martinez139@f1retail.com,chat,Positive feedback,support,AGT-015,186,true,3,false,false
+customerService.interaction,2026-01-01T20:29:25.230Z,CALL-0000000240,CRM-00100139,diego.martinez139@f1retail.com,whatsapp,Account issue,support,AGT-029,491,true,3,false,false
+customerService.interaction,2026-02-19T16:25:10.282Z,CALL-0000000241,CRM-00100139,diego.martinez139@f1retail.com,phone,Positive feedback,support,AGT-029,297,false,2,true,true
+customerService.interaction,2026-02-17T19:50:53.256Z,CALL-0000000242,CRM-00100139,diego.martinez139@f1retail.com,email,Complaint,support,AGT-018,915,true,5,false,false
+customerService.interaction,2026-05-10T05:22:03.892Z,CALL-0000000243,CRM-00100141,max.tsunoda141@f1retail.com,chat,Product question,support,AGT-005,767,true,3,false,false
+customerService.interaction,2026-03-30T06:27:09.025Z,CALL-0000000244,CRM-00100141,max.tsunoda141@f1retail.com,chat,Complaint,support,AGT-010,906,false,2,true,true
+customerService.interaction,2026-04-05T13:13:03.751Z,CALL-0000000245,CRM-00100141,max.tsunoda141@f1retail.com,email,Order status inquiry,orders,AGT-016,673,false,1,false,true
+customerService.interaction,2026-01-06T22:15:16.535Z,CALL-0000000246,CRM-00100141,max.tsunoda141@f1retail.com,whatsapp,Positive feedback,support,AGT-028,672,true,5,false,false
+customerService.interaction,2026-02-12T11:45:47.962Z,CALL-0000000247,CRM-00100141,max.tsunoda141@f1retail.com,chat,Promotion question,support,AGT-022,789,true,3,false,false
+customerService.interaction,2026-03-02T03:01:03.742Z,CALL-0000000248,CRM-00100142,aria.anderson142@f1retail.com,whatsapp,Promotion question,support,AGT-002,432,false,2,true,true
+customerService.interaction,2026-02-13T09:12:37.667Z,CALL-0000000249,CRM-00100142,aria.anderson142@f1retail.com,whatsapp,Shipping question,orders,AGT-015,694,false,2,false,true
+customerService.interaction,2026-03-31T06:57:00.773Z,CALL-0000000250,CRM-00100142,aria.anderson142@f1retail.com,phone,Positive feedback,support,AGT-014,128,true,4,false,false
+customerService.interaction,2026-05-27T06:20:49.666Z,CALL-0000000251,CRM-00100143,valtteri.suzuki143@f1retail.com,chat,Race ticket question,events,AGT-024,580,true,3,false,false
+customerService.interaction,2026-01-03T06:05:44.950Z,CALL-0000000252,CRM-00100144,ella.smith144@f1retail.com,email,Hospitality booking,events,AGT-025,550,true,3,false,false
+customerService.interaction,2026-01-26T06:10:51.486Z,CALL-0000000253,CRM-00100144,ella.smith144@f1retail.com,email,Shipping question,orders,AGT-027,725,false,2,true,true
+customerService.interaction,2026-02-19T20:59:53.958Z,CALL-0000000254,CRM-00100144,ella.smith144@f1retail.com,chat,Shipping question,orders,AGT-016,675,true,4,false,false
+customerService.interaction,2026-02-04T15:52:34.315Z,CALL-0000000255,CRM-00100145,kai.suzuki145@f1retail.com,chat,Promotion question,support,AGT-005,414,true,4,false,false
+customerService.interaction,2025-12-19T19:43:57.964Z,CALL-0000000256,CRM-00100145,kai.suzuki145@f1retail.com,whatsapp,Race ticket question,events,AGT-019,510,true,4,false,false
+customerService.interaction,2025-12-27T08:30:16.871Z,CALL-0000000257,CRM-00100146,noah.alonso146@f1retail.com,email,Product question,support,AGT-002,842,true,4,false,false
+customerService.interaction,2025-12-25T04:54:51.805Z,CALL-0000000258,CRM-00100146,noah.alonso146@f1retail.com,whatsapp,Promotion question,support,AGT-002,109,true,5,false,false
+customerService.interaction,2026-02-16T04:16:31.799Z,CALL-0000000259,CRM-00100150,mason.johnson150@f1retail.com,phone,Positive feedback,support,AGT-028,954,true,3,false,false
+customerService.interaction,2026-05-28T00:33:50.471Z,CALL-0000000260,CRM-00100150,mason.johnson150@f1retail.com,email,Hospitality booking,events,AGT-023,408,true,5,false,false
+customerService.interaction,2025-12-19T07:32:30.260Z,CALL-0000000261,CRM-00100150,mason.johnson150@f1retail.com,email,Complaint,support,AGT-006,124,true,4,false,false
+customerService.interaction,2026-02-13T17:05:22.631Z,CALL-0000000262,CRM-00100150,mason.johnson150@f1retail.com,chat,Account issue,support,AGT-012,735,true,4,false,false
+customerService.interaction,2026-02-19T07:42:17.521Z,CALL-0000000263,CRM-00100153,abigail.wilson153@f1retail.com,chat,Loyalty inquiry,loyalty,AGT-004,756,true,5,false,false
+customerService.interaction,2026-05-10T20:07:24.174Z,CALL-0000000264,CRM-00100153,abigail.wilson153@f1retail.com,phone,Positive feedback,support,AGT-009,743,true,5,false,false
+customerService.interaction,2026-01-23T01:22:41.183Z,CALL-0000000265,CRM-00100154,henry.zhang154@f1retail.com,email,Product question,support,AGT-019,669,true,3,false,false
+customerService.interaction,2026-01-20T14:17:43.746Z,CALL-0000000266,CRM-00100154,henry.zhang154@f1retail.com,whatsapp,Complaint,support,AGT-013,685,false,1,false,true
+customerService.interaction,2026-01-14T17:38:26.057Z,CALL-0000000267,CRM-00100154,henry.zhang154@f1retail.com,phone,Account issue,support,AGT-006,342,false,2,false,true
+customerService.interaction,2026-03-12T04:40:49.510Z,CALL-0000000268,CRM-00100154,henry.zhang154@f1retail.com,email,Loyalty inquiry,loyalty,AGT-020,352,true,4,false,false
+customerService.interaction,2026-01-11T05:28:04.915Z,CALL-0000000269,CRM-00100156,diego.norris156@f1retail.com,whatsapp,Account issue,support,AGT-006,327,true,4,false,false
+customerService.interaction,2026-01-02T10:19:38.238Z,CALL-0000000270,CRM-00100156,diego.norris156@f1retail.com,phone,Return request,returns,AGT-024,237,true,3,false,false
+customerService.interaction,2026-04-22T09:54:08.297Z,CALL-0000000271,CRM-00100156,diego.norris156@f1retail.com,phone,Race ticket question,events,AGT-005,736,true,4,false,false
+customerService.interaction,2026-06-09T12:16:14.102Z,CALL-0000000272,CRM-00100156,diego.norris156@f1retail.com,phone,Order status inquiry,orders,AGT-005,428,true,5,false,false
+customerService.interaction,2026-06-14T08:29:55.888Z,CALL-0000000273,CRM-00100157,ella.piastri157@f1retail.com,chat,Race ticket question,events,AGT-008,177,true,4,false,false
+customerService.interaction,2026-04-02T05:05:30.572Z,CALL-0000000274,CRM-00100158,hassan.chen158@f1retail.com,phone,Race ticket question,events,AGT-004,202,true,4,false,false
+customerService.interaction,2026-06-08T16:09:38.253Z,CALL-0000000275,CRM-00100158,hassan.chen158@f1retail.com,chat,Refund request,returns,AGT-020,263,true,4,false,false
+customerService.interaction,2026-01-29T07:19:01.682Z,CALL-0000000276,CRM-00100158,hassan.chen158@f1retail.com,whatsapp,Complaint,support,AGT-024,698,true,3,false,false
+customerService.interaction,2026-01-25T16:06:42.500Z,CALL-0000000277,CRM-00100158,hassan.chen158@f1retail.com,phone,Promotion question,support,AGT-024,750,true,4,false,false
+customerService.interaction,2026-05-31T01:18:43.770Z,CALL-0000000278,CRM-00100161,joseph.iyer161@f1retail.com,email,Loyalty inquiry,loyalty,AGT-006,676,true,4,false,false
+customerService.interaction,2026-05-29T07:22:11.381Z,CALL-0000000279,CRM-00100161,joseph.iyer161@f1retail.com,whatsapp,Race ticket question,events,AGT-017,126,true,4,false,false
+customerService.interaction,2026-01-06T23:32:48.006Z,CALL-0000000280,CRM-00100161,joseph.iyer161@f1retail.com,chat,Promotion question,support,AGT-028,530,true,3,false,false
+customerService.interaction,2026-03-18T15:49:09.740Z,CALL-0000000281,CRM-00100161,joseph.iyer161@f1retail.com,whatsapp,Hospitality booking,events,AGT-009,449,true,4,false,false
+customerService.interaction,2026-04-25T23:20:51.917Z,CALL-0000000282,CRM-00100162,max.khan162@f1retail.com,whatsapp,Positive feedback,support,AGT-002,158,true,5,false,false
+customerService.interaction,2026-01-08T13:55:48.050Z,CALL-0000000283,CRM-00100162,max.khan162@f1retail.com,email,Shipping question,orders,AGT-025,851,true,3,false,false
+customerService.interaction,2026-04-05T21:15:40.213Z,CALL-0000000284,CRM-00100163,sergio.iyer163@f1retail.com,email,Loyalty inquiry,loyalty,AGT-001,119,false,1,true,true
+customerService.interaction,2026-04-05T13:52:33.703Z,CALL-0000000285,CRM-00100163,sergio.iyer163@f1retail.com,phone,Hospitality booking,events,AGT-011,389,true,5,false,false
+customerService.interaction,2025-12-30T04:37:52.995Z,CALL-0000000286,CRM-00100163,sergio.iyer163@f1retail.com,phone,Hospitality booking,events,AGT-026,161,true,5,false,false
+customerService.interaction,2026-03-22T02:08:21.381Z,CALL-0000000287,CRM-00100163,sergio.iyer163@f1retail.com,email,Hospitality booking,events,AGT-016,466,true,4,false,false
+customerService.interaction,2026-03-05T07:03:12.268Z,CALL-0000000288,CRM-00100163,sergio.iyer163@f1retail.com,email,Loyalty inquiry,loyalty,AGT-001,807,true,4,false,false
+customerService.interaction,2026-05-05T09:42:01.241Z,CALL-0000000289,CRM-00100165,owen.lee165@f1retail.com,email,Race ticket question,events,AGT-023,321,true,5,false,false
+customerService.interaction,2026-05-18T20:16:07.751Z,CALL-0000000290,CRM-00100165,owen.lee165@f1retail.com,chat,Loyalty inquiry,loyalty,AGT-005,861,true,3,false,false
+customerService.interaction,2026-05-24T18:28:53.540Z,CALL-0000000291,CRM-00100166,khalid.patel166@f1retail.com,email,Refund request,returns,AGT-011,320,true,5,false,false
+customerService.interaction,2026-03-07T05:40:18.318Z,CALL-0000000292,CRM-00100166,khalid.patel166@f1retail.com,email,Return request,returns,AGT-002,868,false,1,false,true
+customerService.interaction,2026-05-23T09:19:04.314Z,CALL-0000000293,CRM-00100166,khalid.patel166@f1retail.com,email,Order status inquiry,orders,AGT-016,739,true,4,false,false
+customerService.interaction,2026-04-29T23:15:23.227Z,CALL-0000000294,CRM-00100167,charles.jones167@f1retail.com,email,Shipping question,orders,AGT-009,957,true,3,false,false
+customerService.interaction,2026-03-01T13:58:39.654Z,CALL-0000000295,CRM-00100167,charles.jones167@f1retail.com,phone,Hospitality booking,events,AGT-009,794,true,4,false,false
+customerService.interaction,2026-04-24T09:09:12.393Z,CALL-0000000296,CRM-00100169,ishaan.martinez169@f1retail.com,chat,Product question,support,AGT-003,118,true,3,false,false
+customerService.interaction,2026-01-01T04:53:14.348Z,CALL-0000000297,CRM-00100169,ishaan.martinez169@f1retail.com,whatsapp,Refund request,returns,AGT-017,407,true,5,false,false
+customerService.interaction,2026-06-03T00:58:03.018Z,CALL-0000000298,CRM-00100169,ishaan.martinez169@f1retail.com,whatsapp,Loyalty inquiry,loyalty,AGT-013,89,true,5,false,false
+customerService.interaction,2026-04-25T10:15:17.618Z,CALL-0000000299,CRM-00100169,ishaan.martinez169@f1retail.com,email,Refund request,returns,AGT-012,361,true,4,false,false
+customerService.interaction,2026-03-24T18:46:32.208Z,CALL-0000000300,CRM-00100170,alex.brown170@f1retail.com,phone,Positive feedback,support,AGT-029,326,true,4,false,false
+customerService.interaction,2026-03-26T04:40:56.030Z,CALL-0000000301,CRM-00100170,alex.brown170@f1retail.com,phone,Return request,returns,AGT-014,838,false,1,true,true
+customerService.interaction,2026-03-31T00:11:14.034Z,CALL-0000000302,CRM-00100171,khalid.anderson171@f1retail.com,whatsapp,Refund request,returns,AGT-026,436,true,4,false,false
+customerService.interaction,2026-04-06T01:07:47.560Z,CALL-0000000303,CRM-00100171,khalid.anderson171@f1retail.com,email,Account issue,support,AGT-021,538,true,4,false,false
+customerService.interaction,2025-12-25T13:55:14.429Z,CALL-0000000304,CRM-00100171,khalid.anderson171@f1retail.com,chat,Loyalty inquiry,loyalty,AGT-019,743,true,4,false,false
+customerService.interaction,2026-01-23T08:08:57.695Z,CALL-0000000305,CRM-00100171,khalid.anderson171@f1retail.com,phone,Positive feedback,support,AGT-020,587,true,5,false,false
+customerService.interaction,2026-01-18T14:12:09.948Z,CALL-0000000306,CRM-00100173,henry.verstappen173@f1retail.com,whatsapp,Complaint,support,AGT-027,153,true,3,false,false
+customerService.interaction,2026-01-15T02:34:55.217Z,CALL-0000000307,CRM-00100174,amelia.liu174@f1retail.com,whatsapp,Loyalty inquiry,loyalty,AGT-017,135,true,3,false,false
+customerService.interaction,2026-01-16T05:41:47.866Z,CALL-0000000308,CRM-00100174,amelia.liu174@f1retail.com,chat,Promotion question,support,AGT-029,523,true,3,false,false
+customerService.interaction,2026-03-10T09:48:27.308Z,CALL-0000000309,CRM-00100174,amelia.liu174@f1retail.com,chat,Account issue,support,AGT-025,800,true,3,false,false
+customerService.interaction,2026-04-01T08:17:25.049Z,CALL-0000000310,CRM-00100174,amelia.liu174@f1retail.com,whatsapp,Order status inquiry,orders,AGT-003,113,true,4,false,false
+customerService.interaction,2026-02-01T00:40:40.219Z,CALL-0000000311,CRM-00100174,amelia.liu174@f1retail.com,email,Refund request,returns,AGT-015,623,false,2,false,true
+customerService.interaction,2025-12-27T01:23:50.085Z,CALL-0000000312,CRM-00100178,george.norris178@f1retail.com,whatsapp,Account issue,support,AGT-003,267,true,3,false,false
+customerService.interaction,2026-02-19T14:42:53.586Z,CALL-0000000313,CRM-00100178,george.norris178@f1retail.com,chat,Return request,returns,AGT-022,650,true,5,false,false
+customerService.interaction,2026-03-29T16:20:54.722Z,CALL-0000000314,CRM-00100181,mia.russell181@f1retail.com,phone,Refund request,returns,AGT-005,506,true,4,false,false
+customerService.interaction,2026-04-07T03:19:06.056Z,CALL-0000000315,CRM-00100184,ishaan.ocon184@f1retail.com,phone,Complaint,support,AGT-015,811,true,3,false,false
+customerService.interaction,2026-05-22T13:51:35.841Z,CALL-0000000316,CRM-00100185,samuel.taylor185@f1retail.com,whatsapp,Hospitality booking,events,AGT-006,736,true,3,false,false
+customerService.interaction,2026-03-02T13:06:51.410Z,CALL-0000000317,CRM-00100185,samuel.taylor185@f1retail.com,email,Promotion question,support,AGT-010,308,true,4,false,false
+customerService.interaction,2025-12-18T22:58:12.029Z,CALL-0000000318,CRM-00100190,evelyn.sharma190@f1retail.com,whatsapp,Race ticket question,events,AGT-001,892,true,4,false,false
+customerService.interaction,2026-05-21T22:53:36.567Z,CALL-0000000319,CRM-00100190,evelyn.sharma190@f1retail.com,phone,Refund request,returns,AGT-010,681,true,5,false,false
+customerService.interaction,2026-04-09T08:09:34.230Z,CALL-0000000320,CRM-00100190,evelyn.sharma190@f1retail.com,email,Complaint,support,AGT-017,725,false,1,false,true
+customerService.interaction,2026-05-01T08:12:28.768Z,CALL-0000000321,CRM-00100190,evelyn.sharma190@f1retail.com,whatsapp,Race ticket question,events,AGT-012,311,true,5,false,false
+customerService.interaction,2026-03-05T09:03:26.235Z,CALL-0000000322,CRM-00100190,evelyn.sharma190@f1retail.com,chat,Order status inquiry,orders,AGT-008,937,true,4,false,false
+customerService.interaction,2026-05-13T15:53:04.296Z,CALL-0000000323,CRM-00100191,mason.ahmed191@f1retail.com,chat,Hospitality booking,events,AGT-011,525,true,4,false,false
+customerService.interaction,2026-03-16T17:55:20.425Z,CALL-0000000324,CRM-00100191,mason.ahmed191@f1retail.com,phone,Shipping question,orders,AGT-001,304,false,1,true,true
+customerService.interaction,2026-01-11T00:05:33.821Z,CALL-0000000325,CRM-00100192,valtteri.brown192@f1retail.com,phone,Loyalty inquiry,loyalty,AGT-014,895,true,4,false,false
+customerService.interaction,2026-05-02T18:45:01.734Z,CALL-0000000326,CRM-00100194,ava.hamilton194@f1retail.com,chat,Refund request,returns,AGT-012,671,true,5,false,false
+customerService.interaction,2026-01-18T05:58:47.745Z,CALL-0000000327,CRM-00100195,ethan.ahmed195@f1retail.com,email,Return request,returns,AGT-019,99,true,3,false,false
+customerService.interaction,2026-03-31T11:36:26.516Z,CALL-0000000328,CRM-00100195,ethan.ahmed195@f1retail.com,chat,Promotion question,support,AGT-002,150,true,3,false,false
+customerService.interaction,2026-05-20T00:59:47.427Z,CALL-0000000329,CRM-00100195,ethan.ahmed195@f1retail.com,email,Complaint,support,AGT-001,606,true,3,false,false
+customerService.interaction,2026-03-22T19:28:23.644Z,CALL-0000000330,CRM-00100195,ethan.ahmed195@f1retail.com,whatsapp,Race ticket question,events,AGT-022,330,true,5,false,false
+customerService.interaction,2026-02-16T13:04:57.628Z,CALL-0000000331,CRM-00100195,ethan.ahmed195@f1retail.com,whatsapp,Race ticket question,events,AGT-008,89,true,5,false,false
+customerService.interaction,2025-12-31T15:08:50.542Z,CALL-0000000332,CRM-00100196,maya.ahmed196@f1retail.com,chat,Promotion question,support,AGT-017,820,true,5,false,false
+customerService.interaction,2026-05-15T16:10:59.284Z,CALL-0000000333,CRM-00100196,maya.ahmed196@f1retail.com,phone,Refund request,returns,AGT-028,678,true,3,false,false
+customerService.interaction,2026-05-28T02:46:28.212Z,CALL-0000000334,CRM-00100196,maya.ahmed196@f1retail.com,email,Race ticket question,events,AGT-015,197,true,3,false,false
+customerService.interaction,2026-01-01T18:43:43.633Z,CALL-0000000335,CRM-00100197,carlos.russell197@f1retail.com,email,Positive feedback,support,AGT-014,454,true,5,false,false
+customerService.interaction,2026-02-06T02:15:20.485Z,CALL-0000000336,CRM-00100197,carlos.russell197@f1retail.com,email,Complaint,support,AGT-025,175,true,4,false,false
+customerService.interaction,2026-06-11T19:37:17.521Z,CALL-0000000337,CRM-00100197,carlos.russell197@f1retail.com,email,Shipping question,orders,AGT-016,295,false,2,true,true
+customerService.interaction,2026-02-18T18:55:55.064Z,CALL-0000000338,CRM-00100197,carlos.russell197@f1retail.com,chat,Return request,returns,AGT-008,864,true,5,false,false
+customerService.interaction,2026-01-17T17:41:05.119Z,CALL-0000000339,CRM-00100197,carlos.russell197@f1retail.com,chat,Return request,returns,AGT-009,412,true,4,false,false
+customerService.interaction,2026-05-29T20:34:39.942Z,CALL-0000000340,CRM-00100198,amelia.ahmed198@f1retail.com,chat,Refund request,returns,AGT-016,145,true,3,false,false
+customerService.interaction,2026-03-30T09:00:18.781Z,CALL-0000000341,CRM-00100199,kai.norris199@f1retail.com,phone,Positive feedback,support,AGT-027,380,true,4,false,false
+customerService.interaction,2026-04-12T03:37:46.982Z,CALL-0000000342,CRM-00100199,kai.norris199@f1retail.com,whatsapp,Promotion question,support,AGT-026,165,true,4,false,false
+customerService.interaction,2026-04-11T17:46:50.351Z,CALL-0000000343,CRM-00100199,kai.norris199@f1retail.com,email,Positive feedback,support,AGT-017,449,true,3,false,false

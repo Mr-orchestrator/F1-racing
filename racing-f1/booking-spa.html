@@ -96,6 +96,20 @@
         .order-detail-row { display: flex; justify-content: space-between; padding: var(--space-md) 0; border-bottom: 1px solid var(--border-color); color: var(--text-secondary); }
         .order-detail-row strong { color: var(--text-primary); }
     </style>
+        <!-- Free Consent (CookieConsent) — load before Tealium so consent is ready -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3.1.0/dist/cookieconsent.css">
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3.1.0/dist/cookieconsent.umd.js"></script>
+    <script src="cookieconsent-init.js"></script>
+    <!-- End Free Consent -->
+<!-- Tealium Universal Tag -->
+    <script type="text/javascript">
+    (function(a,b,c,d){
+    a='https://tags.tiqcdn.com/utag/cognizant-sandbox/f1racing/qa/utag.js';
+    b=document;c='script';d=b.createElement(c);d.src=a;d.type='text/java'+c;d.async=true;
+    a=b.getElementsByTagName(c)[0];a.parentNode.insertBefore(d,a);
+    })();
+    </script>
+    <!-- End Tealium Universal Tag -->
 </head>
 <body data-page-type="booking" data-page-category="ecommerce">
     <!-- Google Tag Manager (noscript) -->
@@ -672,6 +686,9 @@
                             userName: firstName + ' ' + lastName
                         });
                     }
+                    // Clear gridboxLayer.product on the confirmation view (parity with the
+                    // normal checkout flow). gridbox.purchase() already clears the cart.
+                    if (window.gridboxLayer) window.gridboxLayer.product = [];
                 }
 
                 document.getElementById('order-number').textContent = orderNumber;

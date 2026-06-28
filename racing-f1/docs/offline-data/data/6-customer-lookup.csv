@@ -1,0 +1,201 @@
+email,customerId,firstName,lastName,country,city,customerTier,lifetimeValue,favoriteTeam,marketingConsent,emailOptIn,smsOptIn,loyaltyId,membershipTier,pointsBalance,pointsLifetimeEarned,nextTierThresholdPoints,isActive
+rf1-w16-s35-vip-0-cee93f@f1traffic.com,CRM-00100000,Khalid,Sharma,IN,Mumbai,vip,12776.03,McLaren,true,true,false,LYL-00200000,vip,6388,8943,999999,true
+rf1-w7-s50-standard-1-38d876@f1traffic.com,CRM-00100001,Liu,Davis,NL,New York,standard,141.98,Aston Martin,true,true,false,LYL-00200001,standard,71,99,5000,true
+rf1-w1-s10-gold-2-60c856@f1traffic.com,CRM-00100002,Hiroshi,Patel,BR,Milan,gold,2714.06,Alpine,true,false,true,LYL-00200002,gold,1357,1900,50000,true
+rf1-w6-s31-standard-3-d16087@f1traffic.com,CRM-00100003,Noah,Johnson,AU,London,standard,51.03,Ferrari,true,true,true,LYL-00200003,standard,26,36,5000,true
+rf1-w15-s1-vip-4-f768e9@f1traffic.com,CRM-00100004,Fernando,Piastri,FR,Milan,vip,7152.6,Mercedes,true,true,true,LYL-00200004,vip,3576,5006,999999,true
+rf1-w2-s19-gold-5-0bb4ab@f1traffic.com,CRM-00100005,Kai,Khan,CA,New York,gold,6026.81,Williams,true,true,true,LYL-00200005,gold,3013,4218,50000,true
+rf1-w19-s59-vip-6-899f5b@f1traffic.com,CRM-00100006,Pierre,Gasly,CA,Milan,vip,19498.24,Mercedes,true,false,true,LYL-00200006,vip,9749,13649,999999,true
+rf1-w6-s63-vip-7-7c02ee@f1traffic.com,CRM-00100007,Liu,Li,TH,Mumbai,vip,22051.02,McLaren,true,true,false,LYL-00200007,vip,11026,15436,999999,true
+rf1-w8-s12-gold-8-e7cd58@f1traffic.com,CRM-00100008,David,Hamilton,US,Paris,gold,7318.61,McLaren,true,true,false,LYL-00200008,gold,3659,5123,50000,true
+rf1-w3-s15-vip-9-34a4de@f1traffic.com,CRM-00100009,David,Alonso,CA,London,vip,20901.72,Williams,true,true,false,LYL-00200009,vip,10451,14631,999999,true
+rf1-w10-s63-vip-10-22690e@f1traffic.com,CRM-00100010,Kai,Miller,MC,Milan,vip,22273.07,Williams,true,true,true,LYL-00200010,vip,11137,15592,999999,true
+rf1-w2-s67-vip-11-052b3f@f1traffic.com,CRM-00100011,Mateo,Suzuki,SG,London,vip,18764.4,Williams,true,true,true,LYL-00200011,vip,9382,13135,999999,true
+rf1-w5-s41-standard-12-e4d916@f1traffic.com,CRM-00100012,Sergio,Wilson,MC,New York,standard,463.52,Aston Martin,false,true,false,LYL-00200012,standard,232,325,5000,true
+rf1-w15-s5-gold-13-bd6938@f1traffic.com,CRM-00100013,Harper,Chen,DE,New York,gold,4704.63,McLaren,false,false,true,LYL-00200013,gold,2352,3293,50000,true
+rf1-w14-s25-vip-14-3b21c0@f1traffic.com,CRM-00100014,Owen,Miller,ES,Mumbai,vip,14477.62,Aston Martin,false,false,true,LYL-00200014,vip,7239,10135,999999,true
+rf1-w14-s47-standard-15-be8801@f1traffic.com,CRM-00100015,Lance,Taylor,BR,London,standard,582.19,Red Bull Racing,false,true,true,LYL-00200015,standard,291,407,5000,true
+rf1-w14-s58-standard-16-73fdf7@f1traffic.com,CRM-00100016,Nico,Piastri,DE,Paris,standard,514.56,Alpine,true,true,false,LYL-00200016,standard,257,360,5000,true
+rf1-w4-s7-silver-17-4c33cf@f1traffic.com,CRM-00100017,Diego,Gasly,SG,Paris,silver,668.95,Williams,false,true,true,LYL-00200017,silver,334,468,15000,true
+rf1-w18-s57-gold-18-def170@f1traffic.com,CRM-00100018,Aria,Norris,AU,London,gold,2755.98,Aston Martin,true,false,true,LYL-00200018,gold,1378,1929,50000,true
+rf1-w9-s69-gold-19-25aaf6@f1traffic.com,CRM-00100019,Lucas,Thomas,FR,Paris,gold,3240.24,Aston Martin,true,false,true,LYL-00200019,gold,1620,2268,50000,true
+rf1-w1-s48-vip-20-0e5946@f1traffic.com,CRM-00100020,Lando,Singh,AE,Mumbai,vip,16848.83,Ferrari,true,false,true,LYL-00200020,vip,8424,11794,999999,true
+rf1-w11-s47-silver-21-510a26@f1traffic.com,CRM-00100021,Fernando,Garcia,MC,New York,silver,1470.12,McLaren,true,true,true,LYL-00200021,silver,735,1029,15000,false
+rf1-w4-s66-silver-22-32115a@f1traffic.com,CRM-00100022,Olivia,Zhang,AE,New York,silver,1810.83,Alpine,true,true,true,LYL-00200022,silver,905,1267,15000,true
+rf1-w15-s49-gold-23-475cfc@f1traffic.com,CRM-00100023,Maya,Anderson,DE,Tokyo,gold,7211.78,Williams,true,true,false,LYL-00200023,gold,3606,5048,50000,true
+rf1-w14-s70-gold-24-26a904@f1traffic.com,CRM-00100024,Hiroshi,Thomas,TH,Paris,gold,4593.11,Alpine,true,true,false,LYL-00200024,gold,2297,3216,50000,true
+rf1-w2-s26-standard-25-6e0414@f1traffic.com,CRM-00100025,Ella,Suzuki,SG,Mumbai,standard,469.07,Red Bull Racing,true,true,false,LYL-00200025,standard,235,329,5000,true
+rf1-w3-s41-standard-26-4c0321@f1traffic.com,CRM-00100026,Hiroshi,Rodriguez,TH,Paris,standard,442.76,Mercedes,true,true,true,LYL-00200026,standard,221,309,5000,true
+rf1-w17-s34-silver-27-7f7b09@f1traffic.com,CRM-00100027,Mason,Tanaka,US,Milan,silver,1674.1,Aston Martin,true,true,false,LYL-00200027,silver,837,1172,15000,true
+rf1-w9-s30-gold-28-48f50b@f1traffic.com,CRM-00100028,Hiroshi,Miller,SG,Tokyo,gold,4016.68,McLaren,true,true,false,LYL-00200028,gold,2008,2811,50000,true
+rf1-w2-s26-gold-29-cee7a2@f1traffic.com,CRM-00100029,Hassan,Leclerc,ES,New York,gold,6823.16,McLaren,true,true,true,LYL-00200029,gold,3412,4777,50000,true
+rf1-w5-s46-vip-30-4d913e@f1traffic.com,CRM-00100030,Liam,Taylor,FR,New York,vip,11775.1,McLaren,true,true,false,LYL-00200030,vip,5888,8243,999999,true
+rf1-w14-s56-standard-31-b9eb16@f1traffic.com,CRM-00100031,Harper,Jones,IN,London,standard,632.55,Red Bull Racing,true,true,true,LYL-00200031,standard,316,442,5000,true
+rf1-w6-s65-silver-32-1f3c76@f1traffic.com,CRM-00100032,Charlotte,Norris,CA,Tokyo,silver,2057.49,Ferrari,true,true,true,LYL-00200032,silver,1029,1441,15000,true
+rf1-w0-s73-gold-33-e7eee4@f1traffic.com,CRM-00100033,William,Park,GB,Tokyo,gold,6316.85,Williams,true,true,false,LYL-00200033,gold,3158,4421,50000,true
+rf1-w15-s20-silver-34-6a6e9e@f1traffic.com,CRM-00100034,Chloe,Smith,BR,Milan,silver,1454.02,Mercedes,true,true,true,LYL-00200034,silver,727,1018,15000,true
+rf1-w15-s49-standard-35-6d7f02@f1traffic.com,CRM-00100035,Khalid,Kumar,NL,Tokyo,standard,327.18,McLaren,true,false,false,LYL-00200035,standard,164,230,5000,true
+rf1-w14-s24-silver-36-9db543@f1traffic.com,CRM-00100036,Logan,Moore,BR,London,silver,1329.71,Ferrari,true,false,true,LYL-00200036,silver,665,931,15000,true
+rf1-w9-s46-gold-37-bebd38@f1traffic.com,CRM-00100037,James,Taylor,GB,Mumbai,gold,5698.49,Williams,true,true,false,LYL-00200037,gold,2849,3989,50000,true
+rf1-w12-s69-silver-38-ad654a@f1traffic.com,CRM-00100038,Evelyn,Khan,SG,Mumbai,silver,944.53,McLaren,true,true,false,LYL-00200038,silver,472,661,15000,true
+rf1-w12-s15-standard-39-32de87@f1traffic.com,CRM-00100039,Lucas,Ocon,AE,Tokyo,standard,363.05,McLaren,false,true,false,LYL-00200039,standard,182,255,5000,true
+rf1-w10-s15-standard-40-326b80@f1traffic.com,CRM-00100040,Michael,Moore,SG,New York,standard,796.8,Alpine,false,false,true,LYL-00200040,standard,398,557,5000,true
+rf1-w14-s58-standard-41-f4ae98@f1traffic.com,CRM-00100041,Esteban,Liu,MC,Tokyo,standard,270.12,McLaren,true,false,true,LYL-00200041,standard,135,189,5000,true
+rf1-w19-s10-silver-42-368e09@f1traffic.com,CRM-00100042,Valtteri,Chen,NL,New York,silver,2436.77,Alpine,true,true,false,LYL-00200042,silver,1218,1705,15000,true
+rf1-w7-s38-silver-43-80afeb@f1traffic.com,CRM-00100043,Oscar,Wilson,GB,Milan,silver,599.75,Aston Martin,true,true,false,LYL-00200043,silver,300,420,15000,true
+rf1-w2-s26-vip-44-1ac3b8@f1traffic.com,CRM-00100044,Khalid,Sharma,GB,New York,vip,11297.62,Mercedes,true,true,false,LYL-00200044,vip,5649,7909,999999,true
+rf1-w1-s11-silver-45-ece989@f1traffic.com,CRM-00100045,Carlos,Singh,ES,Tokyo,silver,974.55,Ferrari,false,true,false,LYL-00200045,silver,487,682,15000,true
+rf1-w19-s40-gold-46-6698bf@f1traffic.com,CRM-00100046,Khalid,Taylor,NL,New York,gold,4914.19,Aston Martin,true,true,false,LYL-00200046,gold,2457,3440,50000,true
+rf1-w0-s20-standard-47-ac90b5@f1traffic.com,CRM-00100047,Lance,Reddy,MC,Paris,standard,184.87,Williams,true,true,true,LYL-00200047,standard,92,129,5000,true
+rf1-w11-s30-vip-48-fb8aa3@f1traffic.com,CRM-00100048,Fernando,Lee,IT,Tokyo,vip,10595.93,McLaren,true,true,false,LYL-00200048,vip,5298,7417,999999,true
+rf1-w13-s3-vip-49-5dbdf5@f1traffic.com,CRM-00100049,Samuel,Li,IN,Paris,vip,24970.73,Williams,true,true,true,LYL-00200049,vip,12485,17479,999999,true
+rf1-w0-s13-silver-50-bd1a6d@f1traffic.com,CRM-00100050,Ren,Zhang,GB,Paris,silver,1448.34,Mercedes,false,true,false,LYL-00200050,silver,724,1014,15000,true
+rf1-w2-s55-standard-51-15c6d7@f1traffic.com,CRM-00100051,Krishna,Wilson,BR,Tokyo,standard,505.03,Williams,true,false,true,LYL-00200051,standard,253,354,5000,true
+rf1-w2-s42-gold-52-4321fa@f1traffic.com,CRM-00100052,Ren,Anderson,AU,Milan,gold,3628.93,Mercedes,true,true,false,LYL-00200052,gold,1814,2540,50000,false
+rf1-w6-s13-silver-53-805afa@f1traffic.com,CRM-00100053,Lance,Smith,BR,Tokyo,silver,532.52,Aston Martin,true,true,false,LYL-00200053,silver,266,372,15000,true
+rf1-w15-s22-gold-54-8554a8@f1traffic.com,CRM-00100054,Diego,Suzuki,BR,New York,gold,3972.91,Ferrari,false,false,false,LYL-00200054,gold,1986,2780,50000,true
+rf1-w19-s19-standard-55-f7464e@f1traffic.com,CRM-00100055,Lando,Wang,BR,New York,standard,630.05,Williams,true,false,true,LYL-00200055,standard,315,441,5000,true
+rf1-w14-s7-gold-56-fd5649@f1traffic.com,CRM-00100056,Pierre,Wilson,IT,Tokyo,gold,3371.68,McLaren,true,true,true,LYL-00200056,gold,1686,2360,50000,true
+rf1-w4-s12-standard-57-ac71d4@f1traffic.com,CRM-00100057,Pierre,Li,ES,Tokyo,standard,567.53,Alpine,true,true,false,LYL-00200057,standard,284,398,5000,true
+rf1-w1-s65-gold-58-0feb4a@f1traffic.com,CRM-00100058,Ren,Alonso,JP,Milan,gold,6389.42,Williams,true,false,false,LYL-00200058,gold,3195,4473,50000,true
+rf1-w15-s54-vip-59-180e39@f1traffic.com,CRM-00100059,George,Wilson,IN,Mumbai,vip,14176.39,Ferrari,true,false,false,LYL-00200059,vip,7088,9923,999999,true
+rf1-w8-s69-silver-60-eac0e4@f1traffic.com,CRM-00100060,Logan,Ahmed,DE,London,silver,2103.04,Aston Martin,false,true,true,LYL-00200060,silver,1052,1473,15000,true
+rf1-w6-s67-silver-61-c47d4b@f1traffic.com,CRM-00100061,Aditya,Gasly,DE,Tokyo,silver,1688.29,Alpine,true,true,false,LYL-00200061,silver,844,1182,15000,true
+rf1-w3-s44-gold-62-8061b4@f1traffic.com,CRM-00100062,Abigail,Chen,GB,Mumbai,gold,4115.77,Ferrari,true,true,true,LYL-00200062,gold,2058,2881,50000,true
+rf1-w1-s62-gold-63-6d409d@f1traffic.com,CRM-00100063,Kai,Sharma,NL,Mumbai,gold,7856.79,Aston Martin,true,true,true,LYL-00200063,gold,3928,5499,50000,true
+rf1-w2-s18-standard-64-c662a5@f1traffic.com,CRM-00100064,Evelyn,Wang,JP,Paris,standard,626.89,Red Bull Racing,true,true,true,LYL-00200064,standard,313,438,5000,true
+rf1-w13-s17-standard-65-2ce5e5@f1traffic.com,CRM-00100065,Sophia,Reddy,US,London,standard,594.6,Ferrari,false,false,false,LYL-00200065,standard,297,416,5000,true
+rf1-w7-s24-gold-66-a3f77d@f1traffic.com,CRM-00100066,Ishaan,Anderson,BR,Paris,gold,7338.96,Red Bull Racing,true,true,true,LYL-00200066,gold,3669,5137,50000,true
+rf1-w6-s48-silver-67-364c6b@f1traffic.com,CRM-00100067,Yuki,Khan,US,Tokyo,silver,957.55,Alpine,true,true,true,LYL-00200067,silver,479,671,15000,true
+rf1-w19-s17-gold-68-c900e8@f1traffic.com,CRM-00100068,Logan,Liu,IT,London,gold,7544.72,Aston Martin,true,true,true,LYL-00200068,gold,3772,5281,50000,true
+rf1-w6-s52-gold-69-0b548d@f1traffic.com,CRM-00100069,Abigail,Tsunoda,IT,Tokyo,gold,4146.56,Alpine,true,false,true,LYL-00200069,gold,2073,2902,50000,true
+rf1-w8-s31-gold-70-2f93f7@f1traffic.com,CRM-00100070,Olivia,Martinez,US,Paris,gold,6830.14,Mercedes,true,true,true,LYL-00200070,gold,3415,4781,50000,true
+rf1-w1-s27-silver-71-c3fcc1@f1traffic.com,CRM-00100071,Fernando,Rodriguez,SG,Mumbai,silver,1601.33,Alpine,true,false,false,LYL-00200071,silver,801,1121,15000,true
+rf1-w18-s24-vip-72-fa77ab@f1traffic.com,CRM-00100072,Emma,Ahmed,JP,Milan,vip,22140.46,Ferrari,true,false,false,LYL-00200072,vip,11070,15498,999999,true
+rf1-w4-s32-gold-73-785d75@f1traffic.com,CRM-00100073,George,Suzuki,GB,Milan,gold,6763.34,Williams,true,true,false,LYL-00200073,gold,3382,4735,50000,true
+rf1-w11-s10-gold-74-70d543@f1traffic.com,CRM-00100074,Vivaan,Kumar,AE,New York,gold,6878.89,Alpine,true,true,true,LYL-00200074,gold,3439,4815,50000,true
+rf1-w17-s42-silver-75-7d189b@f1traffic.com,CRM-00100075,Abigail,Tanaka,DE,Paris,silver,1112.25,Alpine,true,false,true,LYL-00200075,silver,556,778,15000,true
+rf1-w0-s2-silver-76-7d9e27@f1traffic.com,CRM-00100076,George,Suzuki,CA,New York,silver,1033.98,Mercedes,true,false,false,LYL-00200076,silver,517,724,15000,true
+rf1-w6-s31-standard-77-d6d460@f1traffic.com,CRM-00100077,Charles,Suzuki,DE,Paris,standard,648.25,Alpine,true,false,false,LYL-00200077,standard,324,454,5000,false
+rf1-w1-s55-gold-78-997925@f1traffic.com,CRM-00100078,Omar,Wilson,ES,New York,gold,2683.88,McLaren,true,true,true,LYL-00200078,gold,1342,1879,50000,true
+rf1-w13-s23-vip-79-dd9bc0@f1traffic.com,CRM-00100079,David,Iyer,TH,Paris,vip,6672.22,McLaren,true,true,false,LYL-00200079,vip,3336,4670,999999,false
+rf1-w4-s45-vip-80-cb662e@f1traffic.com,CRM-00100080,Joseph,Khan,US,Tokyo,vip,20541.29,Red Bull Racing,false,true,false,LYL-00200080,vip,10271,14379,999999,true
+rf1-w19-s13-vip-81-265666@f1traffic.com,CRM-00100081,Chloe,Williams,AU,London,vip,24445.35,Alpine,true,true,true,LYL-00200081,vip,12223,17112,999999,true
+rf1-w11-s25-gold-82-36c740@f1traffic.com,CRM-00100082,Henry,Martinez,JP,Tokyo,gold,5216.16,Alpine,false,true,false,LYL-00200082,gold,2608,3651,50000,false
+rf1-w6-s26-vip-83-cae64e@f1traffic.com,CRM-00100083,Mateo,Davis,CA,London,vip,9789.95,Williams,true,false,false,LYL-00200083,vip,4895,6853,999999,true
+rf1-w18-s14-standard-84-f889fd@f1traffic.com,CRM-00100084,Hassan,Chen,BR,London,standard,620.37,Mercedes,false,true,true,LYL-00200084,standard,310,434,5000,true
+rf1-w6-s68-silver-85-7650bd@f1traffic.com,CRM-00100085,Lando,Hamilton,CA,Mumbai,silver,1033.47,Aston Martin,true,true,true,LYL-00200085,silver,517,724,15000,true
+rf1-w18-s2-silver-86-98be03@f1traffic.com,CRM-00100086,Owen,Smith,TH,London,silver,785.08,Red Bull Racing,false,true,false,LYL-00200086,silver,393,550,15000,true
+rf1-w12-s45-vip-87-fb425c@f1traffic.com,CRM-00100087,William,Piastri,SG,London,vip,21510.57,McLaren,true,true,false,LYL-00200087,vip,10755,15057,999999,true
+rf1-w5-s13-silver-88-718567@f1traffic.com,CRM-00100088,Owen,Garcia,NL,Milan,silver,2212.95,Williams,true,true,false,LYL-00200088,silver,1106,1548,15000,false
+rf1-w7-s58-vip-89-32362e@f1traffic.com,CRM-00100089,Mia,Wilson,CA,London,vip,17101.68,Alpine,true,true,true,LYL-00200089,vip,8551,11971,999999,true
+rf1-w18-s25-standard-90-9e2cb8@f1traffic.com,CRM-00100090,Ren,Gasly,IT,Milan,standard,619.27,Ferrari,true,true,true,LYL-00200090,standard,310,434,5000,true
+rf1-w4-s22-vip-91-5a6430@f1traffic.com,CRM-00100091,Liu,Ahmed,AU,Milan,vip,11004.79,Alpine,true,true,true,LYL-00200091,vip,5502,7703,999999,true
+rf1-w10-s5-silver-92-ba549a@f1traffic.com,CRM-00100092,Olivia,Kim,GB,Mumbai,silver,1280.17,Ferrari,true,false,true,LYL-00200092,silver,640,896,15000,true
+rf1-w3-s11-silver-93-a6ccb6@f1traffic.com,CRM-00100093,Aria,Park,ES,Paris,silver,1142.08,Mercedes,true,true,false,LYL-00200093,silver,571,799,15000,true
+rf1-w19-s28-silver-94-2f116a@f1traffic.com,CRM-00100094,Sophia,Leclerc,US,New York,silver,2027.26,Red Bull Racing,true,true,false,LYL-00200094,silver,1014,1420,15000,true
+rf1-w0-s8-standard-95-aaddfc@f1traffic.com,CRM-00100095,Mia,Williams,IN,Tokyo,standard,107.33,Alpine,true,true,false,LYL-00200095,standard,54,76,5000,true
+rf1-w16-s57-standard-96-bc5edd@f1traffic.com,CRM-00100096,Aarav,Ocon,NL,Mumbai,standard,763.42,Ferrari,true,false,false,LYL-00200096,standard,382,535,5000,true
+rf1-w19-s47-gold-97-08f6df@f1traffic.com,CRM-00100097,Khalid,Liu,US,New York,gold,6688.98,Aston Martin,true,false,true,LYL-00200097,gold,3344,4682,50000,true
+rf1-w1-s11-standard-98-026fd1@f1traffic.com,CRM-00100098,Liu,Martinez,MC,Milan,standard,315.61,Williams,true,true,false,LYL-00200098,standard,158,221,5000,true
+rf1-w2-s23-vip-99-03538d@f1traffic.com,CRM-00100099,Olivia,Li,GB,London,vip,21055.94,Ferrari,true,true,true,LYL-00200099,vip,10528,14739,999999,true
+rf1-w9-s63-gold-100-e4bcfe@f1traffic.com,CRM-00100100,Aditya,Wilson,DE,Mumbai,gold,3426.14,Red Bull Racing,true,false,false,LYL-00200100,gold,1713,2398,50000,true
+rf1-w18-s21-silver-101-eb7b4b@f1traffic.com,CRM-00100101,Arjun,Ocon,BR,New York,silver,1217.47,Mercedes,false,true,false,LYL-00200101,silver,609,853,15000,true
+rf1-w1-s72-standard-102-82f182@f1traffic.com,CRM-00100102,Daniel,Verstappen,CA,New York,standard,476.09,Aston Martin,true,true,false,LYL-00200102,standard,238,333,5000,true
+rf1-w17-s19-standard-103-5c06d1@f1traffic.com,CRM-00100103,Ella,Chen,CA,London,standard,382.17,McLaren,true,true,false,LYL-00200103,standard,191,267,5000,true
+rf1-w3-s67-vip-104-199d0c@f1traffic.com,CRM-00100104,Olivia,Kumar,JP,Milan,vip,10966.72,Aston Martin,true,true,true,LYL-00200104,vip,5483,7676,999999,true
+rf1-w18-s22-gold-105-17c147@f1traffic.com,CRM-00100105,Michael,Hamilton,NL,Tokyo,gold,7973.08,Red Bull Racing,false,true,true,LYL-00200105,gold,3987,5582,50000,true
+rf1-w10-s48-gold-106-7a807f@f1traffic.com,CRM-00100106,David,Chen,FR,Milan,gold,4144.97,Ferrari,true,true,false,LYL-00200106,gold,2072,2901,50000,false
+rf1-w18-s12-vip-107-c343b3@f1traffic.com,CRM-00100107,Liu,Piastri,CA,New York,vip,16034.23,Aston Martin,false,true,true,LYL-00200107,vip,8017,11224,999999,true
+rf1-w0-s43-gold-108-d1c3c2@f1traffic.com,CRM-00100108,Ethan,Taylor,MC,Milan,gold,4181.01,Mercedes,true,false,true,LYL-00200108,gold,2091,2927,50000,true
+rf1-w0-s11-vip-109-dfd9bf@f1traffic.com,CRM-00100109,Ella,Patel,TH,Mumbai,vip,18081.93,Williams,true,true,true,LYL-00200109,vip,9041,12657,999999,true
+rf1-w19-s30-silver-110-af003c@f1traffic.com,CRM-00100110,Henry,Taylor,GB,Tokyo,silver,926.3,Ferrari,true,true,false,LYL-00200110,silver,463,648,15000,true
+rf1-w14-s13-standard-111-e7ed32@f1traffic.com,CRM-00100111,Carlos,Perez,FR,Paris,standard,413.65,Ferrari,true,true,true,LYL-00200111,standard,207,290,5000,true
+rf1-w9-s71-standard-112-415b7d@f1traffic.com,CRM-00100112,Hassan,Gasly,TH,New York,standard,119.12,Red Bull Racing,true,true,false,LYL-00200112,standard,60,84,5000,true
+rf1-w16-s14-vip-113-8ec719@f1traffic.com,CRM-00100113,Sergio,Smith,IT,Milan,vip,13988.73,Ferrari,true,false,true,LYL-00200113,vip,6994,9792,999999,true
+rf1-w6-s12-silver-114-27539a@f1traffic.com,CRM-00100114,Fernando,Anderson,JP,Tokyo,silver,1502.5,Aston Martin,false,true,true,LYL-00200114,silver,751,1051,15000,true
+rf1-w4-s47-standard-115-a3b0e7@f1traffic.com,CRM-00100115,Charlotte,Taylor,BR,Tokyo,standard,603.26,Alpine,true,true,false,LYL-00200115,standard,302,423,5000,true
+rf1-w10-s39-silver-116-add6c7@f1traffic.com,CRM-00100116,Harper,Verstappen,SG,Milan,silver,1354.98,Williams,true,true,false,LYL-00200116,silver,677,948,15000,true
+rf1-w3-s28-vip-117-9c7c7e@f1traffic.com,CRM-00100117,Maya,Ocon,ES,Tokyo,vip,21546.13,Williams,true,true,true,LYL-00200117,vip,10773,15082,999999,true
+rf1-w13-s10-standard-118-d3455f@f1traffic.com,CRM-00100118,Olivia,Anderson,DE,Tokyo,standard,441.87,Alpine,false,true,false,LYL-00200118,standard,221,309,5000,true
+rf1-w15-s33-silver-119-5b367a@f1traffic.com,CRM-00100119,Yuki,Liu,TH,Tokyo,silver,951.7,Ferrari,false,true,true,LYL-00200119,silver,476,666,15000,true
+abigail.leclerc120@f1retail.com,CRM-00100120,Abigail,Leclerc,SG,Tokyo,gold,2394.91,Mercedes,false,false,true,LYL-00200120,gold,1197,1676,50000,true
+pierre.suzuki121@f1retail.com,CRM-00100121,Pierre,Suzuki,NL,Mumbai,standard,341.7,McLaren,true,true,false,LYL-00200121,standard,171,239,5000,true
+mason.ocon122@f1retail.com,CRM-00100122,Mason,Ocon,NL,London,gold,2934.54,Aston Martin,true,false,false,LYL-00200122,gold,1467,2054,50000,true
+amelia.garcia123@f1retail.com,CRM-00100123,Amelia,Garcia,TH,Tokyo,gold,3837.28,McLaren,true,true,false,LYL-00200123,gold,1919,2687,50000,true
+esteban.brown124@f1retail.com,CRM-00100124,Esteban,Brown,JP,Milan,silver,619.4,Mercedes,true,true,false,LYL-00200124,silver,310,434,15000,true
+esteban.gasly125@f1retail.com,CRM-00100125,Esteban,Gasly,ES,Milan,gold,5729.39,Williams,true,true,true,LYL-00200125,gold,2865,4011,50000,false
+max.thomas126@f1retail.com,CRM-00100126,Max,Thomas,IT,Mumbai,gold,7958.99,Aston Martin,true,true,true,LYL-00200126,gold,3979,5571,50000,true
+mia.tsunoda127@f1retail.com,CRM-00100127,Mia,Tsunoda,TH,London,gold,2518.77,Aston Martin,true,false,true,LYL-00200127,gold,1259,1763,50000,true
+logan.ahmed128@f1retail.com,CRM-00100128,Logan,Ahmed,GB,Tokyo,standard,232.94,Williams,true,true,false,LYL-00200128,standard,116,162,5000,true
+hiroshi.williams129@f1retail.com,CRM-00100129,Hiroshi,Williams,BR,Milan,gold,3098.44,McLaren,true,true,false,LYL-00200129,gold,1549,2169,50000,true
+michael.russell130@f1retail.com,CRM-00100130,Michael,Russell,MC,New York,standard,325.22,Alpine,true,true,false,LYL-00200130,standard,163,228,5000,true
+owen.ocon131@f1retail.com,CRM-00100131,Owen,Ocon,AU,London,standard,299.05,Aston Martin,true,true,true,LYL-00200131,standard,150,210,5000,true
+ava.li132@f1retail.com,CRM-00100132,Ava,Li,MC,Paris,standard,598.87,Aston Martin,true,true,false,LYL-00200132,standard,299,419,5000,true
+pierre.sainz133@f1retail.com,CRM-00100133,Pierre,Sainz,BR,New York,standard,106.35,McLaren,true,true,false,LYL-00200133,standard,53,74,5000,true
+maya.gasly134@f1retail.com,CRM-00100134,Maya,Gasly,TH,Milan,vip,6505.18,Alpine,true,true,true,LYL-00200134,vip,3253,4554,999999,true
+ishaan.ahmed135@f1retail.com,CRM-00100135,Ishaan,Ahmed,AE,London,vip,17857.11,Mercedes,true,false,false,LYL-00200135,vip,8929,12501,999999,true
+amelia.moore136@f1retail.com,CRM-00100136,Amelia,Moore,IT,London,silver,1612.53,Aston Martin,true,true,true,LYL-00200136,silver,806,1128,15000,true
+maya.martinez137@f1retail.com,CRM-00100137,Maya,Martinez,GB,Milan,vip,23993.29,Mercedes,false,true,false,LYL-00200137,vip,11997,16796,999999,true
+lando.martinez138@f1retail.com,CRM-00100138,Lando,Martinez,IN,Paris,standard,758.44,McLaren,true,false,false,LYL-00200138,standard,379,531,5000,true
+diego.martinez139@f1retail.com,CRM-00100139,Diego,Martinez,TH,Milan,standard,415.78,Red Bull Racing,true,true,false,LYL-00200139,standard,208,291,5000,true
+maya.rodriguez140@f1retail.com,CRM-00100140,Maya,Rodriguez,NL,Tokyo,vip,23057.44,Red Bull Racing,true,true,true,LYL-00200140,vip,11529,16141,999999,true
+max.tsunoda141@f1retail.com,CRM-00100141,Max,Tsunoda,CA,London,vip,12843.49,Mercedes,true,false,false,LYL-00200141,vip,6422,8991,999999,true
+aria.anderson142@f1retail.com,CRM-00100142,Aria,Anderson,US,Tokyo,vip,24578.82,Aston Martin,true,true,false,LYL-00200142,vip,12289,17205,999999,true
+valtteri.suzuki143@f1retail.com,CRM-00100143,Valtteri,Suzuki,MC,Tokyo,standard,725.83,Ferrari,true,true,true,LYL-00200143,standard,363,508,5000,true
+ella.smith144@f1retail.com,CRM-00100144,Ella,Smith,US,Paris,standard,435.1,Red Bull Racing,false,true,true,LYL-00200144,standard,218,305,5000,true
+kai.suzuki145@f1retail.com,CRM-00100145,Kai,Suzuki,BR,Mumbai,vip,19775.47,Williams,true,true,false,LYL-00200145,vip,9888,13843,999999,true
+noah.alonso146@f1retail.com,CRM-00100146,Noah,Alonso,AU,Milan,gold,7686.6,Williams,true,false,true,LYL-00200146,gold,3843,5380,50000,true
+james.wang147@f1retail.com,CRM-00100147,James,Wang,AU,Mumbai,gold,3899.72,Ferrari,true,true,false,LYL-00200147,gold,1950,2730,50000,true
+yuki.reddy148@f1retail.com,CRM-00100148,Yuki,Reddy,AE,London,gold,5124.66,McLaren,true,true,false,LYL-00200148,gold,2562,3587,50000,true
+lance.ahmed149@f1retail.com,CRM-00100149,Lance,Ahmed,FR,New York,vip,9749.31,Red Bull Racing,false,true,true,LYL-00200149,vip,4875,6825,999999,true
+mason.johnson150@f1retail.com,CRM-00100150,Mason,Johnson,FR,Milan,standard,762.94,Alpine,true,true,false,LYL-00200150,standard,381,533,5000,true
+diego.garcia151@f1retail.com,CRM-00100151,Diego,Garcia,JP,Milan,silver,857.22,Ferrari,true,true,true,LYL-00200151,silver,429,601,15000,true
+harper.park152@f1retail.com,CRM-00100152,Harper,Park,AU,London,silver,2190.9,Williams,true,false,true,LYL-00200152,silver,1095,1533,15000,false
+abigail.wilson153@f1retail.com,CRM-00100153,Abigail,Wilson,ES,London,vip,15148.57,Alpine,true,true,true,LYL-00200153,vip,7574,10604,999999,true
+henry.zhang154@f1retail.com,CRM-00100154,Henry,Zhang,GB,Milan,vip,19855.76,Aston Martin,true,true,false,LYL-00200154,vip,9928,13899,999999,true
+joseph.tanaka155@f1retail.com,CRM-00100155,Joseph,Tanaka,BR,Paris,silver,1556.11,Ferrari,true,false,false,LYL-00200155,silver,778,1089,15000,true
+diego.norris156@f1retail.com,CRM-00100156,Diego,Norris,SG,Tokyo,vip,17706.64,Mercedes,false,false,true,LYL-00200156,vip,8853,12394,999999,true
+ella.piastri157@f1retail.com,CRM-00100157,Ella,Piastri,US,London,standard,413.43,Red Bull Racing,true,true,true,LYL-00200157,standard,207,290,5000,true
+hassan.chen158@f1retail.com,CRM-00100158,Hassan,Chen,BR,London,standard,790.47,Mercedes,true,true,true,LYL-00200158,standard,395,553,5000,true
+joseph.kim159@f1retail.com,CRM-00100159,Joseph,Kim,IN,Paris,silver,1616.13,Williams,true,false,true,LYL-00200159,silver,808,1131,15000,true
+hiroshi.kim160@f1retail.com,CRM-00100160,Hiroshi,Kim,JP,London,silver,1358.4,Alpine,true,false,false,LYL-00200160,silver,679,951,15000,true
+joseph.iyer161@f1retail.com,CRM-00100161,Joseph,Iyer,TH,Tokyo,standard,561,Red Bull Racing,true,true,true,LYL-00200161,standard,281,393,5000,true
+max.khan162@f1retail.com,CRM-00100162,Max,Khan,AU,Mumbai,standard,696.49,Mercedes,true,true,false,LYL-00200162,standard,348,487,5000,true
+sergio.iyer163@f1retail.com,CRM-00100163,Sergio,Iyer,BR,Tokyo,standard,616.31,McLaren,true,true,true,LYL-00200163,standard,308,431,5000,true
+lucas.russell164@f1retail.com,CRM-00100164,Lucas,Russell,IN,Mumbai,standard,163.77,Williams,false,true,false,LYL-00200164,standard,82,115,5000,true
+owen.lee165@f1retail.com,CRM-00100165,Owen,Lee,MC,London,silver,1955.75,Red Bull Racing,true,true,true,LYL-00200165,silver,978,1369,15000,true
+khalid.patel166@f1retail.com,CRM-00100166,Khalid,Patel,AE,Paris,gold,7280,Aston Martin,true,false,true,LYL-00200166,gold,3640,5096,50000,true
+charles.jones167@f1retail.com,CRM-00100167,Charles,Jones,IT,New York,silver,724.76,Mercedes,true,true,false,LYL-00200167,silver,362,507,15000,true
+charles.perez168@f1retail.com,CRM-00100168,Charles,Perez,FR,Tokyo,silver,1298.58,Mercedes,true,false,false,LYL-00200168,silver,649,909,15000,true
+ishaan.martinez169@f1retail.com,CRM-00100169,Ishaan,Martinez,JP,Tokyo,standard,558.46,Ferrari,true,true,true,LYL-00200169,standard,279,391,5000,true
+alex.brown170@f1retail.com,CRM-00100170,Alex,Brown,FR,Tokyo,standard,476.33,Aston Martin,true,false,true,LYL-00200170,standard,238,333,5000,true
+khalid.anderson171@f1retail.com,CRM-00100171,Khalid,Anderson,BR,Milan,gold,4745.88,Williams,true,true,false,LYL-00200171,gold,2373,3322,50000,true
+oscar.khan172@f1retail.com,CRM-00100172,Oscar,Khan,SG,Mumbai,standard,186.77,Mercedes,true,true,true,LYL-00200172,standard,93,130,5000,true
+henry.verstappen173@f1retail.com,CRM-00100173,Henry,Verstappen,GB,London,vip,23300.35,Ferrari,true,true,true,LYL-00200173,vip,11650,16310,999999,true
+amelia.liu174@f1retail.com,CRM-00100174,Amelia,Liu,TH,Tokyo,silver,2296.91,Williams,false,true,false,LYL-00200174,silver,1148,1607,15000,true
+henry.hamilton175@f1retail.com,CRM-00100175,Henry,Hamilton,CA,New York,gold,5918.5,Williams,false,false,false,LYL-00200175,gold,2959,4143,50000,true
+henry.miller176@f1retail.com,CRM-00100176,Henry,Miller,SG,Tokyo,standard,251.11,Mercedes,true,true,true,LYL-00200176,standard,126,176,5000,true
+fernando.norris177@f1retail.com,CRM-00100177,Fernando,Norris,MC,Tokyo,gold,5125.84,Williams,true,false,false,LYL-00200177,gold,2563,3588,50000,true
+george.norris178@f1retail.com,CRM-00100178,George,Norris,DE,New York,vip,20375.43,Alpine,true,true,false,LYL-00200178,vip,10188,14263,999999,true
+george.piastri179@f1retail.com,CRM-00100179,George,Piastri,MC,Paris,standard,360.34,Williams,false,true,false,LYL-00200179,standard,180,252,5000,true
+lewis.alonso180@f1retail.com,CRM-00100180,Lewis,Alonso,SG,Tokyo,gold,5033.92,McLaren,true,true,false,LYL-00200180,gold,2517,3524,50000,true
+mia.russell181@f1retail.com,CRM-00100181,Mia,Russell,JP,London,vip,6420.35,Williams,true,true,true,LYL-00200181,vip,3210,4494,999999,true
+ren.sainz182@f1retail.com,CRM-00100182,Ren,Sainz,TH,Tokyo,standard,795.06,Aston Martin,true,true,true,LYL-00200182,standard,398,557,5000,true
+sergio.chen183@f1retail.com,CRM-00100183,Sergio,Chen,IT,Paris,standard,459.26,Aston Martin,true,true,false,LYL-00200183,standard,230,322,5000,true
+ishaan.ocon184@f1retail.com,CRM-00100184,Ishaan,Ocon,DE,Paris,vip,10504.8,Alpine,true,true,true,LYL-00200184,vip,5252,7353,999999,true
+samuel.taylor185@f1retail.com,CRM-00100185,Samuel,Taylor,DE,London,gold,2984.87,Williams,true,false,true,LYL-00200185,gold,1492,2089,50000,true
+sergio.johnson186@f1retail.com,CRM-00100186,Sergio,Johnson,BR,London,gold,4071.68,Ferrari,true,false,true,LYL-00200186,gold,2036,2850,50000,true
+arjun.rodriguez187@f1retail.com,CRM-00100187,Arjun,Rodriguez,CA,Tokyo,gold,5265.97,Aston Martin,false,false,false,LYL-00200187,gold,2633,3686,50000,true
+joseph.chen188@f1retail.com,CRM-00100188,Joseph,Chen,US,Paris,standard,717.7,McLaren,true,true,false,LYL-00200188,standard,359,503,5000,true
+arjun.iyer189@f1retail.com,CRM-00100189,Arjun,Iyer,IT,London,gold,5326.58,Ferrari,true,true,false,LYL-00200189,gold,2663,3728,50000,true
+evelyn.sharma190@f1retail.com,CRM-00100190,Evelyn,Sharma,IN,London,gold,2593.88,Alpine,true,true,false,LYL-00200190,gold,1297,1816,50000,false
+mason.ahmed191@f1retail.com,CRM-00100191,Mason,Ahmed,NL,Milan,gold,5008.11,Williams,true,true,true,LYL-00200191,gold,2504,3506,50000,true
+valtteri.brown192@f1retail.com,CRM-00100192,Valtteri,Brown,MC,Paris,gold,4305.57,Aston Martin,true,true,true,LYL-00200192,gold,2153,3014,50000,true
+kai.iyer193@f1retail.com,CRM-00100193,Kai,Iyer,ES,New York,vip,14347.75,Williams,true,true,false,LYL-00200193,vip,7174,10044,999999,true
+ava.hamilton194@f1retail.com,CRM-00100194,Ava,Hamilton,NL,Milan,standard,717.97,Alpine,true,true,true,LYL-00200194,standard,359,503,5000,true
+ethan.ahmed195@f1retail.com,CRM-00100195,Ethan,Ahmed,MC,New York,standard,483.49,Mercedes,true,false,true,LYL-00200195,standard,242,339,5000,true
+maya.ahmed196@f1retail.com,CRM-00100196,Maya,Ahmed,FR,Paris,gold,4658.42,Ferrari,true,false,false,LYL-00200196,gold,2329,3261,50000,true
+carlos.russell197@f1retail.com,CRM-00100197,Carlos,Russell,IN,London,silver,1391.28,Aston Martin,true,true,true,LYL-00200197,silver,696,974,15000,true
+amelia.ahmed198@f1retail.com,CRM-00100198,Amelia,Ahmed,IT,London,silver,2378.24,Red Bull Racing,true,true,false,LYL-00200198,silver,1189,1665,15000,false
+kai.norris199@f1retail.com,CRM-00100199,Kai,Norris,CA,Milan,silver,1026.69,Red Bull Racing,true,false,false,LYL-00200199,silver,513,718,15000,false

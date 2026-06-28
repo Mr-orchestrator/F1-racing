@@ -1,0 +1,45 @@
+{
+  "$schema": "reference-only — recreate in AEP Schema Builder",
+  "title": "F1 - Individual Profile",
+  "class": "https://ns.adobe.com/xdm/context/profile",
+  "description": "Individual Profile schema for RTCDP. Profile-enabled. Primary identity = crmId.",
+  "fieldGroups": [
+    "Demographic Details",
+    "Personal Contact Details",
+    "IdentityMap",
+    "Consents and Preferences",
+    "F1 Loyalty Details (custom)"
+  ],
+  "identities": {
+    "primary": { "namespace": "crmId" },
+    "additional": [{ "namespace": "Email", "hashed": true }, { "namespace": "ECID" }]
+  },
+  "customFieldGroup_loyalty": {
+    "_f1racingstore": {
+      "type": "object",
+      "properties": {
+        "loyalty": {
+          "type": "object",
+          "properties": {
+            "customerTier": { "type": "string", "description": "guest|registered|silver|gold|VIP" },
+            "lifetimeValue": { "type": "number" },
+            "lastPurchaseDate": { "type": "string", "format": "date-time" },
+            "favoriteTeam": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+  "sampleProfile": {
+    "person": { "name": { "firstName": "Test", "lastName": "User" } },
+    "personalEmail": { "address": "test@example.com" },
+    "identityMap": {
+      "crmId": [{ "id": "user_123", "primary": true }],
+      "Email": [{ "id": "<sha256-hex>" }]
+    },
+    "_f1racingstore": {
+      "loyalty": { "customerTier": "VIP", "lifetimeValue": 2499.0, "lastPurchaseDate": "2026-05-20T00:00:00Z", "favoriteTeam": "Ferrari" }
+    },
+    "consents": { "marketing": { "email": { "val": "y" } } }
+  }
+}

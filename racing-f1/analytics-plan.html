@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F1 Racing Store — Adobe Measurement Plan (AA · Web SDK · CJA · RTCDP)</title>
+<style>
+  :root{
+    --bg:#0a0a0f; --panel:#13131c; --panel2:#1a1a26; --line:#2a2a3a;
+    --red:#e10600; --red2:#ff2d20; --txt:#e8e8ef; --mut:#9a9ab0; --acc:#34d399;
+    --code:#0e0e16; --warn:#fbbf24; --blue:#60a5fa;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.6 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  a{color:var(--red2);text-decoration:none} a:hover{text-decoration:underline}
+  .wrap{display:flex;min-height:100vh}
+  /* Sidebar */
+  nav.side{position:sticky;top:0;align-self:flex-start;width:280px;height:100vh;overflow-y:auto;
+    background:linear-gradient(180deg,#12121b,#0c0c12);border-right:1px solid var(--line);padding:24px 0}
+  nav.side .brand{padding:0 22px 18px;border-bottom:1px solid var(--line);margin-bottom:14px}
+  nav.side .brand b{color:#fff;font-size:18px;display:block;letter-spacing:.5px}
+  nav.side .brand span{color:var(--red2);font-size:12px;text-transform:uppercase;letter-spacing:2px}
+  nav.side a{display:block;color:var(--mut);padding:7px 22px;font-size:13.5px;border-left:3px solid transparent}
+  nav.side a:hover{color:#fff;background:#1c1c28;text-decoration:none}
+  nav.side a.h2{padding-left:38px;font-size:12.5px;color:#7d7d95}
+  nav.side .grp{padding:14px 22px 4px;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#5a5a72}
+  /* Main */
+  main{flex:1;max-width:1080px;padding:46px 56px 120px;margin:0 auto}
+  h1{font-size:30px;margin:0 0 6px;color:#fff;line-height:1.2}
+  h2{font-size:23px;margin:54px 0 14px;color:#fff;padding-bottom:8px;border-bottom:2px solid var(--red)}
+  h3{font-size:18px;margin:30px 0 10px;color:#fff}
+  h4{font-size:15px;margin:20px 0 8px;color:var(--red2);text-transform:uppercase;letter-spacing:.5px}
+  p{color:#d2d2de}
+  .sub{color:var(--mut);font-size:15px;margin-top:0}
+  .badges{margin:18px 0 8px}
+  .badge{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:20px;
+    padding:5px 14px;font-size:12.5px;margin:0 8px 8px 0;color:var(--txt)}
+  .badge b{color:var(--acc)}
+  .badge.red b{color:var(--red2)}
+  .badge.warn b{color:var(--warn)}
+  /* Cards / callouts */
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px 24px;margin:18px 0}
+  .note{border-left:4px solid var(--blue);background:#101622;padding:14px 18px;border-radius:6px;margin:16px 0}
+  .ok{border-left:4px solid var(--acc);background:#0f1a14;padding:14px 18px;border-radius:6px;margin:16px 0}
+  .warnbox{border-left:4px solid var(--warn);background:#1c170a;padding:14px 18px;border-radius:6px;margin:16px 0}
+  .crit{border-left:4px solid var(--red);background:#1c0d0d;padding:14px 18px;border-radius:6px;margin:16px 0}
+  /* Tables */
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13.5px;background:var(--panel);border-radius:10px;overflow:hidden}
+  th{background:#1f1f2c;color:#fff;text-align:left;padding:10px 12px;font-size:12.5px;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--red)}
+  td{padding:9px 12px;border-bottom:1px solid var(--line);color:#cfcfdb;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:#171722}
+  code{background:#1d1d2a;color:#ffd9d6;padding:2px 6px;border-radius:4px;font-size:12.5px;font-family:Consolas,Monaco,monospace}
+  pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:18px;overflow-x:auto;
+    font-family:Consolas,Monaco,monospace;font-size:12.5px;line-height:1.55;color:#cde3cd}
+  pre .k{color:#ff9b94} pre .s{color:#9fe6a0} pre .c{color:#6a6a82}
+  .diagram{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:20px;
+    font-family:Consolas,Monaco,monospace;font-size:12.5px;white-space:pre;overflow-x:auto;color:#bfeacb;line-height:1.5}
+  .pill{display:inline-block;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:.5px}
+  .p0{background:#3a0d0d;color:#ff8a82;border:1px solid #5a1a1a}
+  .p1{background:#0d2a3a;color:#7cc7ff;border:1px solid #1a4a5a}
+  .p2{background:#241a3a;color:#b89cff;border:1px solid #3a2a5a}
+  ul.steps{list-style:none;padding-left:0}
+  ul.steps li{padding:6px 0 6px 30px;position:relative;color:#d2d2de}
+  ul.steps li:before{content:"▢";position:absolute;left:0;color:var(--red2)}
+  hr{border:none;border-top:1px solid var(--line);margin:40px 0}
+  .toc-top{font-size:12px;color:var(--mut)}
+  .kicker{color:var(--red2);font-size:12px;text-transform:uppercase;letter-spacing:2px;font-weight:700}
+  footer{color:#5a5a72;font-size:12.5px;border-top:1px solid var(--line);padding-top:20px;margin-top:60px}
+  @media(max-width:900px){nav.side{display:none}main{padding:28px 20px 80px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="side">
+    <div class="brand"><span>F1 Racing Store</span><b>Adobe Measurement Plan</b></div>
+    <div class="grp">Start here</div>
+    <a href="#overview">Overview &amp; Status</a>
+    <a href="#arch">Target Architecture</a>
+    <div class="grp">SDD</div>
+    <a href="#xdm">XDM Schema Design</a>
+    <a href="#identity">Identity &amp; Consent</a>
+    <a href="#migration">Migration Plan</a>
+    <div class="grp">SDR</div>
+    <a href="#de">Data Elements</a>
+    <a href="#aavars">AA Variables</a>
+    <a href="#eventmap">Master Event Map</a>
+    <a href="#purchase">Purchase Detail</a>
+    <div class="grp">KPI</div>
+    <a href="#kpi">KPI / KPR Framework</a>
+    <a href="#calc">Calculated Metrics</a>
+    <a href="#dash">Dashboards</a>
+    <div class="grp">Runbook</div>
+    <a href="#rb-aep">1 · AEP Schemas</a>
+    <a href="#rb-ds">2 · Datastreams</a>
+    <a href="#rb-tags">3 · Tags / Web SDK</a>
+    <a href="#rb-cja">4 · CJA</a>
+    <a href="#rb-qa">5 · Validation</a>
+    <a href="#rb-rtcdp">6 · RTCDP Audiences</a>
+    <a href="#rb-cut">7 · Cutover</a>
+    <div class="grp">Reference</div>
+    <a href="#faq">How it's implemented</a>
+  </nav>
+
+  <main>
+    <span class="kicker">Solution Design · v1.0</span>
+    <h1>Adobe Measurement Plan — AA · Web SDK · CJA · RTCDP</h1>
+    <p class="sub">F1 Racing Store · <code>racing-f1-rho.vercel.app</code> · Org <code>D1D7123F524450A60A490D45@AdobeOrg</code></p>
+
+    <!-- ============ OVERVIEW ============ -->
+    <section id="overview">
+      <h2>Overview &amp; Status</h2>
+      <p>Move from a single-solution <b>AppMeasurement</b> implementation (Adobe Analytics only, via the legacy <code>2o7.net</code> beacon) to a unified <b>Adobe Web SDK</b> collection that powers four solutions from one event: <b>Adobe Analytics</b>, <b>Customer Journey Analytics (CJA)</b>, <b>Real-Time CDP (RTCDP)</b>, and edge personalization. <i>Collect once, distribute everywhere.</i></p>
+      <div class="badges">
+        <span class="badge">AA RSID (prod) <b>ageo1xxlonf1racingstore-prod</b></span>
+        <span class="badge">Base currency <b>INR</b></span>
+        <span class="badge">On-site prices <b>USD</b></span>
+        <span class="badge">Time zone <b>IST</b></span>
+        <span class="badge red">Source layer <b>window.adobeDataLayer</b></span>
+      </div>
+      <div class="ok"><b>✅ Live today:</b> AppMeasurement page-view → Adobe Analytics (verified HTTP 200, <code>cc=USD</code>). Page View rule + currency data element published in Tags library <code>a4</code>.</div>
+      <div class="warnbox"><b>📋 Planned (this plan):</b> Web SDK, XDM schema, CJA, and RTCDP are <b>fully specified but not yet built</b> in Adobe. They are implemented in the Adobe Launch (Tags) + AEP UIs by following the Runbook below.</div>
+      <div class="crit"><b>Why migrate off <code>2o7.net</code>:</b> (1) it does not feed AEP, so CJA &amp; RTCDP get nothing; (2) the <code>2o7.net</code> host is heavily ad-blocked → visit/revenue undercount. The Web SDK edge domain (<code>*.adobedc.net</code>) fixes both.</div>
+    </section>
+
+    <!-- ============ ARCH ============ -->
+    <section id="arch">
+      <h2>Target Architecture</h2>
+      <div class="diagram">  gridboxLayer / adobeDataLayer  (UNCHANGED)
+        │  ACDL "Data Pushed"
+        ▼
+  Adobe Tags (Launch)
+   ├─ Adobe Client Data Layer extension       (listens to events)
+   ├─ Adobe Experience Platform Web SDK ext.   (Alloy)
+   ├─ Data Elements: XDM ExperienceEvent
+   └─ Rules: one per event → "Set XDM" → alloy sendEvent
+        │  HTTPS  edge.adobedc.net/ee/v2/interact   (first-party, NOT 2o7.net)
+        ▼
+  DATASTREAM  "F1 Racing Store - <Dev|Prod>"
+   ├─ Adobe Analytics service       → RSID (dev/prod)
+   ├─ Adobe Experience Platform svc → ExperienceEvent dataset (Profile=on)
+   └─ Edge Network: consent, identity (ECID)
+        │
+        ├─►  Adobe Analytics   (Workspace, Real-Time)
+        ├─►  AEP data lake  →  CJA Connection → Data View → Workspace
+        └─►  AEP Profile    →  RTCDP → Audiences → Destinations (activation)</div>
+    </section>
+
+    <!-- ============ XDM ============ -->
+    <section id="xdm">
+      <h2>XDM Schema Design</h2>
+      <h3>ExperienceEvent — <code>F1 - Web ExperienceEvent</code></h3>
+      <p>Class: <b>XDM ExperienceEvent</b>. Profile-enabled. Field groups:</p>
+      <table>
+        <tr><th>Field group</th><th>Key fields</th><th>Source (adobeDataLayer)</th></tr>
+        <tr><td>Web SDK ExperienceEvent (<code>web</code>)</td><td>webPageDetails.name/URL/pageViews; webInteraction.name/type/linkClicks</td><td>page.pageInfo.*, event name</td></tr>
+        <tr><td>Commerce Details (<code>commerce</code>)</td><td>productViews, productListAdds/Removals, checkouts, purchases; order.priceTotal/currencyCode/purchaseID</td><td>cart &amp; transaction events</td></tr>
+        <tr><td>Product List Items (<code>productListItems[]</code>)</td><td>SKU, name, priceTotal, quantity, currencyCode, productCategories[]</td><td>attributes.product_*, cart.item[]</td></tr>
+        <tr><td>Consents and Preferences</td><td>consents.collect.val, marketing.*</td><td>context.consentCategories</td></tr>
+        <tr><td>IdentityMap</td><td>ECID, Email_LC_SHA256, crmId</td><td>ECID auto; setUser email/userId</td></tr>
+        <tr><td><code>_f1racingstore</code> (custom)</td><td>race, ticket, seat, team, driver, experience, hospitality, promo, search, step, eventInfo</td><td>F1-domain events</td></tr>
+      </table>
+      <h3>Individual Profile — <code>F1 - Individual Profile</code> (RTCDP)</h3>
+      <p>Class: <b>XDM Individual Profile</b>. Field groups: Demographic, Personal Contact, Loyalty (<code>customerTier</code>), IdentityMap, Consents. Primary identity <code>crmId</code>; also <code>Email</code> (hashed) + <code>ECID</code>.</p>
+    </section>
+
+    <!-- ============ IDENTITY ============ -->
+    <section id="identity">
+      <h2>Identity &amp; Consent</h2>
+      <table>
+        <tr><th>Identity</th><th>Namespace</th><th>Set by</th><th>Primary?</th></tr>
+        <tr><td>ECID</td><td><code>ECID</code></td><td>Web SDK (auto)</td><td>Yes (anonymous)</td></tr>
+        <tr><td>CRM ID</td><td><code>crmId</code></td><td><code>setUser({user_id})</code></td><td>Yes (Profile)</td></tr>
+        <tr><td>Email (hashed)</td><td><code>Email_LC_SHA256</code></td><td>lowercase+trim+SHA-256 of email</td><td>No</td></tr>
+      </table>
+      <div class="note"><b>PII rule:</b> email is hashed client-side (SubtleCrypto SHA-256) before it ever reaches the Edge. Raw PII is never sent. Merge policy (RTCDP): private graph, timestamp-ordered, ECID+crmId stitched.</div>
+      <div class="warnbox"><b>Currency:</b> on-site prices are <b>USD</b> → XDM <code>commerce.order.currencyCode = "USD"</code>. The AA report suite (INR base) and the CJA Data View convert/label. Document so revenue is never misread as INR-at-face-value.</div>
+    </section>
+
+    <!-- ============ MIGRATION ============ -->
+    <section id="migration">
+      <h2>Migration Plan (dual-tag, zero AA downtime)</h2>
+      <table>
+        <tr><th>Phase</th><th>Action</th><th>Exit criteria</th></tr>
+        <tr><td><b>A — Baseline</b></td><td>Keep the existing AppMeasurement Page View rule live.</td><td>AA still collecting (verified).</td></tr>
+        <tr><td><b>B — Parallel Web SDK</b></td><td>Add Web SDK + XDM + rules; Dev datastream → dev RSID + dev dataset. Validate edge <code>interact</code>, CJA rows, profiles.</td><td>XDM correct for all P0 events; CJA preview shows data; profiles build.</td></tr>
+        <tr><td><b>C — Cutover</b></td><td>Point AA collection at the Web SDK datastream's Analytics service (prod RSID); disable AppMeasurement; retire <code>2o7.net</code>.</td><td>AA parity vs dual-tag; no <code>2o7.net</code> calls.</td></tr>
+      </table>
+    </section>
+
+    <!-- ============ DATA ELEMENTS ============ -->
+    <section id="de">
+      <h2>SDR · Data Elements (Tags)</h2>
+      <p>Create once, reuse across rules. ACDL = Adobe Client Data Layer type.</p>
+      <table>
+        <tr><th>Data Element</th><th>Type</th><th>Source path</th><th>Default</th></tr>
+        <tr><td>DL - event</td><td>ACDL</td><td><code>event</code></td><td>—</td></tr>
+        <tr><td>DL - pageName</td><td>ACDL</td><td><code>page.pageInfo.pageName</code></td><td>unknown</td></tr>
+        <tr><td>DL - pageType</td><td>ACDL</td><td><code>page.category.pageType</code></td><td>—</td></tr>
+        <tr><td>DL - loginStatus</td><td>ACDL</td><td><code>user.0.profile.0.profileInfo.loginStatus</code></td><td>false</td></tr>
+        <tr><td>DL - userId</td><td>ACDL</td><td><code>user.0.profile.0.profileInfo.profileID</code></td><td>—</td></tr>
+        <tr><td>DL - email</td><td>ACDL</td><td><code>user.0.profile.0.profileInfo.email</code></td><td>—</td></tr>
+        <tr><td>currencyCode</td><td>ACDL</td><td><code>cart.price.totalPrice.currency</code></td><td>USD</td></tr>
+        <tr><td>DL - product_id / _name / _category / _price / _qty</td><td>ACDL</td><td><code>attributes.product_*</code></td><td>—</td></tr>
+        <tr><td>DL - transaction_id / _total / _tax / _shipping</td><td>ACDL</td><td><code>attributes.transaction_*</code></td><td>—</td></tr>
+        <tr><td>Email - SHA256</td><td>Custom code</td><td>hash(lowercase(trim(email)))</td><td>—</td></tr>
+        <tr><td>XDM - productListItems</td><td>Custom code</td><td>build array from <code>cart.item[]</code> (full, not item_0 only)</td><td>[]</td></tr>
+        <tr><td>XDM - ExperienceEvent</td><td>XDM Object / Custom code</td><td>assembles full XDM per event</td><td>{}</td></tr>
+      </table>
+      <h4>XDM - productListItems (custom code)</h4>
+<pre><span class="k">var</span> dl = window.adobeDataLayer || [];
+<span class="k">var</span> last = dl[dl.length - 1] || {};
+<span class="k">var</span> items = (last.cart && last.cart.item) ? last.cart.item : [];
+<span class="k">return</span> items.map(<span class="k">function</span> (it) {
+  <span class="k">var</span> info = it.productInfo || {};
+  <span class="k">var</span> price = (it.price && (it.price.amount != null ? it.price.amount : it.price)) || info.price || 0;
+  <span class="k">return</span> {
+    SKU: info.productID || it.product_id || <span class="s">''</span>,
+    name: info.productName || it.product_name || <span class="s">''</span>,
+    quantity: Number(info.quantity || it.quantity || 1),
+    priceTotal: Number(price) * Number(info.quantity || 1),
+    currencyCode: <span class="s">'USD'</span>,
+    productCategories: it.category ? [{ categoryID: it.category }] : []
+  };
+});</pre>
+    </section>
+
+    <!-- ============ AA VARS ============ -->
+    <section id="aavars">
+      <h2>SDR · AA Variable Allocation (proposed)</h2>
+      <table>
+        <tr><th>Var</th><th>Name</th><th>Source</th><th>Scope</th></tr>
+        <tr><td>eVar1 / prop1</td><td>Page Name</td><td>DL - pageName</td><td>Hit</td></tr>
+        <tr><td>eVar2 / prop2</td><td>Page Type</td><td>DL - pageType</td><td>Hit</td></tr>
+        <tr><td>eVar3/4/5</td><td>Product ID / Name / Category</td><td>DL - product_*</td><td>Visit</td></tr>
+        <tr><td>eVar6/7/8</td><td>Login Status / User Type / Tier</td><td>DL - loginStatus, userType, customerTier</td><td>Visit</td></tr>
+        <tr><td>eVar9</td><td>Search Term</td><td>DL - search_term</td><td>Hit</td></tr>
+        <tr><td>eVar10</td><td>Transaction ID</td><td>DL - transaction_id</td><td>Hit</td></tr>
+        <tr><td>eVar11–15</td><td>Promo / Race / Ticket / Team / Experience</td><td>various</td><td>Visit</td></tr>
+      </table>
+      <h4>Success events</h4>
+      <p><code>event1</code> Product View · <code>scAdd</code> Cart Add · <code>scRemove</code> Cart Remove · <code>scCheckout</code> Checkout · <code>purchase</code> Purchase · <code>event2</code> Search · <code>event3</code> Login · <code>event4</code> Signup · <code>event5</code> Promo · <code>event6</code> Ticket · <code>event7</code> Seat · <code>event8</code> Experience · <code>event9</code> Hospitality · <code>event10</code> Error</p>
+    </section>
+
+    <!-- ============ EVENT MAP ============ -->
+    <section id="eventmap">
+      <h2>SDR · Master Event Map</h2>
+      <p>All 42 tracked events → XDM → AA → CJA. <span class="pill p0">P0</span> core commerce · <span class="pill p1">P1</span> user/search/promo · <span class="pill p2">P2</span> F1 domain.</p>
+      <table>
+        <tr><th>Pri</th><th>DL <code>event</code></th><th>XDM eventType / commerce</th><th>AA</th><th>CJA metric</th></tr>
+        <tr><td><span class="pill p0">P0</span></td><td>PageView / SPANavigation</td><td>web.webPageDetails.pageViews=1</td><td>page view</td><td>Page Views</td></tr>
+        <tr><td><span class="pill p0">P0</span></td><td>Product viewed</td><td>commerce.productViews=1 + PLI[0]</td><td>event1</td><td>Product Views</td></tr>
+        <tr><td><span class="pill p0">P0</span></td><td>Add to cart</td><td>commerce.productListAdds=1 + PLI[0]</td><td>scAdd</td><td>Cart Adds</td></tr>
+        <tr><td><span class="pill p0">P0</span></td><td>Remove from cart</td><td>commerce.productListRemovals=1</td><td>scRemove</td><td>Cart Removals</td></tr>
+        <tr><td><span class="pill p0">P0</span></td><td>View cart</td><td>commerce.productListViews=1 + PLI[]</td><td>scView</td><td>Cart Views</td></tr>
+        <tr><td><span class="pill p0">P0</span></td><td>BeginCheckout</td><td>commerce.checkouts=1 + PLI[]</td><td>scCheckout</td><td>Checkouts</td></tr>
+        <tr><td><span class="pill p0">P0</span></td><td>Add shipping / payment info</td><td>commerce.checkouts=1 (+step)</td><td>scCheckout</td><td>Checkout Step</td></tr>
+        <tr><td><span class="pill p0">P0</span></td><td><b>Purchase / Purchase completed</b></td><td><b>commerce.purchases=1 + order.{purchaseID,priceTotal,currencyCode} + PLI[]</b></td><td>purchase, products, <b>purchaseID</b></td><td>Orders, Revenue</td></tr>
+        <tr><td><span class="pill p0">P0</span></td><td>ClearCart</td><td>commerce.productListRemovals=1 (all)</td><td>scRemove</td><td>Cart Clears</td></tr>
+        <tr><td><span class="pill p1">P1</span></td><td>User logged in / out / signed up / UserIdentified</td><td>identityMap.crmId + web.webInteraction</td><td>event3/4</td><td>Logins/Signups</td></tr>
+        <tr><td><span class="pill p1">P1</span></td><td>Search performed</td><td>_f1racingstore.search + webInteraction</td><td>event2</td><td>Searches</td></tr>
+        <tr><td><span class="pill p1">P1</span></td><td>Promo applied / failed / removed</td><td>_f1racingstore.promo.{code,discount}</td><td>event5</td><td>Promos</td></tr>
+        <tr><td><span class="pill p2">P2</span></td><td>Race details / Race selected</td><td>_f1racingstore.race.*</td><td>eVar12</td><td>Race Views</td></tr>
+        <tr><td><span class="pill p2">P2</span></td><td>Ticket type selected / added</td><td>_f1racingstore.ticket.* (+ productListAdds)</td><td>event6/scAdd</td><td>Ticket Selects</td></tr>
+        <tr><td><span class="pill p2">P2</span></td><td>Seat map viewed / Seat selected</td><td>_f1racingstore.seat.*</td><td>event7</td><td>Seat Selects</td></tr>
+        <tr><td><span class="pill p2">P2</span></td><td>Driver / Team profile viewed</td><td>_f1racingstore.driver/team</td><td>eVar14</td><td>Profile Views</td></tr>
+        <tr><td><span class="pill p2">P2</span></td><td>Merchandise viewed / added</td><td>commerce.productViews / productListAdds</td><td>event1/scAdd</td><td>Merch</td></tr>
+        <tr><td><span class="pill p2">P2</span></td><td>Hospitality viewed / selected</td><td>_f1racingstore.hospitality.*</td><td>event9</td><td>Hosp</td></tr>
+        <tr><td><span class="pill p2">P2</span></td><td>Experience booked</td><td>_f1racingstore.experience.*</td><td>event8</td><td>Exp Bookings</td></tr>
+        <tr><td><span class="pill p2">P2</span></td><td>Service add/remove · Ancillary · Step nav</td><td>commerce / _f1racingstore.step</td><td>—</td><td>Service/Steps</td></tr>
+        <tr><td><span class="pill p2">P2</span></td><td>Error / Warning / AnalyticsError · Page exit</td><td>_f1racingstore.eventInfo.* + webInteraction</td><td>event10</td><td>Errors</td></tr>
+      </table>
+      <div class="note">PLI = <code>productListItems[]</code>. The full machine-readable map ships as <code>docs/analytics/xdm/event-mapping.json</code> and <code>01-SDR-variable-map.csv</code> in the repo.</div>
+    </section>
+
+    <!-- ============ PURCHASE ============ -->
+    <section id="purchase">
+      <h2>Purchase Event (most critical)</h2>
+      <table>
+        <tr><th>XDM path</th><th>Source</th><th>Notes</th></tr>
+        <tr><td><code>eventType</code></td><td><code>"commerce.order"</code></td><td></td></tr>
+        <tr><td><code>commerce.purchases.value</code></td><td>1</td><td>order counter</td></tr>
+        <tr><td><code>commerce.order.purchaseID</code></td><td>DL - transaction_id</td><td><b>dedup key — mandatory</b></td></tr>
+        <tr><td><code>commerce.order.priceTotal</code></td><td>DL - transaction_total</td><td></td></tr>
+        <tr><td><code>commerce.order.currencyCode</code></td><td>currencyCode (USD)</td><td></td></tr>
+        <tr><td><code>productListItems[]</code></td><td>XDM - productListItems</td><td>every line item</td></tr>
+        <tr><td><code>identityMap</code></td><td>ECID + crmId</td><td>profile stitch</td></tr>
+      </table>
+      <div class="crit"><b>Dedup:</b> <code>order.purchaseID</code> (= AA <code>s.purchaseID</code>) prevents double-counting orders on refresh/back-button. Never skip it.</div>
+    </section>
+
+    <!-- ============ KPI ============ -->
+    <section id="kpi">
+      <h2>KPI / KPR Framework</h2>
+      <p>Business question → <b>KPI</b> → <b>KPR (target)</b> → metric → dimension → CJA component. Revenue in INR.</p>
+      <h4>A · Revenue &amp; Conversion</h4>
+      <table>
+        <tr><th>KPI</th><th>KPR (target)</th><th>Metric</th><th>Dimensions</th></tr>
+        <tr><td>Total Revenue (INR)</td><td>+8% MoM</td><td>order.priceTotal</td><td>Date, Channel, Category, Race</td></tr>
+        <tr><td>Order Conversion Rate</td><td>≥ 2.5%</td><td>Orders / Visits</td><td>Channel, Device, New vs Return</td></tr>
+        <tr><td>Average Order Value</td><td>≥ ₹X</td><td>Revenue / Orders</td><td>Category, Tier</td></tr>
+        <tr><td>Revenue per Visit</td><td>≥ ₹Y</td><td>Revenue / Visits</td><td>Channel</td></tr>
+        <tr><td>Checkout→Purchase</td><td>≥ 60%</td><td>Orders / Checkouts</td><td>Step, Device</td></tr>
+        <tr><td>Cart Abandonment</td><td>≤ 65%</td><td>1 − Orders/Checkouts</td><td>Device, Category</td></tr>
+      </table>
+      <h4>C · Tickets / Experiences (F1-specific)</h4>
+      <table>
+        <tr><th>KPI</th><th>Metric</th><th>Dimensions</th></tr>
+        <tr><td>Ticket Revenue</td><td>Revenue (ticket items)</td><td>Race, Stand, Ticket Type</td></tr>
+        <tr><td>Seat-Selection Completion ≥ 70%</td><td>Seat Selects / Seat Map Views</td><td>Race, Stand</td></tr>
+        <tr><td>Hospitality Attach Rate</td><td>Hosp Selects / Ticket Orders</td><td>Race</td></tr>
+      </table>
+      <h4>E · Audience / RTCDP</h4>
+      <table>
+        <tr><th>KPI</th><th>Metric</th></tr>
+        <tr><td>Profile Count</td><td>Merged profiles</td></tr>
+        <tr><td>Audience Membership</td><td>Profiles per audience</td></tr>
+        <tr><td>Activated Reach / Match Rate ≥ 60%</td><td>Profiles sent / matched</td></tr>
+      </table>
+    </section>
+
+    <!-- ============ CALC ============ -->
+    <section id="calc">
+      <h2>CJA Calculated Metrics</h2>
+      <table>
+        <tr><th>Name</th><th>Formula</th><th>Format</th></tr>
+        <tr><td>Order Conversion Rate</td><td><code>Orders / Visits</code></td><td>Percent</td></tr>
+        <tr><td>Average Order Value</td><td><code>Revenue / Orders</code></td><td>Currency (INR)</td></tr>
+        <tr><td>Revenue per Visit</td><td><code>Revenue / Visits</code></td><td>Currency</td></tr>
+        <tr><td>Cart-Add Rate</td><td><code>Cart Adds / Product Views</code></td><td>Percent</td></tr>
+        <tr><td>Cart Abandonment</td><td><code>1 - (Orders / Checkouts)</code></td><td>Percent</td></tr>
+        <tr><td>Seat-Selection Completion</td><td><code>Seat Selects / Seat Map Views</code></td><td>Percent</td></tr>
+        <tr><td>Search→Purchase</td><td><code>Orders [Searchers] / Searches</code></td><td>Percent</td></tr>
+      </table>
+    </section>
+
+    <!-- ============ DASH ============ -->
+    <section id="dash">
+      <h2>Workspace Dashboards</h2>
+      <table>
+        <tr><th>Project</th><th>Contents</th></tr>
+        <tr><td>1 · Executive Overview</td><td>Scorecards (Revenue, Orders, CVR, AOV, Visits) + trend; Revenue by Channel; Revenue by Category; New vs Returning.</td></tr>
+        <tr><td>2 · Conversion Funnel</td><td>Fallout: Product View→Cart Add→Checkout→Purchase; segment by Device/Channel; abandonment trend.</td></tr>
+        <tr><td>3 · Product &amp; Merch</td><td>Product × (Views, Adds, Units, Revenue, Conversion); breakdown by Team/Driver/Category.</td></tr>
+        <tr><td>4 · Tickets &amp; Experiences</td><td>Race × (Ticket Revenue, Units, Seat Completion, Hospitality Attach); Experience bookings.</td></tr>
+        <tr><td>5 · Acquisition</td><td>Channel × (Visits, Orders, Revenue, CVR, RPV); Search Term × (Searches, Search→Purchase).</td></tr>
+      </table>
+      <div class="note">Data View settings: Currency <b>INR</b>, Time zone <b>IST</b>, session timeout <b>30 min</b>, Person ID = <code>crmId</code> (fallback ECID).</div>
+    </section>
+
+    <!-- ============ RUNBOOK ============ -->
+    <section id="rb-aep">
+      <h2>Runbook · 1 — AEP Schemas, Identities, Datasets</h2>
+      <ul class="steps">
+        <li>Identities → create custom namespace <code>crmId</code> (cross-device).</li>
+        <li>Create schema <b>F1 - Web ExperienceEvent</b> (class ExperienceEvent) + field groups: Web SDK EE, Commerce Details, Product List Items, Consents, Environment, Web Details, custom <code>_f1racingstore</code>.</li>
+        <li>Enable schema for <b>Profile</b>; add IdentityMap.</li>
+        <li>Create schema <b>F1 - Individual Profile</b> (class Individual Profile) + Loyalty field group; primary identity <code>crmId</code>; enable Profile.</li>
+        <li>Create datasets <code>F1 Web Events - dev</code> &amp; <code>- prod</code> → enable for Profile.</li>
+        <li>Create merge policy <b>F1 Default</b> — private graph, timestamp-ordered, set default.</li>
+      </ul>
+    </section>
+    <section id="rb-ds">
+      <h2>Runbook · 2 — Datastreams</h2>
+      <ul class="steps">
+        <li>Create <b>F1 Racing Store - Dev</b>: + Adobe Analytics (RSID <code>…-dev</code>) + Adobe Experience Platform (dev sandbox, dataset <code>F1 Web Events - dev</code>, Profile on).</li>
+        <li>Create <b>F1 Racing Store - Prod</b>: + Adobe Analytics (RSID <code>…-prod</code>) + AEP (prod dataset, Profile on).</li>
+        <li>Record both Datastream IDs.</li>
+      </ul>
+    </section>
+    <section id="rb-tags">
+      <h2>Runbook · 3 — Tags / Web SDK</h2>
+      <ul class="steps">
+        <li>Install <b>Adobe Experience Platform Web SDK</b> extension. Datastreams per environment: Dev→Dev ID, Staging→Dev ID, <b>Production→Prod ID</b>. Edge domain default <code>*.adobedc.net</code>.</li>
+        <li>Create all <code>DL - *</code> data elements + <code>Email - SHA256</code> + <code>XDM - productListItems</code> + <code>XDM - ExperienceEvent</code> (see SDR).</li>
+        <li>Create <b>one rule per event</b>: Event = ACDL <i>Data Pushed</i> with condition <code>%DL - event% = "&lt;name&gt;"</code> → Action 1 Web SDK <i>Set variable</i> (XDM) → Action 2 Web SDK <i>Send event</i>.</li>
+        <li><b>Min P0 rules:</b> Page View, Product viewed, Add to cart, Remove from cart, BeginCheckout, <b>Purchase</b>.</li>
+        <li>New library → Add All Changed Resources → Build to Dev → validate → Submit → Approve → Publish to Production.</li>
+      </ul>
+      <h4>XDM - ExperienceEvent (custom code, abbreviated)</h4>
+<pre><span class="k">var</span> dl = window.adobeDataLayer || [];
+<span class="k">var</span> e = dl[dl.length - 1] || {}, a = e.attributes || {};
+<span class="k">var</span> xdm = { eventType: <span class="s">'web.webpagedetails.pageViews'</span>,
+  web:{ webPageDetails:{ name:_satellite.getVar(<span class="s">'DL - pageName'</span>), pageViews:{ value:1 } } },
+  identityMap:{} };
+<span class="k">if</span> (_satellite.getVar(<span class="s">'DL - userId'</span>)) xdm.identityMap.crmId=[{id:String(_satellite.getVar(<span class="s">'DL - userId'</span>)),primary:true}];
+<span class="k">switch</span> (e.event) {
+  <span class="k">case</span> <span class="s">'Add to cart'</span>:
+    xdm.eventType=<span class="s">'commerce.productListAdds'</span>;
+    xdm.commerce={ productListAdds:{ value:1 } };
+    xdm.productListItems=[{ SKU:a.product_id, name:a.product_name, quantity:Number(a.product_quantity)||1, priceTotal:Number(a.product_price)||0, currencyCode:a.currency||<span class="s">'USD'</span> }];
+    <span class="k">break</span>;
+  <span class="k">case</span> <span class="s">'Purchase'</span>: <span class="k">case</span> <span class="s">'Purchase completed'</span>:
+    xdm.eventType=<span class="s">'commerce.order'</span>;
+    xdm.commerce={ purchases:{ value:1 }, order:{ purchaseID:String(a.transaction_id||<span class="s">''</span>), priceTotal:Number(a.transaction_total)||0, currencyCode:a.currency||<span class="s">'USD'</span> } };
+    xdm.productListItems=_satellite.getVar(<span class="s">'XDM - productListItems'</span>);
+    <span class="k">break</span>;
+  <span class="c">// … other events map to commerce.* or web.webInteraction + _f1racingstore.*</span>
+}
+<span class="k">return</span> xdm;</pre>
+    </section>
+    <section id="rb-cja">
+      <h2>Runbook · 4 — CJA</h2>
+      <ul class="steps">
+        <li>Create Connection <b>F1 Racing Store</b> on dataset <code>F1 Web Events - prod</code>; Person ID = <code>crmId</code> (fallback ECID).</li>
+        <li>Create Data View <b>F1 - Web</b>: currency INR, TZ IST, 30-min sessions; add dimensions/metrics + calculated metrics.</li>
+        <li>Build the 5 Workspace projects.</li>
+      </ul>
+    </section>
+    <section id="rb-qa">
+      <h2>Runbook · 5 — Validation</h2>
+      <ul class="steps">
+        <li>Run <code>tests/adobe-websdk-validation.spec.js</code> → confirm <code>edge.adobedc.net/ee/v2/interact</code> 200; XDM carries correct eventType, commerce measures, <code>productListItems[].SKU</code>, <code>order.purchaseID</code>, ECID, <code>currencyCode=USD</code>.</li>
+        <li>AEP Debugger / Assurance: validate live XDM + datastream routing.</li>
+        <li>CJA Data Preview: rows land, metrics populate, currency INR.</li>
+        <li>RTCDP Profile viewer: events present; ECID+crmId stitched.</li>
+      </ul>
+    </section>
+    <section id="rb-rtcdp">
+      <h2>Runbook · 6 — RTCDP Audiences &amp; Activation</h2>
+      <table>
+        <tr><th>Audience</th><th>Definition</th></tr>
+        <tr><td>Cart Abandoners</td><td><code>productListAdds≥1</code> AND NOT <code>purchases≥1</code> within 7 days</td></tr>
+        <tr><td>High-Value Buyers</td><td>sum(<code>order.priceTotal</code>) &gt; threshold OR <code>customerTier=VIP</code></td></tr>
+        <tr><td>Ticket Intenders</td><td><code>_f1racingstore.ticket.type</code> exists AND no ticket purchase</td></tr>
+        <tr><td>Merch Browsers (no purchase)</td><td><code>productViews≥3</code> AND no purchases</td></tr>
+        <tr><td>Loyalty Re-engagement</td><td>last <code>purchases</code> &gt; 90 days ago</td></tr>
+      </table>
+      <h4>Destinations</h4>
+      <p>Google Ads / Meta (Customer Match — map <code>Email_LC_SHA256</code>) · Adobe Target / Web SDK on-site · Email (Adobe Campaign) · S3 export. Apply consent + DULE marketing-action enforcement on all marketing destinations.</p>
+    </section>
+    <section id="rb-cut">
+      <h2>Runbook · 7 — Cutover</h2>
+      <ul class="steps">
+        <li>Confirm AA parity (Web SDK Analytics vs AppMeasurement) over the dual-tag window.</li>
+        <li>Disable the old <b>Page Load - Analytics</b> rule; remove the AppMeasurement extension if unused.</li>
+        <li>Publish. Confirm no more <code>*.2o7.net</code> calls — only <code>edge.adobedc.net</code>.</li>
+        <li>Re-run the Web SDK validation spec to confirm Web-SDK-only collection.</li>
+      </ul>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section id="faq">
+      <h2>How it's implemented (important)</h2>
+      <div class="note">This document is the <b>blueprint</b>. Nothing here is auto-deployed to Adobe. All of it is built <b>by hand in the Adobe UIs</b> — exactly like you built the Page View rule:</div>
+      <table>
+        <tr><th>Layer</th><th>Built in</th></tr>
+        <tr><td>XDM schemas, datasets, identities, merge policy</td><td>AEP (Experience Platform)</td></tr>
+        <tr><td>Datastream (AA + AEP services)</td><td>Data Collection → Datastreams</td></tr>
+        <tr><td>Web SDK extension, XDM data element, rules, sendEvent</td><td>Adobe Launch / Tags</td></tr>
+        <tr><td>Connection, Data View, dashboards</td><td>CJA</td></tr>
+        <tr><td>Audiences, destinations</td><td>RTCDP</td></tr>
+      </table>
+      <p>The <code>xdm/*.json</code> files are reference blueprints — you recreate that structure in AEP Schema Builder (they aren't importable). Automation is possible via the <b>Reactor API</b> (Tags) and <b>Schema Registry API</b> (AEP) if you create an Adobe Developer Console service credential.</p>
+    </section>
+
+    <footer>
+      F1 Racing Store · Adobe Measurement Plan v1.0 · AA · Web SDK · CJA · RTCDP<br>
+      Source documents: <code>docs/analytics/</code> (SDD, SDR + CSV, KPI framework, runbook, xdm/*.json) · validation: <code>tests/adobe-websdk-validation.spec.js</code>
+    </footer>
+  </main>
+</div>
+</body>
+</html>

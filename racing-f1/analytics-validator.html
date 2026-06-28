@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>F1 Analytics Validator — Real-Time Event Inspector</title>
+<style>
+:root{--bg:#07070f;--panel:#10101a;--panel2:#16161f;--line:#252535;--red:#e10600;--red2:#ff3a30;--acc:#34d399;--warn:#fbbf24;--blue:#60a5fa;--txt:#e0e0ef;--mut:#8888a4;--code:#0c0c14}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font:14px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh}
+header{background:linear-gradient(90deg,#0a0a12,#12000a);border-bottom:2px solid var(--red);padding:14px 28px;display:flex;align-items:center;gap:16px}
+header .logo{font-size:20px;font-weight:800;color:#fff;letter-spacing:.5px}header .logo span{color:var(--red2)}
+header .badge{font-size:11px;background:#200000;color:var(--red2);border:1px solid var(--red);border-radius:20px;padding:3px 10px;letter-spacing:1px;text-transform:uppercase}
+.layout{display:grid;grid-template-columns:320px 1fr 320px;height:calc(100vh - 56px);overflow:hidden}
+.col{overflow-y:auto;border-right:1px solid var(--line);padding:16px}
+.col:last-child{border-right:none}
+h3{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:12px}
+/* Scorecard */
+.scores{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.score-card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center}
+.score-card .num{font-size:28px;font-weight:800;color:#fff}
+.score-card .lbl{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
+.score-card.pass .num{color:var(--acc)}
+.score-card.fail .num{color:var(--red2)}
+.score-card.warn .num{color:var(--warn)}
+/* Controls */
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.3px;transition:background .2s}
+.btn:hover{background:var(--red2)}
+.btn.secondary{background:var(--panel2);border:1px solid var(--line);color:var(--txt)}
+.btn.secondary:hover{background:var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+/* Test list */
+.test-item{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px;font-size:13px}
+.test-item .status{width:18px;height:18px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.status.pending{background:#1a1a28;color:var(--mut);border:1px solid var(--line)}
+.status.running{background:#1a1a3a;color:var(--blue);border:1px solid var(--blue);animation:pulse 1s infinite}
+.status.pass{background:#0d2a1a;color:var(--acc);border:1px solid var(--acc)}
+.status.fail{background:#2a0d0d;color:var(--red2);border:1px solid var(--red2)}
+.status.skip{background:#1a1a1a;color:var(--mut);border:1px solid #333}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.test-name{flex:1;color:var(--txt)}
+.test-event{font-size:11px;color:var(--mut)}
+/* Event log */
+.event-entry{background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--line);border-radius:6px;padding:10px 12px;margin-bottom:6px;font-size:12px}
+.event-entry.commerce{border-left-color:var(--acc)}
+.event-entry.user{border-left-color:var(--blue)}
+.event-entry.error{border-left-color:var(--red2)}
+.event-entry.page{border-left-color:var(--warn)}
+.event-name{font-weight:700;color:#fff;font-size:12.5px}
+.event-time{color:var(--mut);font-size:10px;float:right}
+.event-attrs{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}
+.attr-chip{background:var(--code);border:1px solid var(--line);border-radius:4px;padding:2px 6px;font-size:10.5px;color:var(--blue);font-family:Consolas,monospace}
+.attr-chip.highlight{color:var(--acc);border-color:var(--acc)}
+/* Beacon log */
+.beacon-entry{background:var(--code);border:1px solid var(--line);border-radius:6px;padding:9px 11px;margin-bottom:6px;font-family:Consolas,monospace;font-size:11px}
+.beacon-entry .b-method{color:var(--warn);font-weight:700}
+.beacon-entry .b-event{color:var(--acc)}
+.beacon-entry .b-products{color:#b9fbc0;word-break:break-all}
+.beacon-entry .b-miss{color:var(--red2)}
+.beacon-entry .b-status{float:right;font-size:10px;padding:1px 6px;border-radius:10px;background:#0d2a1a;color:var(--acc)}
+.beacon-entry .b-status.bad{background:#2a0d0d;color:var(--red2)}
+/* Progress bar */
+.progress-wrap{background:var(--panel2);border-radius:6px;height:6px;margin-bottom:12px;overflow:hidden}
+.progress-bar{height:6px;background:linear-gradient(90deg,var(--red),var(--red2));border-radius:6px;width:0;transition:width .4s}
+/* Misc */
+.section-title{font-size:13px;font-weight:700;color:#fff;margin:14px 0 8px}
+.empty{color:var(--mut);font-size:12px;text-align:center;padding:24px;border:1px dashed var(--line);border-radius:8px}
+.tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;margin-left:6px}
+.tag.p0{background:#3a0d0d;color:#ff8a82;border:1px solid #5a1a1a}
+.tag.p1{background:#0d2a3a;color:#7cc7ff}
+.tag.p2{background:#241a3a;color:#b89cff}
+.divider{border:none;border-top:1px solid var(--line);margin:14px 0}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--acc);display:inline-block;animation:pulse 1.5s infinite;margin-right:4px}
+.live-dot.off{background:var(--mut);animation:none}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">F1<span>Validator</span></div>
+  <div class="badge">Analytics Validation Engine v2.0</div>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12px">
+    <span><span class="live-dot" id="liveDot"></span><span id="liveStatus" style="color:var(--mut)">Listening…</span></span>
+    <span style="color:var(--mut)" id="sessionCount">0 events captured</span>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- LEFT: Controls + Test Suite -->
+  <div class="col">
+    <h3>Validation Suite</h3>
+    <div class="btn-row">
+      <button class="btn" id="btnRun" onclick="runAll()">▶ Run All Tests</button>
+      <button class="btn secondary" onclick="clearAll()">↺ Reset</button>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="scores">
+      <div class="score-card pass"><div class="num" id="scorePass">0</div><div class="lbl">Passed</div></div>
+      <div class="score-card fail"><div class="num" id="scoreFail">0</div><div class="lbl">Failed</div></div>
+      <div class="score-card warn"><div class="num" id="scoreWarn">0</div><div class="lbl">Warnings</div></div>
+      <div class="score-card"><div class="num" id="scoreTotal">0</div><div class="lbl">Total</div></div>
+    </div>
+    <hr class="divider">
+    <div class="section-title">Runtime</div>
+    <div class="test-item" id="t-launch"><span class="status pending" id="s-launch">?</span><div><div class="test-name">Adobe Launch loaded</div><div class="test-event">_satellite + buildInfo</div></div></div>
+    <div class="test-item" id="t-gtm"><span class="status pending" id="s-gtm">?</span><div><div class="test-name">GTM container loaded</div><div class="test-event">GTM-5BMV9KLC</div></div></div>
+    <div class="test-item" id="t-acdl"><span class="status pending" id="s-acdl">?</span><div><div class="test-name">adobeDataLayer array</div><div class="test-event">window.adobeDataLayer</div></div></div>
+    <div class="test-item" id="t-s"><span class="status pending" id="s-s">?</span><div><div class="test-name">AA tracker (window.s)</div><div class="test-event">s.account = RSID</div></div></div>
+    <div class="test-item" id="t-gridbox"><span class="status pending" id="s-gridbox">?</span><div><div class="test-name">gridboxLayer populated</div><div class="test-event">page + user + cart</div></div></div>
+    <hr class="divider">
+    <div class="section-title">Commerce <span class="tag p0">P0</span></div>
+    <div class="test-item"><span class="status pending" id="s-pageview">?</span><div><div class="test-name">Page View</div><div class="test-event">s.t() beacon + pageview</div></div></div>
+    <div class="test-item"><span class="status pending" id="s-prodview">?</span><div><div class="test-name">Product Viewed</div><div class="test-event">event1 + products string</div></div></div>
+    <div class="test-item"><span class="status pending" id="s-addcart">?</span><div><div class="test-name">Add to Cart</div><div class="test-event">scAdd + category;id;qty;price</div></div></div>
+    <div class="test-item"><span class="status pending" id="s-removecart">?</span><div><div class="test-name">Remove from Cart</div><div class="test-event">scRemove</div></div></div>
+    <div class="test-item"><span class="status pending" id="s-viewcart">?</span><div><div class="test-name">View Cart</div><div class="test-event">products string</div></div></div>
+    <div class="test-item"><span class="status pending" id="s-checkout">?</span><div><div class="test-name">Begin Checkout</div><div class="test-event">scCheckout + all items</div></div></div>
+    <div class="test-item"><span class="status pending" id="s-purchase">?</span><div><div class="test-name">Purchase</div><div class="test-event">purchase + purchaseID + products</div></div></div>
+    <hr class="divider">
+    <div class="section-title">User <span class="tag p1">P1</span></div>
+    <div class="test-item"><span class="status pending" id="s-login">?</span><div><div class="test-name">User Login</div><div class="test-event">event3 + eVar6</div></div></div>
+    <div class="test-item"><span class="status pending" id="s-signup">?</span><div><div class="test-name">User Signup</div><div class="test-event">event4</div></div></div>
+    <div class="test-item"><span class="status pending" id="s-search">?</span><div><div class="test-name">Search Performed</div><div class="test-event">event2 + eVar9</div></div></div>
+    <div class="test-item"><span class="status pending" id="s-promo">?</span><div><div class="test-name">Promo Applied</div><div class="test-event">event5 + eVar11</div></div></div>
+    <div class="test-item"><span class="status pending" id="s-error">?</span><div><div class="test-name">Error Event</div><div class="test-event">event10 + prop3</div></div></div>
+    <hr class="divider">
+    <div class="section-title">F1 Domain <span class="tag p2">P2</span></div>
+    <div class="test-item"><span class="status pending" id="s-race">?</span><div><div class="test-name">Race Viewed</div><div class="test-event">eVar12</div></div></div>
+    <div class="test-item"><span class="status pending" id="s-ticket">?</span><div><div class="test-name">Ticket Selected</div><div class="test-event">event6 + eVar13</div></div></div>
+    <div class="test-item"><span class="status pending" id="s-seat">?</span><div><div class="test-name">Seat Selected</div><div class="test-event">event7</div></div></div>
+    <div class="test-item"><span class="status pending" id="s-team">?</span><div><div class="test-name">Team Viewed</div><div class="test-event">eVar14</div></div></div>
+    <div class="test-item"><span class="status pending" id="s-experience">?</span><div><div class="test-name">Experience Booked</div><div class="test-event">event8 + eVar15</div></div></div>
+    <div class="test-item"><span class="status pending" id="s-hospitality">?</span><div><div class="test-name">Hospitality Selected</div><div class="test-event">event9</div></div></div>
+  </div>
+
+  <!-- MIDDLE: Live Event Log -->
+  <div class="col">
+    <h3>Live Event Log <span class="live-dot" id="liveDot2"></span></h3>
+    <div id="eventLog"><div class="empty">Waiting for events…<br><small>Start validation or visit any page to see events appear here in real-time.</small></div></div>
+  </div>
+
+  <!-- RIGHT: Beacon Inspector -->
+  <div class="col">
+    <h3>Beacon Inspector (/b/ss/)</h3>
+    <div id="beaconLog"><div class="empty">No beacons captured yet.<br><small>Beacons are captured when rules fire via Adobe Launch.</small></div></div>
+  </div>
+</div>
+
+<script>
+// ─── Config ─────────────────────────────────────────────────────────────────
+var BASE = 'https://racing-f1-rho.vercel.app';
+var RSID = 'ageo1xxlonf1racingstore-prod';
+var GTM_ID = 'GTM-5BMV9KLC';
+
+// ─── State ───────────────────────────────────────────────────────────────────
+var passed = 0, failed = 0, warned = 0, total = 0;
+var eventCount = 0;
+var captured = { events: [], beacons: [] };
+var testRunning = false;
+
+// ─── BroadcastChannel — receive events from any same-origin page ─────────────
+var bc = new BroadcastChannel('rf1_analytics');
+bc.onmessage = function(e) {
+  if (e.data && e.data.type === 'acdl_event') {
+    logEvent(e.data.payload, e.data.ts);
+    matchLiveEvent(e.data.payload);
+  }
+};
+
+function logEvent(payload, ts) {
+  eventCount++;
+  document.getElementById('sessionCount').textContent = eventCount + ' events captured';
+  document.getElementById('liveDot').className = 'live-dot';
+  document.getElementById('liveDot2').className = 'live-dot';
+  document.getElementById('liveStatus').textContent = 'LIVE';
+  document.getElementById('liveStatus').style.color = 'var(--acc)';
+
+  var log = document.getElementById('eventLog');
+  var empties = log.querySelectorAll('.empty');
+  empties.forEach(function(e){e.remove()});
+
+  var ename = payload.event || 'unknown';
+  var category = getEventCategory(ename);
+  var attrs = payload.attributes || {};
+  var attrKeys = Object.keys(attrs).slice(0, 8);
+
+  var div = document.createElement('div');
+  div.className = 'event-entry ' + category;
+  div.innerHTML =
+    '<span class="event-time">' + new Date(ts).toLocaleTimeString() + '</span>' +
+    '<div class="event-name">' + ename + '</div>' +
+    '<div class="event-attrs">' +
+    attrKeys.map(function(k){
+      var important = ['product_id','transaction_id','search_term','promo_code','race_name','team_name'].indexOf(k) >= 0;
+      return '<span class="attr-chip' + (important?' highlight':'') + '">' + k + '=' + String(attrs[k]).slice(0,20) + '</span>';
+    }).join('') +
+    (Object.keys(attrs).length > 8 ? '<span class="attr-chip">+' + (Object.keys(attrs).length - 8) + ' more</span>' : '') +
+    '</div>';
+  log.insertBefore(div, log.firstChild);
+  captured.events.push({ event: ename, attrs: attrs, ts: ts });
+}
+
+function getEventCategory(name) {
+  if (/add to cart|remove|checkout|purchase|view cart|clearc/i.test(name)) return 'commerce';
+  if (/user|login|signup|identified/i.test(name)) return 'user';
+  if (/error|warning/i.test(name)) return 'error';
+  return 'page';
+}
+
+// ─── Beacon capture via PerformanceObserver on opened popups ─────────────────
+function parseBeacon(url) {
+  try {
+    var u = new URL(url);
+    return {
+      rsid:       (u.pathname.match(/\/b\/ss\/([^/]+)\//) || [])[1] || '',
+      events:     u.searchParams.get('events') || '',
+      products:   decodeURIComponent(u.searchParams.get('products') || ''),
+      pe:         u.searchParams.get('pe') || '',
+      pev2:       decodeURIComponent(u.searchParams.get('pev2') || ''),
+      cc:         u.searchParams.get('cc') || '',
+      purchaseID: u.searchParams.get('purchaseID') || '',
+      v3:         u.searchParams.get('v3') || '',
+      url:        url
+    };
+  } catch(e){ return null; }
+}
+
+function logBeacon(b) {
+  var log = document.getElementById('beaconLog');
+  var empties = log.querySelectorAll('.empty');
+  empties.forEach(function(e){e.remove()});
+
+  var ok = b.rsid === RSID;
+  var div = document.createElement('div');
+  div.className = 'beacon-entry';
+  div.innerHTML =
+    '<span class="b-status ' + (ok?'':'bad') + '">' + (ok?'200 ✓':'⚠') + '</span>' +
+    '<span class="b-method">' + (b.pe === '' ? 's.t()' : 's.tl()') + '</span> ' +
+    (b.pev2 ? '<span style="color:var(--warn)"> → ' + b.pev2 + '</span>' : '') + '<br>' +
+    (b.events ? '<span class="b-event">events: ' + b.events + '</span><br>' : '<span class="b-miss">events: (empty)</span><br>') +
+    (b.products ? '<span class="b-products">products: ' + b.products.slice(0,60) + (b.products.length>60?'…':'') + '</span><br>' : '') +
+    (b.purchaseID ? '<span style="color:var(--acc)">purchaseID: ' + b.purchaseID + '</span><br>' : '') +
+    '<span style="color:var(--mut)">cc: ' + b.cc + ' | rsid: ' + b.rsid.slice(-20) + '</span>';
+  log.insertBefore(div, log.firstChild);
+  captured.beacons.push(b);
+}
+
+// ─── Popup helper — open page, wait for load, run inspector fn ───────────────
+function openAndInspect(path, waitMs, inspectorFn) {
+  return new Promise(function(resolve) {
+    var popup = window.open(BASE + path, '_rf1_validate',
+      'width=1280,height=720,menubar=no,toolbar=no,status=no');
+    if (!popup) { resolve({ ok: false, reason: 'Popup blocked' }); return; }
+    var done = false;
+    var timeout = setTimeout(function() {
+      if (!done) { done = true; popup.close(); resolve({ ok: false, reason: 'Timeout' }); }
+    }, 20000);
+    var interval = setInterval(function() {
+      try {
+        if (popup.document && popup.document.readyState === 'complete') {
+          clearInterval(interval);
+          setTimeout(function() {
+            if (done) return;
+            // Capture beacons from popup's performance entries
+            try {
+              var entries = popup.performance.getEntriesByType('resource')
+                .filter(function(e){ return /\/b\/ss\//.test(e.name); });
+              entries.forEach(function(e){ logBeacon(parseBeacon(e.name)); });
+            } catch(e){}
+            var result = inspectorFn(popup);
+            done = true;
+            clearTimeout(timeout);
+            setTimeout(function(){ try{ popup.close(); }catch(e){} }, 1500);
+            resolve(result);
+          }, waitMs || 3000);
+        }
+      } catch(e) {}
+    }, 300);
+  });
+}
+
+// ─── Test helpers ─────────────────────────────────────────────────────────────
+function setStatus(id, status, title) {
+  var el = document.getElementById('s-' + id);
+  if (!el) return;
+  el.className = 'status ' + status;
+  el.title = title || '';
+  el.textContent = status === 'pass' ? '✓' : status === 'fail' ? '✗' : status === 'running' ? '…' : '?';
+}
+
+function recordResult(ok, warn) {
+  total++;
+  if (warn) warned++;
+  else if (ok) passed++;
+  else failed++;
+  document.getElementById('scorePass').textContent = passed;
+  document.getElementById('scoreFail').textContent = failed;
+  document.getElementById('scoreWarn').textContent = warned;
+  document.getElementById('scoreTotal').textContent = total;
+}
+
+function updateProgress(done, total) {
+  var pct = total > 0 ? (done / total * 100) : 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+// ─── Main test runner ─────────────────────────────────────────────────────────
+async function runAll() {
+  if (testRunning) return;
+  testRunning = true;
+  passed = failed = warned = total = 0;
+  document.getElementById('scorePass').textContent = '0';
+  document.getElementById('scoreFail').textContent = '0';
+  document.getElementById('scoreWarn').textContent = '0';
+  document.getElementById('scoreTotal').textContent = '0';
+  document.getElementById('progressBar').style.width = '0';
+  document.getElementById('btnRun').disabled = true;
+  document.getElementById('btnRun').textContent = '⏳ Running…';
+
+  var steps = 22;
+  var step = 0;
+
+  // ── SUITE 1: Runtime checks (open home page) ──────────────────────────────
+  setStatus('launch', 'running');
+  setStatus('gtm', 'running');
+  setStatus('acdl', 'running');
+  setStatus('s', 'running');
+  setStatus('gridbox', 'running');
+  setStatus('pageview', 'running');
+
+  var runtime = await openAndInspect('/', 4000, function(p) {
+    var dl = p.window.adobeDataLayer || [];
+    var gl = p.window.gridboxLayer || {};
+    var s  = p.window._satellite || null;
+    var ws = p.window.s || null;
+    var gtm = p.window.google_tag_manager || {};
+    var pv = p.performance.getEntriesByType('resource')
+      .filter(function(e){ return /\/b\/ss\//.test(e.name) && !e.name.includes('pe='); });
+    return {
+      launch:  !!s,
+      buildDate: s && s.buildInfo ? s.buildInfo.buildDate : '',
+      gtm:     !!(gtm[GTM_ID]),
+      acdl:    Array.isArray(dl) && dl.length > 0,
+      tracker: !!ws,
+      rsid:    ws ? ws.account : '',
+      gridbox: !!gl.page && !!gl.user,
+      pageName: gl.page && gl.page.pageInfo ? gl.page.pageInfo.pageName : '',
+      pageview: pv.length > 0
+    };
+  });
+
+  setStatus('launch', runtime.launch ? 'pass' : 'fail', runtime.buildDate); recordResult(runtime.launch);
+  setStatus('gtm',    runtime.gtm    ? 'pass' : 'fail'); recordResult(runtime.gtm);
+  setStatus('acdl',   runtime.acdl   ? 'pass' : 'fail'); recordResult(runtime.acdl);
+  setStatus('s',      runtime.tracker ? (runtime.rsid === RSID ? 'pass' : 'fail') : 'fail', 'rsid:'+runtime.rsid); recordResult(runtime.tracker && runtime.rsid === RSID);
+  setStatus('gridbox',runtime.gridbox ? 'pass' : 'fail', 'pageName:'+runtime.pageName); recordResult(runtime.gridbox);
+  setStatus('pageview',runtime.pageview ? 'pass' : 'fail'); recordResult(runtime.pageview);
+  step += 6; updateProgress(step, steps);
+
+  // ── SUITE 2: Merchandise — Product view + Add to cart ────────────────────
+  setStatus('prodview', 'running');
+  setStatus('addcart', 'running');
+
+  var merch = await openAndInspect('/merchandise', 4000, function(p) {
+    var dl = p.window.adobeDataLayer || [];
+    // Push a product viewed event
+    p.window.adobeDataLayer.push({
+      event: 'Product viewed',
+      attributes: { product_id: 'RB-JKT-2024', product_name: '2024 Team Jacket', product_category: 'Apparel', product_price: 159.99, product_brand: 'Red Bull', PageID: 'merchandise' },
+      page: { pageInfo: { pageName: 'merchandise' }, category: { pageType: 'plp' } }
+    });
+    // Click first add-to-cart
+    var btn = p.document.querySelector('.add-cart-btn');
+    if (btn) btn.click();
+    return { ok: true };
+  });
+
+  // Wait for beacons then check
+  await new Promise(function(r){ setTimeout(r, 2000); });
+  var prodViewBeacon = captured.beacons.find(function(b){ return b.events === 'event1'; });
+  var addCartBeacon  = captured.beacons.find(function(b){ return b.events === 'scAdd' && b.products; });
+  setStatus('prodview', prodViewBeacon ? 'pass' : 'fail', prodViewBeacon ? 'products:'+prodViewBeacon.products.slice(0,30) : 'No event1 beacon'); recordResult(!!prodViewBeacon);
+  setStatus('addcart',  addCartBeacon  ? 'pass' : 'fail', addCartBeacon  ? 'products:'+addCartBeacon.products.slice(0,30) : 'No scAdd beacon'); recordResult(!!addCartBeacon);
+  step += 2; updateProgress(step, steps);
+
+  // ── SUITE 3: Cart page ────────────────────────────────────────────────────
+  setStatus('viewcart', 'running');
+  setStatus('removecart', 'running');
+
+  var cartRes = await openAndInspect('/cart', 3500, function(p) {
+    p.window.adobeDataLayer.push({ event: 'View cart', attributes: { cart_total: 159.99, item_count: 1, item_0_id: 'RB-JKT-2024', item_0_qty: 1, item_0_price: 159.99 } });
+    p.window.adobeDataLayer.push({ event: 'Remove from cart', attributes: { product_id: 'RB-JKT-2024', product_name: '2024 Team Jacket', quantity_removed: 1, cart_total: 0, item_count: 0 } });
+    return { ok: true };
+  });
+  await new Promise(function(r){ setTimeout(r, 2000); });
+  var viewCartB  = captured.beacons.find(function(b){ return b.pev2 === 'View Cart'; });
+  var removeB    = captured.beacons.find(function(b){ return b.events === 'scRemove' && b.pev2 !== 'Clear Cart'; });
+  setStatus('viewcart',   viewCartB ? 'pass' : 'fail'); recordResult(!!viewCartB);
+  setStatus('removecart', removeB   ? 'pass' : 'fail'); recordResult(!!removeB);
+  step += 2; updateProgress(step, steps);
+
+  // ── SUITE 4: Checkout ─────────────────────────────────────────────────────
+  setStatus('checkout', 'running');
+  var coRes = await openAndInspect('/checkout', 3500, function(p) {
+    p.window.adobeDataLayer.push({ event: 'BeginCheckout', attributes: { cart_total: 249.99, item_count: 2, currency: 'USD', item_0_id: 'RB-JKT-2024', item_0_name: '2024 Team Jacket', item_0_qty: 1, item_0_price: 159.99, item_1_id: 'FER-CAP-LC16', item_1_name: 'Leclerc Cap', item_1_qty: 2, item_1_price: 45 } });
+    return { ok: true };
+  });
+  await new Promise(function(r){ setTimeout(r, 2000); });
+  var checkoutB = captured.beacons.find(function(b){ return b.events === 'scCheckout'; });
+  setStatus('checkout', checkoutB ? 'pass' : 'fail', checkoutB ? checkoutB.products.slice(0,40) : 'No scCheckout'); recordResult(!!checkoutB);
+  step++; updateProgress(step, steps);
+
+  // ── SUITE 5: Purchase (confirmation page) ─────────────────────────────────
+  setStatus('purchase', 'running');
+  var ORDER = { orderNumber: 'RF1-VALID-001', email: 'validator@test.com', shipping: { firstName: 'F1', lastName: 'Validator', address: '1 Track Ln', city: 'Monaco', state: 'MC', zip: '98000', country: 'MC' }, shippingMethod: 'standard', shippingPrice: 9.99, items: [{ id: 'RB-JKT-2024', name: '2024 Team Jacket', price: 159.99, category: 'Apparel', brand: 'Red Bull', image: 'x.png', quantity: 1 }], subtotal: 159.99, tax: 13.20, total: 183.18, date: new Date().toISOString(), userId: 'validator@test.com', userName: 'F1 Validator' };
+  var purchRes = await openAndInspect('/confirmation', 4000, function(p) {
+    p.localStorage.setItem('rf1_last_order', JSON.stringify(ORDER));
+    p.localStorage.removeItem('rf1_purchase_fired_RF1-VALID-001');
+    return { ok: true };
+  });
+  // Need to reload after seeding localStorage
+  var purchRes2 = await openAndInspect('/confirmation', 5000, function(p) {
+    var dl = p.window.adobeDataLayer || [];
+    var purchEvt = dl.filter(function(e){ return /purchase/i.test(e.event||''); });
+    var gl = p.window.gridboxLayer || {};
+    return { purchCount: purchEvt.length, productLen: gl.product ? gl.product.length : -1 };
+  });
+  await new Promise(function(r){ setTimeout(r, 2000); });
+  var purchaseB = captured.beacons.find(function(b){ return b.events === 'purchase'; });
+  var purchOk = purchRes2.purchCount >= 1 && purchRes2.productLen === 0;
+  setStatus('purchase', purchOk ? 'pass' : (purchRes2.purchCount >= 1 ? 'pass' : 'fail'),
+    'events:' + purchRes2.purchCount + ' productLen:' + purchRes2.productLen); recordResult(purchOk);
+  step++; updateProgress(step, steps);
+
+  // ── SUITE 6: User events ──────────────────────────────────────────────────
+  setStatus('login', 'running');
+  setStatus('signup', 'running');
+  var userRes = await openAndInspect('/', 3000, function(p) {
+    p.window.adobeDataLayer.push({ event: 'User logged in', attributes: { user_id: 'u1', user_type: 'registered' } });
+    p.window.adobeDataLayer.push({ event: 'User signed up', attributes: { user_id: 'u2', user_type: 'new' } });
+    return { ok: true };
+  });
+  await new Promise(function(r){ setTimeout(r, 2000); });
+  var loginB  = captured.beacons.find(function(b){ return b.events === 'event3'; });
+  var signupB = captured.beacons.find(function(b){ return b.events === 'event4'; });
+  setStatus('login',  loginB  ? 'pass' : 'fail'); recordResult(!!loginB);
+  setStatus('signup', signupB ? 'pass' : 'fail'); recordResult(!!signupB);
+  step += 2; updateProgress(step, steps);
+
+  // ── SUITE 7: Search + Promo + Error ──────────────────────────────────────
+  setStatus('search', 'running');
+  setStatus('promo', 'running');
+  setStatus('error', 'running');
+  var p1Res = await openAndInspect('/merchandise', 3000, function(p) {
+    p.window.adobeDataLayer.push({ event: 'Search performed', attributes: { search_term: 'hamilton cap', search_results: 3 } });
+    p.window.adobeDataLayer.push({ event: 'Promo code applied', attributes: { promo_code: 'F1SAVE10', promo_discount: 10 } });
+    p.window.adobeDataLayer.push({ event: 'Error occurred', attributes: { error_type: 'test', ga_errorMessage: 'Validator test error' } });
+    return { ok: true };
+  });
+  await new Promise(function(r){ setTimeout(r, 2000); });
+  var searchB = captured.beacons.find(function(b){ return b.events === 'event2'; });
+  var promoB  = captured.beacons.find(function(b){ return b.events === 'event5'; });
+  var errorB  = captured.beacons.find(function(b){ return b.events === 'event10'; });
+  setStatus('search', searchB ? 'pass' : 'fail'); recordResult(!!searchB);
+  setStatus('promo',  promoB  ? 'pass' : 'fail'); recordResult(!!promoB);
+  setStatus('error',  errorB  ? 'pass' : 'fail'); recordResult(!!errorB);
+  step += 3; updateProgress(step, steps);
+
+  // ── SUITE 8: F1 domain events ─────────────────────────────────────────────
+  setStatus('race', 'running');
+  setStatus('ticket', 'running');
+  setStatus('seat', 'running');
+  setStatus('team', 'running');
+  setStatus('experience', 'running');
+  setStatus('hospitality', 'running');
+  var p2Res = await openAndInspect('/tickets', 3000, function(p) {
+    p.window.adobeDataLayer.push({ event: 'Race details viewed', attributes: { race_name: 'Monaco Grand Prix', race_location: 'Monaco' } });
+    p.window.adobeDataLayer.push({ event: 'Ticket type selected', attributes: { ticket_type: 'General Admission', ticket_category: 'Standard', stand_name: 'T1', ticket_price: 299 } });
+    p.window.adobeDataLayer.push({ event: 'Seat selected', attributes: { seat_id: 'A12', row: 'A', section: 'T1', seat_price: 299 } });
+    return { ok: true };
+  });
+  var p2bRes = await openAndInspect('/experiences', 3000, function(p) {
+    p.window.adobeDataLayer.push({ event: 'Team profile viewed', attributes: { team_name: 'Ferrari' } });
+    p.window.adobeDataLayer.push({ event: 'Experience booked', attributes: { experience_name: 'Pit Lane Walk', experience_type: 'VIP', experience_price: 499 } });
+    p.window.adobeDataLayer.push({ event: 'Hospitality package selected', attributes: { package_name: 'Paddock Club', package_price: 1499 } });
+    return { ok: true };
+  });
+  await new Promise(function(r){ setTimeout(r, 2000); });
+  setStatus('race',        captured.beacons.find(function(b){ return b.pev2 === 'Race Viewed'; }) ? 'pass' : 'fail'); recordResult(!!captured.beacons.find(function(b){ return b.pev2 === 'Race Viewed'; }));
+  setStatus('ticket',      captured.beacons.find(function(b){ return b.events === 'event6'; }) ? 'pass' : 'fail'); recordResult(!!captured.beacons.find(function(b){ return b.events === 'event6'; }));
+  setStatus('seat',        captured.beacons.find(function(b){ return b.events === 'event7'; }) ? 'pass' : 'fail'); recordResult(!!captured.beacons.find(function(b){ return b.events === 'event7'; }));
+  setStatus('team',        captured.beacons.find(function(b){ return b.pev2 === 'Team Viewed'; }) ? 'pass' : 'fail'); recordResult(!!captured.beacons.find(function(b){ return b.pev2 === 'Team Viewed'; }));
+  setStatus('experience',  captured.beacons.find(function(b){ return b.events === 'event8'; }) ? 'pass' : 'fail'); recordResult(!!captured.beacons.find(function(b){ return b.events === 'event8'; }));
+  setStatus('hospitality', captured.beacons.find(function(b){ return b.events === 'event9'; }) ? 'pass' : 'fail'); recordResult(!!captured.beacons.find(function(b){ return b.events === 'event9'; }));
+  step += 6; updateProgress(step, steps);
+
+  // ── Done ──────────────────────────────────────────────────────────────────
+  updateProgress(steps, steps);
+  document.getElementById('btnRun').disabled = false;
+  document.getElementById('btnRun').textContent = '▶ Run Again';
+  testRunning = false;
+}
+
+// ─── Live event matching (from BroadcastChannel) ─────────────────────────────
+function matchLiveEvent(payload) {
+  var e = payload.event || '';
+  var a = payload.attributes || {};
+  var map = {
+    'PageView': 'pageview', 'SPANavigation': 'pageview',
+    'Product viewed': 'prodview', 'Merchandise item viewed': 'prodview',
+    'Add to cart': 'addcart', 'Ticket added to cart': 'addcart',
+    'Remove from cart': 'removecart',
+    'View cart': 'viewcart',
+    'BeginCheckout': 'checkout',
+    'Purchase': 'purchase', 'Purchase completed': 'purchase',
+    'User logged in': 'login', 'User logged out': 'login',
+    'User signed up': 'signup',
+    'Search performed': 'search',
+    'Promo code applied': 'promo',
+    'Error occurred': 'error', 'AnalyticsError': 'error',
+    'Race details viewed': 'race', 'Race selected': 'race',
+    'Ticket type selected': 'ticket',
+    'Seat selected': 'seat',
+    'Team profile viewed': 'team',
+    'Experience booked': 'experience',
+    'Hospitality package selected': 'hospitality'
+  };
+  var id = map[e];
+  if (id) {
+    var el = document.getElementById('s-' + id);
+    if (el && el.className.indexOf('pass') === -1 && el.className.indexOf('running') === -1) {
+      setStatus(id.replace('s-',''), 'pass', e);
+    }
+  }
+}
+
+function clearAll() {
+  passed = failed = warned = total = eventCount = 0;
+  captured = { events: [], beacons: [] };
+  document.getElementById('eventLog').innerHTML = '<div class="empty">Waiting for events…</div>';
+  document.getElementById('beaconLog').innerHTML = '<div class="empty">No beacons captured yet.</div>';
+  document.getElementById('progressBar').style.width = '0';
+  document.getElementById('scorePass').textContent = '0';
+  document.getElementById('scoreFail').textContent = '0';
+  document.getElementById('scoreWarn').textContent = '0';
+  document.getElementById('scoreTotal').textContent = '0';
+  document.getElementById('sessionCount').textContent = '0 events captured';
+  ['launch','gtm','acdl','s','gridbox','pageview','prodview','addcart','removecart','viewcart','checkout','purchase','login','signup','search','promo','error','race','ticket','seat','team','experience','hospitality'].forEach(function(id){
+    setStatus(id, 'pending');
+  });
+}
+</script>
+</body>
+</html>

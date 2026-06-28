@@ -44,6 +44,10 @@
     {
       "source": "/test",
       "destination": "/test-datalayer.html"
+    },
+    {
+      "source": "/validate",
+      "destination": "/analytics-validator.html"
     }
   ]
 }

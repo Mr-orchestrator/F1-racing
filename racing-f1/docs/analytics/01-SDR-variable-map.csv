@@ -1,0 +1,49 @@
+Priority,DL_Event,XDM_eventType,XDM_Commerce_or_Web,XDM_Custom,DL_Attributes,AA_Event,AA_eVar_prop,CJA_Metric
+P0,PageView,web.webpagedetails.pageViews,web.webPageDetails.pageViews.value=1;name;URL,,page_name;page_type;page_url,page view,eVar1;eVar2;prop1;prop2,Page Views
+P0,SPANavigation,web.webpagedetails.pageViews,web.webPageDetails.pageViews.value=1,,page_name;page_type,page view,eVar1;eVar2,Page Views
+P0,Product viewed,commerce.productViews,commerce.productViews.value=1;productListItems[0],,product_id;product_name;product_brand;product_category;product_price,event1,eVar3;eVar4;eVar5,Product Views
+P0,Product clicked,web.webinteraction.linkClicks,web.webInteraction.linkClicks.value=1,_f1racingstore.eventInfo,product_id;product_name,,eVar3,Product Clicks
+P0,Product impression,commerce.productViews,productListItems[],,product_id;product_position;product_list,,eVar3,Product Impressions
+P0,Add to cart,commerce.productListAdds,commerce.productListAdds.value=1;productListItems[0],,product_id;product_name;product_price;product_category;product_quantity;cart_total;item_count;currency,scAdd,eVar3;eVar4;eVar5,Cart Adds
+P0,Remove from cart,commerce.productListRemovals,commerce.productListRemovals.value=1;productListItems[0],,product_id;product_name;quantity_removed;cart_total;item_count,scRemove,eVar3,Cart Removals
+P0,Update cart quantity,commerce.productListOpens,productListItems[0],_f1racingstore.step,product_id;old_quantity;new_quantity;cart_total,,eVar3,Qty Updates
+P0,View cart,commerce.productListViews,commerce.productListViews.value=1;productListItems[],,cart_total;item_count,scView,,Cart Views
+P0,BeginCheckout,commerce.checkouts,commerce.checkouts.value=1;productListItems[],,cart_total;item_count;currency;item_0_id;item_0_name;item_0_qty;item_0_price,scCheckout,,Checkouts
+P0,Add shipping info,commerce.checkouts,commerce.checkouts.value=1,_f1racingstore.step=shipping,,scCheckout,,Checkout Step
+P0,Add payment info,commerce.checkouts,commerce.checkouts.value=1,_f1racingstore.step=payment,,scCheckout,,Checkout Step
+P0,Purchase,commerce.order,commerce.purchases.value=1;order.priceTotal;order.purchaseID;order.currencyCode;productListItems[],,transaction_id;transaction_total;transaction_tax;transaction_shipping;currency;item_count;item_0_id;item_0_name;item_0_qty;item_0_price,purchase,eVar10,Orders;Revenue
+P0,Purchase completed,commerce.order,commerce.purchases.value=1;order.purchaseID;order.priceTotal,,transaction_id;transaction_total,purchase,eVar10,Orders;Revenue
+P0,Purchase failed,commerce.checkouts,_f1racingstore.eventInfo,reason,reason;transaction_id,event10,prop3,Failed Orders
+P0,ClearCart,commerce.productListRemovals,commerce.productListRemovals.value=1;productListItems[],,items_cleared;value_cleared,scRemove,,Cart Clears
+P1,User logged in,web.webinteraction,identityMap.crmId;web.webInteraction,,user_id;user_type;login_status,event3,eVar6;eVar7,Logins
+P1,User logged out,web.webinteraction,web.webInteraction,,user_id,,eVar6,Logouts
+P1,User signed up,web.webinteraction,identityMap.crmId;Profile,,user_id;email,event4,eVar6,Signups
+P1,UserIdentified,web.webinteraction,identityMap.ECID+crmId,,user_id;user_type;login_status,,eVar6,Identified
+P1,Search performed,web.webinteraction,web.webInteraction,_f1racingstore.search.term;results,search_term;search_results,event2,eVar9,Searches
+P1,Filter applied,web.webinteraction,web.webInteraction,_f1racingstore.search,filter,,prop,Filters
+P1,Promo code applied,web.webinteraction,web.webInteraction,_f1racingstore.promo.code;discount,promo_code;promo_discount,event5,eVar11,Promos Applied
+P1,Promo code failed,web.webinteraction,web.webInteraction,_f1racingstore.promo.code,promo_code,,,Promo Fails
+P1,Promo code removed,web.webinteraction,web.webInteraction,_f1racingstore.promo.code,promo_code,,,Promo Removes
+P2,Race details viewed,web.webinteraction,web.webInteraction,_f1racingstore.race.name;location;date;circuit,race_name;race_location;race_date;circuit_name,,eVar12,Race Views
+P2,Race selected,web.webinteraction,web.webInteraction,_f1racingstore.race.name;location,race_name;race_location,,eVar12,Race Selects
+P2,Ticket type selected,web.webinteraction,web.webInteraction,_f1racingstore.ticket.type;category;stand;price,ticket_type;ticket_category;stand_name;ticket_price,event6,eVar13,Ticket Selects
+P2,Ticket added to cart,commerce.productListAdds,commerce.productListAdds.value=1;productListItems[0],_f1racingstore.ticket,ticket_type;race_name;ticket_price;quantity,scAdd,eVar13,Ticket Adds
+P2,Seat map viewed,web.webinteraction,web.webInteraction,_f1racingstore.seat;race.name,stand_name;race_name,,,Seat Map Views
+P2,Seat selected,web.webinteraction,web.webInteraction,_f1racingstore.seat.id;row;section;price,seat_id;row;section;seat_price,event7,,Seat Selects
+P2,Skip seat selection clicked,web.webinteraction,web.webInteraction,_f1racingstore.step,,,,Seat Skips
+P2,Driver profile viewed,web.webinteraction,web.webInteraction,_f1racingstore.driver.name;number;team.name,driver_name;team_name;driver_number,,,Driver Views
+P2,Team profile viewed,web.webinteraction,web.webInteraction,_f1racingstore.team.name,team_name,,eVar14,Team Views
+P2,Merchandise item viewed,commerce.productViews,commerce.productViews.value=1,_f1racingstore.team.name,item_name;item_category;team_name,event1,eVar5,Merch Views
+P2,Merchandise added to cart,commerce.productListAdds,commerce.productListAdds.value=1;productListItems[0],,item_name;item_price;quantity,scAdd,,Merch Adds
+P2,Hospitality package viewed,web.webinteraction,web.webInteraction,_f1racingstore.hospitality.package;price;race.name,package_name;package_price;race_name,,,Hosp Views
+P2,Hospitality package selected,web.webinteraction,web.webInteraction,_f1racingstore.hospitality.package;price,package_name;package_price,event9,,Hosp Selects
+P2,Experience booked,commerce.order,_f1racingstore.experience.name;type;price,,experience_name;experience_type;experience_price,event8,eVar15,Exp Bookings
+P2,Service added,commerce.productListAdds,_f1racingstore,ServiceCode;ServicePrice;ServiceCurrency,,,Service Adds
+P2,Service removed,commerce.productListRemovals,_f1racingstore,ServiceCode;Reason,,,Service Removes
+P2,Add ancillary service,commerce.productListAdds,commerce.productListAdds.value=1,_f1racingstore,ServiceCode;ServiceValue;ServiceCategory;ServicePrice;ServiceCurrency,scAdd,,Ancillary Adds
+P2,Proceed to next step,web.webinteraction,web.webInteraction,_f1racingstore.step.name;direction=next,,,,Step Nav
+P2,Back to previous step,web.webinteraction,web.webInteraction,_f1racingstore.step.name;direction=back,,,,Step Nav
+P2,Error occurred,web.webinteraction,web.webInteraction,_f1racingstore.eventInfo.errorType;errorMessage,error_type;error_code;ga_errorMessage,event10,prop3,Errors
+P2,Warning occurred,web.webinteraction,web.webInteraction,_f1racingstore.eventInfo,error_type,,,Warnings
+P2,AnalyticsError,web.webinteraction,web.webInteraction,_f1racingstore.eventInfo,error_type;error_code,event10,prop3,Internal Errors
+P2,Page exit,web.webinteraction,web.webInteraction,_f1racingstore.eventInfo,,,,Exits

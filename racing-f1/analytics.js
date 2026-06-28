@@ -1648,6 +1648,15 @@
         }
 
         window.adobeDataLayer.push(payload);
+
+        // Broadcast to the validation dashboard (same-origin tabs/windows).
+        try {
+            if (typeof BroadcastChannel !== 'undefined') {
+                var bc = new BroadcastChannel('rf1_analytics');
+                bc.postMessage({ type: 'acdl_event', payload: payload, ts: Date.now() });
+                bc.close();
+            }
+        } catch (e) {}
     }
     
     // =========================================
@@ -3753,8 +3762,12 @@
             window.gridboxLayer.event.push(purchaseEvent);
             updateDiagnostics('eventsFired', 1);
 
-            // Clear cart after purchase
-            this.clearCart();
+            // Defer cart clear so the Purchase event finishes processing through
+            // ACDL listeners + Web SDK rule before ClearCart pushes to the datalayer.
+            // This prevents the XDM data element from picking ClearCart over Purchase
+            // when both events fire in the same JS task.
+            var self = this;
+            setTimeout(function() { self.clearCart(); }, 150);
 
             this.logDebug('Purchase completed - gridboxLayer.transaction updated', window.gridboxLayer.transaction);
             this.updateDebugPanel({ event: 'Purchase', transactionId: transactionID }, true);
@@ -3794,6 +3807,10 @@
             }
             
             user.profileInfo.loginStatus = !!(userData.id || userData.user_id);
+            // loginPersistence = true means the session was RESTORED from storage (not a fresh login)
+            if (userData.loginPersistence !== undefined) {
+                user.profileInfo.loginPersistence = !!userData.loginPersistence;
+            }
             
             // Push UserIdentified event to gridboxLayer.event[] with lifecycle
             if (user.profileInfo.profileID) {

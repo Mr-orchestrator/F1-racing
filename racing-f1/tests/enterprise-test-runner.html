@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise digitalData Format - Unit Tests</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #e4e4e7;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #22d3ee;
+            font-size: 1.8rem;
+        }
+        
+        .header-info {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%);
+            color: #0f172a;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(34, 211, 238, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #334155;
+            color: #e4e4e7;
+        }
+        
+        .btn-secondary:hover {
+            background: #475569;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .card-label {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+        
+        .card-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .card-value.passed { color: #22c55e; }
+        .card-value.failed { color: #ef4444; }
+        .card-value.total { color: #22d3ee; }
+        
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 5px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .tab.active {
+            background: #334155;
+            color: #22d3ee;
+        }
+        
+        .tab:hover:not(.active) {
+            background: rgba(51, 65, 85, 0.5);
+        }
+        
+        .tab-content {
+            display: none;
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .test-result {
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .test-result.pass {
+            background: rgba(34, 197, 94, 0.15);
+            border-left: 4px solid #22c55e;
+        }
+        
+        .test-result.fail {
+            background: rgba(239, 68, 68, 0.15);
+            border-left: 4px solid #ef4444;
+        }
+        
+        .test-icon {
+            font-size: 1.2rem;
+        }
+        
+        .json-viewer {
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 15px;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .json-key { color: #22d3ee; }
+        .json-string { color: #22c55e; }
+        .json-number { color: #f59e0b; }
+        .json-boolean { color: #a855f7; }
+        .json-null { color: #94a3b8; }
+        
+        .section-title {
+            font-size: 1.1rem;
+            color: #22d3ee;
+            margin: 20px 0 10px 0;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .data-section {
+            margin-bottom: 20px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #334155;
+            border-top-color: #22d3ee;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .quick-btn {
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #94a3b8;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .quick-btn:hover {
+            background: #334155;
+            color: #e4e4e7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏎️ Racing F1 - gridboxLayer Unit Tests</h1>
+        <p class="header-info">Testing gridboxLayer for F1 Merchandise (Apparel, Accessories, Collectibles, Race Tickets, VIP Experiences)</p>
+        
+        <div class="controls">
+            <button class="btn-primary" onclick="runTests()">▶️ Run All Tests</button>
+            <button class="btn-secondary" onclick="resetTests()">🔄 Reset</button>
+            <button class="btn-secondary" onclick="viewGridboxLayer()">📊 View gridboxLayer</button>
+            <button class="btn-success" onclick="runQuickDemo()">⚡ Quick Demo</button>
+        </div>
+        
+        <div class="summary-cards">
+            <div class="card">
+                <div class="card-label">Total Tests</div>
+                <div class="card-value total" id="totalTests">0</div>
+            </div>
+            <div class="card">
+                <div class="card-label">Passed</div>
+                <div class="card-value passed" id="passedTests">0</div>
+            </div>
+            <div class="card">
+                <div class="card-label">Failed</div>
+                <div class="card-value failed" id="failedTests">0</div>
+            </div>
+            <div class="card">
+                <div class="card-label">Products</div>
+                <div class="card-value total" id="productCount">0</div>
+            </div>
+            <div class="card">
+                <div class="card-label">Cart Items</div>
+                <div class="card-value total" id="cartItemCount">0</div>
+            </div>
+            <div class="card">
+                <div class="card-label">Events</div>
+                <div class="card-value total" id="eventCount">0</div>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('results')">Test Results</button>
+            <button class="tab" onclick="showTab('products')">Products</button>
+            <button class="tab" onclick="showTab('cart')">Cart</button>
+            <button class="tab" onclick="showTab('events')">Events</button>
+            <button class="tab" onclick="showTab('full')">Full gridboxLayer</button>
+        </div>
+        
+        <div id="results" class="tab-content active">
+            <div class="quick-actions">
+                <button class="quick-btn" onclick="testStructure()">Test Structure Only</button>
+                <button class="quick-btn" onclick="testProducts()">Test Apparel/Products</button>
+                <button class="quick-btn" onclick="testRaceTickets()">Test Race Tickets</button>
+                <button class="quick-btn" onclick="testCart()">Test Cart</button>
+            </div>
+            <div id="testResults">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Click "Run All Tests" to start</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="products" class="tab-content">
+            <h3 class="section-title">gridboxLayer.product[]</h3>
+            <div id="productsJson" class="json-viewer">Click "View gridboxLayer" to load</div>
+        </div>
+        
+        <div id="cart" class="tab-content">
+            <h3 class="section-title">gridboxLayer.cart</h3>
+            <div id="cartJson" class="json-viewer">Click "View gridboxLayer" to load</div>
+        </div>
+        
+        <div id="events" class="tab-content">
+            <h3 class="section-title">gridboxLayer.event[]</h3>
+            <div id="eventsJson" class="json-viewer">Click "View gridboxLayer" to load</div>
+        </div>
+        
+        <div id="full" class="tab-content">
+            <h3 class="section-title">Full gridboxLayer Object</h3>
+            <div id="fullJson" class="json-viewer">Click "View gridboxLayer" to load</div>
+        </div>
+    </div>
+    
+    <!-- Load analytics.js first -->
+    <script src="../analytics.js"></script>
+    <!-- Load enterprise format tests -->
+    <script src="enterprise-format.test.js"></script>
+    
+    <script>
+        // Initialize gridbox
+        if (window.gridbox && window.gridbox.init) {
+            window.gridbox.init();
+        }
+        
+        function showTab(tabId) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+        
+        function updateCounts() {
+            document.getElementById('productCount').textContent = window.gridboxLayer?.product?.length || 0;
+            document.getElementById('cartItemCount').textContent = window.gridboxLayer?.cart?.item?.length || 0;
+            document.getElementById('eventCount').textContent = window.gridboxLayer?.event?.length || 0;
+        }
+        
+        function runTests() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Running tests...</p></div>';
+            
+            setTimeout(() => {
+                const results = runEnterpriseFormatTests();
+                
+                document.getElementById('totalTests').textContent = results.passed + results.failed;
+                document.getElementById('passedTests').textContent = results.passed;
+                document.getElementById('failedTests').textContent = results.failed;
+                
+                let html = '';
+                results.results.forEach(r => {
+                    const isPass = r.status === 'PASS';
+                    html += `
+                        <div class="test-result ${isPass ? 'pass' : 'fail'}">
+                            <span class="test-icon">${isPass ? '✅' : '❌'}</span>
+                            <span>${r.message}</span>
+                        </div>
+                    `;
+                });
+                
+                resultsDiv.innerHTML = html;
+                updateCounts();
+                viewGridboxLayer();
+            }, 100);
+        }
+        
+        function resetTests() {
+            if (window.EnterpriseFormatTests) {
+                window.EnterpriseFormatTests.reset();
+            }
+            document.getElementById('totalTests').textContent = '0';
+            document.getElementById('passedTests').textContent = '0';
+            document.getElementById('failedTests').textContent = '0';
+            document.getElementById('testResults').innerHTML = '<div class="loading"><p>Tests reset. Click "Run All Tests" to start</p></div>';
+            updateCounts();
+            viewGridboxLayer();
+        }
+        
+        function syntaxHighlight(json) {
+            if (typeof json !== 'string') {
+                json = JSON.stringify(json, null, 2);
+            }
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'json-number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'json-key';
+                    } else {
+                        cls = 'json-string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'json-boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'json-null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+        
+        function viewGridboxLayer() {
+            if (!window.gridboxLayer) return;
+            
+            document.getElementById('productsJson').innerHTML = syntaxHighlight(JSON.stringify(window.gridboxLayer.product, null, 2));
+            document.getElementById('cartJson').innerHTML = syntaxHighlight(JSON.stringify(window.gridboxLayer.cart, null, 2));
+            document.getElementById('eventsJson').innerHTML = syntaxHighlight(JSON.stringify(window.gridboxLayer.event.slice(-10), null, 2));
+            document.getElementById('fullJson').innerHTML = syntaxHighlight(JSON.stringify(window.gridboxLayer, null, 2));
+            updateCounts();
+        }
+        
+        function runQuickDemo() {
+            // Reset first
+            if (window.gridboxLayer) {
+                window.gridboxLayer.product = [];
+                window.gridboxLayer.cart.item = [];
+                window.gridboxLayer.event = [];
+            }
+            
+            // F1 MERCHANDISE PRODUCTS
+            const f1Products = [
+                // Apparel
+                { id: 'RB-JKT-2024', name: '2024 Red Bull Team Jacket', price: 159.99, category: 'Apparel', brand: 'Red Bull Racing' },
+                { id: 'MER-PLO-2024', name: 'Mercedes Team Polo Shirt', price: 79.99, category: 'Apparel', brand: 'Mercedes-AMG' },
+                { id: 'FER-JKT-2024', name: 'Scuderia Team Jacket', price: 179.99, category: 'Apparel', brand: 'Scuderia Ferrari' },
+                // Accessories
+                { id: 'FER-CAP-2024', name: 'Scuderia Ferrari Cap', price: 39.99, category: 'Accessories', brand: 'Scuderia Ferrari' },
+                { id: 'MCL-CAP-2024', name: 'McLaren Papaya Cap', price: 34.99, category: 'Accessories', brand: 'McLaren Racing' },
+                // Collectibles
+                { id: 'MCL-MOD-2024', name: 'McLaren MCL38 1:18 Model', price: 89.99, category: 'Collectibles', brand: 'McLaren Racing' },
+                { id: 'RB-HEL-2024', name: 'Verstappen Mini Helmet', price: 149.99, category: 'Collectibles', brand: 'Red Bull Racing' }
+            ];
+            
+            f1Products.forEach(p => {
+                window.gridbox.addToCart({
+                    id: p.id,
+                    name: p.name,
+                    price: p.price,
+                    currency: 'USD',
+                    categoryType: p.category,
+                    details: { brand: p.brand }
+                }, 1);
+            });
+            
+            // Add a Race Ticket
+            window.gridbox.addProduct({
+                id: 'MONACO-GP-VIP-2024',
+                name: 'Monaco GP VIP Package',
+                price: 2499.99,
+                currency: 'USD',
+                categoryType: 'RaceTicket',
+                details: {
+                    raceName: 'Monaco Grand Prix',
+                    raceDate: '2024-05-26',
+                    circuit: 'Circuit de Monaco',
+                    grandstand: 'K Stand',
+                    ticketType: 'VIP'
+                }
+            });
+            
+            // Add VIP Experience
+            window.gridbox.addProduct({
+                id: 'SILVERSTONE-EXP-2024',
+                name: 'Silverstone Paddock Experience',
+                price: 1299.99,
+                currency: 'USD',
+                categoryType: 'VIPExperience',
+                details: {
+                    raceName: 'British Grand Prix',
+                    includes: ['Paddock Access', 'Pit Lane Walk', 'Team Garage Tour']
+                }
+            });
+            
+            alert('F1 Merchandise Demo Created! Check Products and Cart tabs.');
+            viewGridboxLayer();
+            showTab('products');
+        }
+        
+        function testStructure() {
+            EnterpriseFormatTests.reset();
+            testGridboxLayerBaseStructure();
+            testDigitalTouchpointStructure();
+            testTransactionStructure();
+            testCartStructure();
+            testPageStructure();
+            testUserStructure();
+            displayResults(EnterpriseFormatTests.summary());
+        }
+        
+        function testProducts() {
+            EnterpriseFormatTests.reset();
+            testAddProductStructure();
+            displayResults(EnterpriseFormatTests.summary());
+        }
+        
+        function testRaceTickets() {
+            EnterpriseFormatTests.reset();
+            testAddRaceTicketStructure();
+            displayResults(EnterpriseFormatTests.summary());
+        }
+        
+        function testCart() {
+            EnterpriseFormatTests.reset();
+            testAddToCartCreatesProductAndReference();
+            testCartTotalCalculation();
+            displayResults(EnterpriseFormatTests.summary());
+        }
+        
+        function displayResults(results) {
+            document.getElementById('totalTests').textContent = results.passed + results.failed;
+            document.getElementById('passedTests').textContent = results.passed;
+            document.getElementById('failedTests').textContent = results.failed;
+            
+            let html = '';
+            results.results.forEach(r => {
+                const isPass = r.status === 'PASS';
+                html += `
+                    <div class="test-result ${isPass ? 'pass' : 'fail'}">
+                        <span class="test-icon">${isPass ? '✅' : '❌'}</span>
+                        <span>${r.message}</span>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('testResults').innerHTML = html;
+            updateCounts();
+            viewGridboxLayer();
+        }
+        
+        // Initial load
+        updateCounts();
+    </script>
+</body>
+</html>

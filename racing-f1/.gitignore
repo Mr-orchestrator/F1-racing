@@ -34,3 +34,6 @@ playwright-report/
 playwright/.cache/
 blob-report/
 *.zip
+
+# Sibling governance repo (do not nest)
+tealium-extensions/

@@ -699,40 +699,17 @@
                 subtotal: subtotal,
                 tax: tax,
                 total: total,
-                date: new Date().toISOString()
+                date: new Date().toISOString(),
+                userId: (Auth.getCurrentUser() ? Auth.getCurrentUser().email : (formData.get('email') || '')),
+                userName: (Auth.getCurrentUser() ? (Auth.getCurrentUser().firstName + ' ' + Auth.getCurrentUser().lastName) : '')
             };
             
             localStorage.setItem('rf1_last_order', JSON.stringify(orderData));
 
-            // Populate gridboxLayer.transaction and fire the Purchase event.
-            // gridbox.purchase() also clears the datalayer cart.
-            const currentUser = Auth.getCurrentUser();
-            if (window.gridbox && window.gridbox.purchase) {
-                window.gridbox.purchase({
-                    orderId: orderNumber,
-                    total: total,
-                    subtotal: subtotal,
-                    tax: tax,
-                    shipping: shippingPrice,
-                    currency: 'USD',
-                    userId: currentUser ? currentUser.email : '',
-                    userName: currentUser ? (currentUser.firstName + ' ' + currentUser.lastName) : '',
-                    address: orderData.shipping
-                });
-            } else if (window.racingF1Analytics) {
-                window.racingF1Analytics.linkCallback('ecommerce-purchase', {
-                    action: 'submit',
-                    label: 'order-complete',
-                    value: total,
-                    CD: {
-                        transaction_id: orderNumber,
-                        transaction_revenue: total.toFixed(2),
-                        transaction_tax: tax.toFixed(2),
-                        transaction_shipping: shippingPrice.toFixed(2),
-                        product_quantity: this.items.reduce((sum, i) => sum + i.quantity, 0).toString()
-                    }
-                });
-            }
+            // NOTE: The Purchase event is intentionally NOT fired here.
+            // It fires on the confirmation page ONLY (see initConfirmationPage),
+            // rebuilt from rf1_last_order, so there is a single Purchase beacon
+            // tied to the order-confirmation page view.
 
             localStorage.removeItem(this.storageKey);
             this.items = [];
@@ -747,7 +724,60 @@
             try {
                 const orderData = JSON.parse(localStorage.getItem('rf1_last_order'));
                 if (!orderData) return;
-                
+
+                // Fire the Purchase event on the confirmation page ONLY, once per order.
+                // The data layer resets on navigation, so rebuild cart + product from the
+                // stored order so gridbox.purchase() can resolve line-item details, then
+                // clear gridboxLayer.product afterwards.
+                const firedKey = 'rf1_purchase_fired_' + orderData.orderNumber;
+                if (window.gridbox && window.gridbox.purchase && !localStorage.getItem(firedKey)) {
+                    if (window.gridboxLayer && window.gridboxLayer.cart) {
+                        window.gridboxLayer.product = [];
+                        window.gridboxLayer.cart.item = [];
+                        (orderData.items || []).forEach(function(item) {
+                            const category = item.category || 'Product';
+                            window.gridboxLayer.product.push({
+                                category: { primaryCategory: category },
+                                productInfo: {
+                                    productID: item.id,
+                                    brand: item.brand || '',
+                                    productDetails: {
+                                        [category.toLowerCase()]: {
+                                            name: item.name,
+                                            brand: item.brand || '',
+                                            price: { totalPrice: { amount: item.price, currency: 'USD' } },
+                                            image: item.image
+                                        }
+                                    },
+                                    characteristics: []
+                                }
+                            });
+                            window.gridboxLayer.cart.item.push({
+                                productInfo: { productID: item.id, quantity: item.quantity }
+                            });
+                        });
+                        window.gridboxLayer.cart.price.totalPrice.amount = parseFloat(orderData.total) || 0;
+                    }
+
+                    window.gridbox.purchase({
+                        orderId: orderData.orderNumber,
+                        total: orderData.total,
+                        subtotal: orderData.subtotal,
+                        tax: orderData.tax,
+                        shipping: orderData.shippingPrice,
+                        currency: 'USD',
+                        userId: orderData.userId || orderData.email || '',
+                        userName: orderData.userName || '',
+                        address: orderData.shipping
+                    });
+
+                    // Requirement: clear gridboxLayer.product on the confirmation page.
+                    // (gridbox.purchase() already clears gridboxLayer.cart.)
+                    if (window.gridboxLayer) window.gridboxLayer.product = [];
+
+                    localStorage.setItem(firedKey, '1');
+                }
+
                 orderNumberEl.textContent = orderData.orderNumber;
                 
                 const orderDateEl = document.getElementById('order-date');
@@ -863,15 +893,19 @@
                     email: user.email,
                     firstName: user.firstName,
                     lastName: user.lastName,
-                    favoriteTeam: user.favoriteTeam
+                    favoriteTeam: user.favoriteTeam,
+                    customerTier: user.customerTier || 'standard',
+                    loginPersistence: false   // fresh login
                 }));
-                
+
                 if (window.gridbox && window.gridbox.setUser) {
                     window.gridbox.setUser({
                         id: user.email,
                         name: user.firstName + ' ' + user.lastName,
                         email: user.email,
-                        type: 'registered'
+                        type: 'registered',
+                        tier: user.customerTier || 'standard',
+                        loginPersistence: false
                     });
                 }
 
@@ -954,15 +988,19 @@
                     email: newUser.email,
                     firstName: newUser.firstName,
                     lastName: newUser.lastName,
-                    favoriteTeam: newUser.favoriteTeam
+                    favoriteTeam: newUser.favoriteTeam,
+                    customerTier: 'standard',
+                    loginPersistence: false
                 }));
-                
+
                 if (window.gridbox && window.gridbox.setUser) {
                     window.gridbox.setUser({
                         id: newUser.email,
                         name: firstName + ' ' + lastName,
                         email: newUser.email,
-                        type: 'new'
+                        type: 'new',
+                        tier: 'standard',
+                        loginPersistence: false
                     });
                 }
 
@@ -985,27 +1023,77 @@
         updateAuthUI: function() {
             const self = this;
             const user = this.getCurrentUser();
-            const accountLinks = document.querySelectorAll('[href="login.html"]');
+            // Select both possible selectors — href="login.html" (HTML source) and href="#" (already updated)
+            const accountLinks = document.querySelectorAll('[href="login.html"], [data-track="header-actions_click_account"]');
 
             if (user) {
+                const initials = ((user.firstName || '?').charAt(0) + (user.lastName || '').charAt(0)).toUpperCase();
+                const tier = (user.customerTier || 'standard').toLowerCase();
+                const tierLabel = tier.charAt(0).toUpperCase() + tier.slice(1);
+
                 accountLinks.forEach(function(link) {
-                    link.setAttribute('title', 'Logged in as ' + user.firstName + ' — click to log out');
-                    link.setAttribute('data-track', 'header-actions_click_logout');
+                    // --- Visual state ---
+                    link.classList.add('is-logged-in');
                     link.setAttribute('href', '#');
-                    link.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        self.logout();
-                    });
+                    link.setAttribute('data-track', 'header-actions_click_account');
+                    link.setAttribute('aria-label', 'Logged in as ' + user.firstName + ' — click for account menu');
+
+                    // Replace SVG with user initials
+                    link.innerHTML = '<span class="user-initials">' + initials + '</span>';
+
+                    // --- Wrap in a positioned container (only once) ---
+                    if (!link.parentElement.classList.contains('account-btn-wrap')) {
+                        const wrap = document.createElement('div');
+                        wrap.className = 'account-btn-wrap';
+                        link.parentElement.insertBefore(wrap, link);
+                        wrap.appendChild(link);
+
+                        // Build dropdown
+                        const dropdown = document.createElement('div');
+                        dropdown.className = 'user-dropdown';
+                        dropdown.id = 'userDropdown';
+                        dropdown.innerHTML =
+                            '<div class="user-dropdown-name">' + (user.firstName || '') + ' ' + (user.lastName || '') + '</div>' +
+                            '<div class="user-dropdown-email">' + (user.email || '') + '</div>' +
+                            '<span class="user-dropdown-tier tier-' + tier + '">' + tierLabel + ' Member</span>' +
+                            '<hr class="user-dropdown-divider">' +
+                            '<button class="user-dropdown-logout" id="dropdownLogoutBtn">' +
+                            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>' +
+                            'Sign out</button>';
+                        wrap.appendChild(dropdown);
+
+                        // Toggle dropdown on account button click
+                        link.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            dropdown.classList.toggle('open');
+                        });
+
+                        // Close dropdown when clicking outside
+                        document.addEventListener('click', function() {
+                            dropdown.classList.remove('open');
+                        });
+
+                        // Logout button inside dropdown
+                        document.getElementById('dropdownLogoutBtn').addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            self.logout();
+                        });
+                    }
                 });
 
                 // Re-hydrate the datalayer user on every page so a logged-in
                 // visitor is not reported as a guest after navigation.
+                // loginPersistence:true signals this is a restored session, not a fresh login.
                 if (window.gridbox && window.gridbox.setUser) {
                     window.gridbox.setUser({
                         id: user.email,
                         name: (user.firstName || '') + ' ' + (user.lastName || ''),
                         email: user.email,
-                        type: 'registered'
+                        type: 'registered',
+                        tier: user.customerTier || 'standard',
+                        loginPersistence: true
                     });
                 }
             }
@@ -1020,7 +1108,22 @@
         },
         
         logout: function() {
+            const user = this.getCurrentUser();
             localStorage.removeItem(this.storageKey);
+
+            if (window.gridbox && window.gridbox.setUser) {
+                window.gridbox.setUser({ id: '', type: 'guest', loginPersistence: false });
+            }
+            if (window.adobeDataLayer) {
+                window.adobeDataLayer.push({
+                    event: 'User logged out',
+                    attributes: {
+                        user_id: user ? user.email : '',
+                        user_type: 'guest',
+                        login_status: false
+                    }
+                });
+            }
             if (window.racingF1Analytics) {
                 window.racingF1Analytics.linkCallback('header-actions', {
                     action: 'click',
