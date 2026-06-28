@@ -18,6 +18,11 @@
     "test:trace": "npx playwright test --trace on",
     "test:codegen": "npx playwright codegen http://localhost:3000",
     "test:show-trace": "npx playwright show-trace",
+    "test:analytics": "npx playwright test tests/crossstream-analytics-validator.spec.js tests/gridbox-tealium-bridge.spec.js --project=chromium",
+    "report": "npx playwright show-report",
+    "debug": "npx playwright test --debug --project=chromium",
+    "ui": "npx playwright test --ui",
+    "replay": "npx playwright show-trace",
     "playwright:install": "npx playwright install --with-deps"
   },
   "keywords": [
