@@ -1,0 +1,14 @@
+{
+  "product": "TKT-MON-VIP",
+  "generatedAt": "2026-06-28T10:08:34.971Z",
+  "passed": 6,
+  "total": 8,
+  "failed": 2,
+  "ga4_network_hits": 2,
+  "adobe_network_hits": 1,
+  "steps": [
+    "AddToCart",
+    "BeginCheckout",
+    "Purchase"
+  ]
+}

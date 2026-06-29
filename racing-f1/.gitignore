@@ -37,3 +37,6 @@ blob-report/
 
 # Sibling governance repo (do not nest)
 tealium-extensions/
+
+# Validator reports (timestamped, generated per run)
+validation-reports/

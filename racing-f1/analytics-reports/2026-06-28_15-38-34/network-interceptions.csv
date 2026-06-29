@@ -1,0 +1,3 @@
+step,stream,event_or_url,value,currency
+AddToCart,GA4,page_view,,
+AddToCart,GA4,gtm.js,,
