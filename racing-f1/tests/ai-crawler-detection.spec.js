@@ -21,6 +21,8 @@ const CRAWLER_UAS = [
   { ua: 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; OAI-SearchBot/1.0; +https://openai.com/searchbot)', expect: 'OAI-SearchBot', vendor: 'OpenAI', klass: 'crawler' },
   { ua: 'Mozilla/5.0 (Linux; Android 6.0.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Mobile Safari/537.36; ChatGPT-User/1.0; +https://openai.com/bot', expect: 'ChatGPT-User', vendor: 'OpenAI', klass: 'agent' },
   { ua: 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)', expect: 'ClaudeBot', vendor: 'Anthropic', klass: 'crawler' },
+  { ua: 'Mozilla/5.0 (compatible; Claude-User/1.0; +Claude-User@anthropic.com)', expect: 'Claude-User', vendor: 'Anthropic', klass: 'agent' },
+  { ua: 'Mozilla/5.0 (compatible; Claude-SearchBot/1.0; +https://www.anthropic.com/claude-searchbot)', expect: 'Claude-SearchBot', vendor: 'Anthropic', klass: 'crawler' },
   { ua: 'Claude-Web/1.0 (+http://www.anthropic.com/claude-web)', expect: 'Claude-Web', vendor: 'Anthropic', klass: 'crawler' },
   { ua: 'anthropic-ai', expect: 'anthropic-ai', vendor: 'Anthropic', klass: 'crawler' },
   { ua: 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; PerplexityBot/1.0; +https://perplexity.ai/perplexitybot)', expect: 'PerplexityBot', vendor: 'Perplexity', klass: 'crawler' },

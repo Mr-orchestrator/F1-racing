@@ -25,7 +25,16 @@ export default async function middleware(request) {
 
   // Accept absolute URL (e.g. Tealium Collect) or a leading-slash path for a same-origin
   // receiver like the self-hosted /api/bot-collect. Never throw out of the middleware.
-  const raw = (process.env.TEALIUM_COLLECT_URL || '').trim();
+  //
+  // Default: Tealium "HTTP API - Advanced" data source endpoint. This URL encodes
+  // account / profile / data-source-key directly in the path
+  // (/integration/event/<account>/<profile>/<datasource>), so routing to EventStream is
+  // determined by the URL itself — no body-level tealium_account/profile needed. Complex JSON
+  // objects POSTed here are auto-flattened (key paths lowercased + underscore-joined). Success
+  // response is HTTP 204. Override with the TEALIUM_COLLECT_URL env var if needed.
+  const DEFAULT_COLLECT_URL =
+    'https://collect-us-west-2.tealiumiq.com/integration/event/cognizant-sandbox/cookieless-demo/rivqkx';
+  const raw = (process.env.TEALIUM_COLLECT_URL || DEFAULT_COLLECT_URL).trim();
   let collectUrl = '';
   let trackPath = '';
   try {

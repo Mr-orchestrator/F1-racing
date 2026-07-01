@@ -9,6 +9,8 @@ const AI_CRAWLERS = [
   { name: 'OAI-SearchBot',     re: /\bOAI-SearchBot\b/i,     vendor: 'OpenAI',     class: 'crawler' },
   { name: 'ChatGPT-User',      re: /\bChatGPT-User\b/i,      vendor: 'OpenAI',     class: 'agent'   },
   { name: 'ClaudeBot',         re: /\bClaudeBot\b/i,         vendor: 'Anthropic',  class: 'crawler' },
+  { name: 'Claude-User',       re: /\bClaude-User\b/i,       vendor: 'Anthropic',  class: 'agent'   },
+  { name: 'Claude-SearchBot',  re: /\bClaude-SearchBot\b/i,  vendor: 'Anthropic',  class: 'crawler' },
   { name: 'Claude-Web',        re: /\bClaude-Web\b/i,        vendor: 'Anthropic',  class: 'crawler' },
   { name: 'anthropic-ai',      re: /\banthropic-ai\b/i,      vendor: 'Anthropic',  class: 'crawler' },
   { name: 'PerplexityBot',     re: /\bPerplexityBot\b/i,     vendor: 'Perplexity', class: 'crawler' },
