@@ -48,7 +48,8 @@ export default async function middleware(request) {
         referer: request.headers.get('referer') || '',
         ip: request.headers.get('x-forwarded-for') || '',
         account: process.env.TEALIUM_ACCOUNT,
-        profile: process.env.TEALIUM_PROFILE
+        profile: process.env.TEALIUM_PROFILE,
+        dataSourceKey: (process.env.TEALIUM_DATA_SOURCE_KEY || '').trim()
       });
       // Fire-and-forget. Edge runtime keeps the request alive briefly after response for us.
       fetch(collectUrl, {

@@ -39,8 +39,8 @@ function detectAICrawler(ua) {
  * Build the Tealium Collect HTTP API event payload for a detected crawler hit.
  * Matches Tealium Collect's expected JSON shape; the profile decides routing via Load Rules.
  */
-function buildCollectEvent({ hit, url, referer, ip, account, profile }) {
-  return {
+function buildCollectEvent({ hit, url, referer, ip, account, profile, dataSourceKey }) {
+  const evt = {
     tealium_account: account || 'cognizant-sandbox',
     tealium_profile: profile || 'f1racing',
     tealium_event:   'ai_crawler_visit',
@@ -55,6 +55,9 @@ function buildCollectEvent({ hit, url, referer, ip, account, profile }) {
     ip:              ip || '',
     timestamp_iso:   new Date().toISOString()
   };
+  // Tealium data source attribution — required when routing through EventStream.
+  if (dataSourceKey) evt.tealium_datasource = dataSourceKey;
+  return evt;
 }
 
 module.exports = { AI_CRAWLERS, detectAICrawler, buildCollectEvent };
