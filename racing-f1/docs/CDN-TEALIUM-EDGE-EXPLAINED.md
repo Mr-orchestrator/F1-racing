@@ -438,3 +438,241 @@ normal "next hardening steps" for a first working version, not signs the approac
 main decisions still waiting on you are **policy** ones (do we block anyone? what's our
 retention/legal story?) rather than **technical** ones (does the pipe actually work? — yes,
 proven).
+
+---
+
+## Part 10 — What We Actually Did on Vercel (the real steps, in order)
+
+### Q: What IS Vercel, in one sentence?
+
+Vercel is a company that gives you **hosting + a global CDN + edge computing + serverless
+functions**, all in one product, controlled by a single CLI tool (`vercel`) and a dashboard.
+You don't manage any physical servers — you just tell Vercel "here are my files" and it takes
+care of distributing them worldwide (Part 1) and running any small bits of code you need
+(Part 4).
+
+### Q: What exactly did we build and deploy on Vercel this session — step by step?
+
+Here is the literal chronological record of what happened, in plain terms:
+
+| # | What we did | Vercel feature used |
+|---|---|---|
+| 1 | The project already existed on Vercel, linked via a hidden `.vercel/project.json` file (contains a Project ID and Org ID) | Project linking |
+| 2 | Found and fixed a security-policy bug (CSP) blocking Tealium's script from loading | `vercel.json` → `headers` config |
+| 3 | Found and fixed the same bug blocking our consent banner (jsdelivr CDN) | `vercel.json` → `headers` config |
+| 4 | Deployed those fixes: ran `vercel --prod --yes` from the terminal | **Deployment** (CLI) |
+| 5 | Wrote `lib/bot-detection.js` — plain logic, no Vercel-specific code, just a regular file | (regular source file) |
+| 6 | Wrote `middleware.js` — code that runs at Vercel's edge, before any page is served | **Edge Middleware** |
+| 7 | Wrote `api/bot-collect.js` — a small backend function, reachable at `/api/bot-collect` | **Serverless Function** |
+| 8 | Deployed again (`vercel --prod --yes`) — Vercel auto-detected `middleware.js` needed compiling and `api/bot-collect.js` needed to become a function | Deployment + auto-detection |
+| 9 | Discovered a bug: our "matcher" rule (which URLs the middleware applies to) accidentally skipped every `.html` page | (our own bug, found via testing) |
+| 10 | Fixed the matcher, deployed again | Deployment |
+| 11 | Set a **secret environment variable**: `TEALIUM_COLLECT_URL` — first pointed at our own `/api/bot-collect`, later changed to point at the real Tealium endpoint | `vercel env add` / `vercel env rm` |
+| 12 | Redeployed each time the environment variable changed (env vars only take effect on the next deploy) | Deployment |
+| 13 | Used `vercel logs <url>` to watch the live server activity in real time, to prove events were actually being sent and received | **Live Logs** |
+| 14 | Pushed all the source code to GitHub separately, for version history and team visibility | (GitHub, not Vercel — see note below) |
+
+### Q: Wait — does pushing to GitHub automatically deploy to Vercel?
+
+**Not in what we did this session.** Vercel *can* be configured to auto-deploy every time you
+push to GitHub (a very common setup, called "Git Integration"), but in this project we
+deployed **manually**, every time, by running `vercel --prod --yes` ourselves from the
+terminal. Whether Git Integration is *also* switched on for this project (meaning GitHub pushes
+might trigger a *second*, separate automatic deployment) is something to check in your Vercel
+dashboard — we didn't rely on it and don't have confirmation either way.
+
+### Q: What's actually configured as an environment variable right now?
+
+Checked directly: **only one** — `TEALIUM_COLLECT_URL`, currently pointing to the real Tealium
+endpoint (`https://collect.tealiumiq.com/event`). Two other variables our code *supports*
+(`TEALIUM_DATA_SOURCE_KEY`, `TEALIUM_ACCOUNT`, `TEALIUM_PROFILE`) are **not yet set** — the code
+falls back to hardcoded defaults (`cognizant-sandbox` / `f1racing`) when they're missing. Setting
+`TEALIUM_DATA_SOURCE_KEY` is still an open task from the Tealium-side runbook (you need to
+create a Data Source in Tealium first to get that key).
+
+### Q: How does "tracking" actually work end-to-end on Vercel, summarized?
+
+1. **Vercel's Edge Network** serves every page from a data center near the visitor (Part 1).
+2. **Edge Middleware** (`middleware.js`) runs on every request, at that same nearby location,
+   and checks "is this a known AI crawler?" — if yes, it tags the response and separately
+   sends a report straight to Tealium's server (no browser involved at all for this part).
+3. If the visitor is a real browser, the page loads normally, and our own `analytics.js`
+   (GridBox) + Tealium's `utag.js` handle all the *human* tracking (Parts 2-3), completely
+   independently of the middleware.
+4. **`vercel logs`** lets us watch both of these happening live, from the terminal, without
+   needing to open the Vercel dashboard.
+
+---
+
+## Part 11 — Can We Do the Same Thing on Cloudflare? (Detailed Replication Plan)
+
+### Q: Why would we even consider Cloudflare instead of / alongside Vercel?
+
+Cloudflare is one of the **original and largest CDN companies in the world** — it doesn't just
+offer edge computing as an add-on (like Vercel does), edge computing (**Cloudflare Workers**) is
+literally the product Cloudflare invented the category with. Reasons a team might consider it:
+
+- Cloudflare has one of the largest edge networks on Earth (more physical locations than most
+  competitors), so requests can be even closer to visitors globally.
+- Cloudflare sells a **dedicated Bot Management product** (see Part 12) that solves one of the
+  exact gaps we flagged in Part 9 (crawlers lying about their identity) — natively, without us
+  writing detection code ourselves.
+- Some organizations already route ALL their traffic through Cloudflare (for DDoS protection,
+  WAF, etc.) and would prefer everything live in one dashboard.
+
+### Q: What is the Cloudflare equivalent of each Vercel piece we used?
+
+| What we built on Vercel | Cloudflare equivalent | Notes |
+|---|---|---|
+| Vercel Edge Network (hosting + CDN) | **Cloudflare Pages** | Static site hosting, same idea — global CDN, git-connected |
+| `middleware.js` (Edge Middleware) | **Cloudflare Pages Functions** — specifically a `functions/_middleware.js` file | Nearly identical concept: code that runs before the page, at the edge |
+| `api/bot-collect.js` (Serverless Function) | **Cloudflare Pages Functions** — a file like `functions/api/bot-collect.js` | Same routing convention (folder path = URL path) |
+| `vercel.json` (headers/CSP config) | A `_headers` file in your project root, OR Cloudflare's dashboard **Transform Rules** | Slightly different syntax, same purpose |
+| `vercel env add` (environment variables) | **`wrangler secret put`** (CLI) or the Cloudflare Pages dashboard → Settings → Environment Variables | Same concept |
+| `vercel --prod --yes` (deploy) | **`wrangler pages deploy`** (CLI) | Cloudflare's CLI tool is called `wrangler` |
+| `vercel logs <url>` (live logs) | **`wrangler pages deployment tail`** (or `wrangler tail` for a plain Worker) | Same "watch it happen live" experience |
+| Vercel Project linking (`.vercel/project.json`) | `wrangler.toml` config file | Cloudflare's version of "which project am I talking to" |
+
+### Q: Give me the actual step-by-step plan to replicate this on Cloudflare.
+
+**Step 1 — Install the Cloudflare CLI and log in**
+```bash
+npm install -g wrangler
+wrangler login
+```
+
+**Step 2 — Create a Cloudflare Pages project from the same source files**
+```bash
+cd racing-f1
+wrangler pages project create racing-f1
+```
+
+**Step 3 — Recreate the CSP/security headers**
+Create a file named `_headers` in the project root (Cloudflare Pages reads this automatically):
+```
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://assets.adobedtm.com https://tags.tiqcdn.com https://*.tiqcdn.com https://cdn.jsdelivr.net; connect-src 'self' https://tags.tiqcdn.com https://*.tiqcdn.com https://collect.tealiumiq.com https://*.tealiumiq.com https://*.adobedc.net https://*.demdex.net https://*.omtrdc.net;
+```
+(This is the same allow-list we hand-fixed twice in `vercel.json` — copy the lessons learned,
+don't repeat the mistake of forgetting a domain.)
+
+**Step 4 — Recreate the AI-crawler detection as a Pages Function**
+Create `functions/_middleware.js` (Cloudflare's naming convention for "runs on every request"):
+```js
+import { detectAICrawler, buildCollectEvent } from '../lib/bot-detection.js';
+
+export async function onRequest(context) {
+  const { request, next, env } = context;
+  const ua = request.headers.get('user-agent') || '';
+  const hit = detectAICrawler(ua);
+  if (!hit) return next();
+
+  const collectUrl = env.TEALIUM_COLLECT_URL;
+  let trackSent = 'false';
+  if (collectUrl) {
+    const event = buildCollectEvent({
+      hit, url: request.url,
+      referer: request.headers.get('referer') || '',
+      ip: request.headers.get('cf-connecting-ip') || '', // Cloudflare's own header for real visitor IP
+      account: env.TEALIUM_ACCOUNT, profile: env.TEALIUM_PROFILE,
+      dataSourceKey: env.TEALIUM_DATA_SOURCE_KEY
+    });
+    const resp = await fetch(collectUrl, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(event)
+    });
+    trackSent = 'true';
+    console.log(`[bot-track] bot=${hit.name} status=${resp.status}`);
+  }
+
+  const response = await next();
+  const newHeaders = new Headers(response.headers);
+  newHeaders.set('x-bot-detected', 'true');
+  newHeaders.set('x-bot-name', hit.name);
+  newHeaders.set('x-bot-vendor', hit.vendor);
+  newHeaders.set('x-bot-track-sent', trackSent);
+  return new Response(response.body, { ...response, headers: newHeaders });
+}
+```
+(Note: `cf-connecting-ip` replaces Vercel's `x-forwarded-for` — Cloudflare's own equivalent
+header for "what's the visitor's real IP.")
+
+**Step 5 — Recreate the self-hosted receiver (optional, for local audit logging)**
+Create `functions/api/bot-collect.js` with the same logic as our current
+`api/bot-collect.js`, adapted to Cloudflare's function signature (`onRequestPost(context)`
+instead of Vercel's `export default function handler(req, res)`).
+
+**Step 6 — Set environment variables**
+```bash
+wrangler pages secret put TEALIUM_COLLECT_URL --project-name=racing-f1
+# paste: https://collect.tealiumiq.com/event
+```
+
+**Step 7 — Deploy**
+```bash
+wrangler pages deploy . --project-name=racing-f1
+```
+
+**Step 8 — Verify with live logs (the Cloudflare equivalent of what we did with `vercel logs`)**
+```bash
+wrangler pages deployment tail --project-name=racing-f1
+```
+Then, in another terminal, fire the same test we ran on Vercel:
+```bash
+curl -A "GPTBot/1.2" https://racing-f1.pages.dev/tickets
+```
+You should see the same `[bot-track] bot=GPTBot status=200` line appear live.
+
+**Step 9 — Re-run the SAME Playwright tests we already wrote**
+This is the best part: our test suite (`tests/ai-crawler-detection.spec.js`,
+`tests/chatgpt-crawler-scenario.spec.js`) doesn't care which platform is hosting the site — it
+just sends HTTP requests and checks response headers. Point it at the new Cloudflare URL:
+```bash
+BASE_URL_MW=https://racing-f1.pages.dev npx playwright test tests/ai-crawler-detection.spec.js --project=chromium
+```
+All 44 tests should pass identically, proving the Cloudflare version behaves the same as the
+Vercel version.
+
+### Q: What would be genuinely DIFFERENT (not just renamed) on Cloudflare?
+
+| Difference | Explanation |
+|---|---|
+| **Cloudflare Bot Management** (paid add-on) | Instead of hand-writing User-Agent regex matching (which, as flagged in Part 9, can be spoofed), Cloudflare can *cryptographically verify* many known bots using reverse-DNS + IP-range validation. This directly fixes our biggest honest gap — but costs extra and requires an Enterprise-tier or Bot Management add-on plan. |
+| **`cf-connecting-ip` vs `x-forwarded-for`** | Different header name for "the visitor's real IP," because each platform's edge network adds its own custom header. |
+| **`_headers` file vs `vercel.json`** | Different file format for the exact same CSP config — purely cosmetic. |
+| **`wrangler` vs `vercel` CLI** | Different tool, same job (deploy, set env vars, tail logs). |
+| **Workers KV / Durable Objects** (Cloudflare-only) | Cloudflare offers built-in fast key-value storage at the edge, which Vercel doesn't have a direct equivalent for — could be used to build a rate-limiter or a dedup cache for repeat bot hits, as a future enhancement not currently in our Vercel version either. |
+
+### Q: If we wanted BOTH Vercel and Cloudflare, is that possible?
+
+Yes — nothing about our design locks us into one platform. `lib/bot-detection.js` (the actual
+detection logic) is plain, portable JavaScript with zero Vercel-specific code — that's *why* it
+was written as a separate file instead of being embedded directly in `middleware.js`. Only the
+thin wrapper (`middleware.js` vs. `functions/_middleware.js`) needs to be rewritten per platform.
+This was a deliberate design choice, not an accident.
+
+---
+
+## Part 12 — Vercel vs. Cloudflare — Side-by-Side Summary
+
+| Category | Vercel (what we used) | Cloudflare (the replication target) |
+|---|---|---|
+| **Primary business** | Frontend hosting platform, edge computing as a feature | The original CDN/edge-network company; hosting is a newer product line |
+| **Edge network size** | Large, global | One of the largest in the world — often cited as bigger |
+| **Edge code runtime** | Vercel Edge Middleware (V8 isolates, same tech family as Cloudflare's) | Cloudflare Workers (the original V8-isolate edge-compute product) |
+| **Static hosting** | Automatic, git-friendly | Cloudflare Pages (git-friendly, same idea) |
+| **Serverless functions** | `api/*.js` folder convention | `functions/*.js` folder convention (Pages Functions) |
+| **CLI tool** | `vercel` | `wrangler` |
+| **Built-in bot detection** | None (we built our own from scratch, this session) | **Cloudflare Bot Management** — a real product for this exact use case (paid tier) |
+| **Config file for headers/CSP** | `vercel.json` | `_headers` file, or dashboard Transform Rules |
+| **Live log tailing** | `vercel logs <url>` | `wrangler tail` / `wrangler pages deployment tail` |
+| **What we'd have to rewrite** | — | The two thin wrapper files (`middleware.js`, `api/bot-collect.js`) — everything else (`lib/bot-detection.js`, all HTML/CSS/JS, all Playwright tests) is unchanged |
+| **What we'd gain** | — | Optional access to enterprise-grade, IP-verified bot detection instead of our regex-only approach |
+
+### Q: Bottom line — should we actually migrate?
+
+Not necessarily. The point of this section is that **we *could*, cheaply**, because we kept the
+detection logic separate from the hosting platform. Whether to actually move is a business
+decision (cost, existing infrastructure, whether Cloudflare's paid Bot Management is worth it to
+close the UA-spoofing gap from Part 9) — not a technical blocker either way.
