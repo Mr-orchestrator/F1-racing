@@ -1,0 +1,43 @@
+# robots.txt — F1 Racing Store
+# We WELCOME AI agents and crawlers. Their visits are detected at the edge
+# (see middleware.js) and logged for analytics — we do not block them.
+# A clean 200 + explicit Allow is required: some agents (notably Anthropic's
+# Claude-User) fetch this file FIRST and will decline to read a page if the
+# robots response is missing/errored (404) or ambiguous.
+
+# User-initiated AI agents (fetch a page because a human asked in chat)
+User-agent: Claude-User
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Gemini-Deep-Research
+Allow: /
+
+# AI search / indexing crawlers
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+# AI training crawlers
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# Everyone else
+User-agent: *
+Allow: /
