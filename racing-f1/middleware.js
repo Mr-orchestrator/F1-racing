@@ -41,25 +41,31 @@ export default async function middleware(request) {
 
   let trackSent = 'false';
   if (collectUrl) {
+    const event = buildCollectEvent({
+      hit,
+      url: request.url,
+      referer: request.headers.get('referer') || '',
+      ip: request.headers.get('x-forwarded-for') || '',
+      account: process.env.TEALIUM_ACCOUNT,
+      profile: process.env.TEALIUM_PROFILE,
+      dataSourceKey: (process.env.TEALIUM_DATA_SOURCE_KEY || '').trim()
+    });
+    // AWAITED (not fire-and-forget): this is a single small POST that only happens on bot
+    // traffic (rare), and awaiting lets us log the real response status from Tealium/receiver
+    // in Vercel's function logs — the proof that the event actually reached its destination.
     try {
-      const event = buildCollectEvent({
-        hit,
-        url: request.url,
-        referer: request.headers.get('referer') || '',
-        ip: request.headers.get('x-forwarded-for') || '',
-        account: process.env.TEALIUM_ACCOUNT,
-        profile: process.env.TEALIUM_PROFILE,
-        dataSourceKey: (process.env.TEALIUM_DATA_SOURCE_KEY || '').trim()
-      });
-      // Fire-and-forget. Edge runtime keeps the request alive briefly after response for us.
-      fetch(collectUrl, {
+      const resp = await fetch(collectUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(event)
-      }).catch(() => {});
+      });
       trackSent = 'true';
-    } catch (_) {
+      // eslint-disable-next-line no-console
+      console.log(`[bot-track] bot=${hit.name} dest=${collectUrl} status=${resp.status} page=${event.page_path}`);
+    } catch (e) {
       trackSent = 'error';
+      // eslint-disable-next-line no-console
+      console.log(`[bot-track] ERROR bot=${hit.name} dest=${collectUrl} error=${String(e)}`);
     }
   }
 
