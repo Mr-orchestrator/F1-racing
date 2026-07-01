@@ -112,9 +112,43 @@ test.describe('HTTP integration — deployed middleware', () => {
       expect(h['x-bot-name']).toBe(c.expect);
       expect(h['x-bot-vendor']).toBe(c.vendor);
       expect(h['x-bot-class']).toBe(c.klass);
+      // x-bot-track-sent proves the middleware actually fired the POST to the server-side receiver
+      // (Tealium Collect or our self-hosted /api/bot-collect). 'true' = POST initiated;
+      // 'false' = TEALIUM_COLLECT_URL env var unset. Non-strict here so the suite passes either way.
+      expect(['true', 'false']).toContain(h['x-bot-track-sent']);
       await ctx.dispose();
     });
   }
+
+  // Additional test: when server-side tracking is enabled, EVERY crawler hit must fire the POST.
+  test('server-side tracking is enabled AND fires (x-bot-track-sent === "true")', async ({ playwright }) => {
+    const ctx = await playwright.request.newContext({
+      extraHTTPHeaders: { 'user-agent': 'Mozilla/5.0 (compatible; GPTBot/1.2)' }
+    });
+    const res = await ctx.get(MW_URL + '/');
+    expect(res.headers()['x-bot-track-sent'], 'set TEALIUM_COLLECT_URL env var to enable server-side tracking').toBe('true');
+    expect(res.headers()['x-bot-track-url'], 'x-bot-track-url must be populated when tracking is on').toBeTruthy();
+    await ctx.dispose();
+  });
+
+  // /api/bot-collect endpoint must accept POST directly (proves the receiver is up)
+  test('/api/bot-collect accepts POST and echoes the event', async ({ playwright }) => {
+    const ctx = await playwright.request.newContext();
+    const res = await ctx.post(MW_URL + '/api/bot-collect', {
+      data: {
+        tealium_account: 'cognizant-sandbox', tealium_profile: 'f1racing',
+        tealium_event: 'ai_crawler_visit', bot_name: 'GPTBot', bot_vendor: 'OpenAI', bot_class: 'crawler',
+        page_url: MW_URL + '/', user_agent: 'test'
+      }
+    });
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(body.ok).toBe(true);
+    expect(body.echo.bot_name).toBe('GPTBot');
+    expect(body.echo.bot_vendor).toBe('OpenAI');
+    expect(body.received_at).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    await ctx.dispose();
+  });
 
   test('human UA — no x-bot-* headers', async ({ playwright }) => {
     const ctx = await playwright.request.newContext({
