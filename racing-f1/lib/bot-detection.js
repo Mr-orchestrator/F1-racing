@@ -15,6 +15,7 @@ const AI_CRAWLERS = [
   { name: 'Perplexity-User',   re: /\bPerplexity-User\b/i,   vendor: 'Perplexity', class: 'agent'   },
   { name: 'cohere-ai',         re: /\bcohere-ai\b/i,         vendor: 'Cohere',     class: 'crawler' },
   { name: 'Google-Extended',   re: /\bGoogle-Extended\b/i,   vendor: 'Google',     class: 'crawler' },
+  { name: 'Gemini-Deep-Research', re: /\bGemini-Deep-Research\b/i, vendor: 'Google', class: 'agent' },
   { name: 'Bytespider',        re: /\bBytespider\b/i,        vendor: 'ByteDance',  class: 'crawler' },
   { name: 'Applebot-Extended', re: /\bApplebot-Extended\b/i, vendor: 'Apple',      class: 'crawler' },
   { name: 'Meta-ExternalAgent', re: /\bMeta-ExternalAgent\b/i, vendor: 'Meta',     class: 'crawler' },

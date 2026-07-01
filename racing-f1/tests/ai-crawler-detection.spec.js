@@ -27,6 +27,7 @@ const CRAWLER_UAS = [
   { ua: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Perplexity-User/1.0', expect: 'Perplexity-User', vendor: 'Perplexity', klass: 'agent' },
   { ua: 'cohere-ai', expect: 'cohere-ai', vendor: 'Cohere', klass: 'crawler' },
   { ua: 'Mozilla/5.0 (compatible; Google-Extended/1.0; +https://developers.google.com/search/docs/crawling-indexing/overview-google-crawlers)', expect: 'Google-Extended', vendor: 'Google', klass: 'crawler' },
+  { ua: 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Gemini-Deep-Research; +https://gemini.google/overview/deep-research/) Chrome/135.0.0.0 Safari/537.36', expect: 'Gemini-Deep-Research', vendor: 'Google', klass: 'agent' },
   { ua: 'Mozilla/5.0 (compatible; Bytespider; spider-feedback@bytedance.com)', expect: 'Bytespider', vendor: 'ByteDance', klass: 'crawler' },
   { ua: 'Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Safari/605.1.15 Applebot-Extended/1.0', expect: 'Applebot-Extended', vendor: 'Apple', klass: 'crawler' },
   { ua: 'meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)', expect: 'Meta-ExternalAgent', vendor: 'Meta', klass: 'crawler' },
