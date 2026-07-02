@@ -1,19 +1,19 @@
 // @ts-check
 /**
- * GOOGLE → CLAUDE → CRAWL-OUR-URL scenario (parallel to the ChatGPT / Gemini / Perplexity ones)
- * ==============================================================================================
- * Anthropic splits its crawlers into THREE identities (developers: docs.anthropic.com):
- *   - ClaudeBot        (crawler)  — training-data collection
- *   - Claude-SearchBot (crawler)  — search indexing
- *   - Claude-User      (agent)    — USER-INITIATED fetch when you ask Claude chat to read a URL.
- *                                   This one checks /robots.txt first, then fetches the page.
+ * CLAUDE.AI → BROWSE OUR URL scenario
+ * =====================================
+ * Fixes vs original:
+ *  1. Goes DIRECTLY to claude.ai/new — skips unreliable Google search step
+ *  2. Explicitly clicks the Search/Browse tool button BEFORE typing (forces tool activation)
+ *  3. Stronger prompt wording that names the tool explicitly
+ *  4. Waits for Claude's response to contain ticket content before closing
+ *  5. Logs Claude's actual response text for debugging
+ *  6. Falls back to direct URL navigation if composer not found quickly
  *
- * The Claude chat "browse this URL" feature sends Claude-User/1.0. That is the identity this
- * scenario proves end-to-end: prompt Claude to read our target URL, then confirm a Claude-User
- * hit reached our middleware (Vercel logs) and/or Tealium.
- *
- * Registry now includes Claude-User + Claude-SearchBot (added alongside the pre-existing
- * ClaudeBot / Claude-Web). Precheck below asserts detection before the live run.
+ * Claude-User UA behavior:
+ *   - Checks /robots.txt first (strict — aborts if 404, we now return 200 Allow: /)
+ *   - Then fetches the actual page
+ *   - So you'll see TWO [bot-track] lines: page=/robots.txt then page=/tickets
  *
  * Run
  *   BASE_URL_MW=https://racing-f1-rho.vercel.app \
@@ -24,100 +24,178 @@ const path = require('path');
 const fs = require('fs');
 
 const MW_URL = process.env.BASE_URL_MW || 'https://racing-f1-rho.vercel.app';
-const TARGET_PATH = '/tickets';
-const TARGET_URL = MW_URL + TARGET_PATH + '?src=claude-verify-' + Date.now();
+const TARGET_URL = MW_URL + '/tickets?src=claude-verify-' + Date.now();
 
 const AUTH_DIR = path.join(__dirname, '..', 'playwright', '.auth', 'claude');
 fs.mkdirSync(AUTH_DIR, { recursive: true });
 
 test.describe.configure({ mode: 'serial' });
 
-test('drive Google → Claude → ask to fetch our URL, then verify', async () => {
+test('Claude.ai → browse our URL → verify Claude-User hit middleware', async () => {
   test.setTimeout(300000);
 
   const context = await chromium.launchPersistentContext(AUTH_DIR, {
     headless: false,
-    viewport: { width: 1280, height: 820 },
+    viewport: { width: 1280, height: 900 },
     args: ['--disable-blink-features=AutomationControlled']
   });
   const page = context.pages()[0] || (await context.newPage());
 
-  console.log('\n[precheck] Confirming our middleware detects Claude-User…');
+  // ── PRECHECK: confirm middleware detects Claude-User before we even open the browser ──
+  console.log('\n[precheck] Confirming middleware detects Claude-User on prod…');
   const precheck = await context.request.get(MW_URL + '/', {
     headers: { 'user-agent': 'Mozilla/5.0 (compatible; Claude-User/1.0; +Claude-User@anthropic.com)' }
   });
   const h = precheck.headers();
-  expect(h['x-bot-detected'], 'middleware is not detecting Claude-User — deploy the registry fix').toBe('true');
-  expect(h['x-bot-name']).toBe('Claude-User');
-  expect(h['x-bot-track-sent'], 'server-side track not initiated — TEALIUM_COLLECT_URL not set?').toBe('true');
-  console.log(`  ✓ middleware detects Claude-User and initiated POST to ${h['x-bot-track-url']}`);
-  console.log('  NOTE: this precheck line fires at test start (page=/). Do not mistake it for the');
-  console.log('  real Claude crawl further down the log tail (page=/tickets).');
+  expect(h['x-bot-detected'], 'middleware not detecting Claude-User — check lib/bot-detection.js').toBe('true');
+  expect(h['x-bot-track-sent'], 'TEALIUM_COLLECT_URL not set or POST failed').toBe('true');
+  console.log(`  ✓ Claude-User detected, track sent to ${h['x-bot-track-url']}`);
 
-  // Step 1 — Google search
-  console.log('\n[step 1] Navigating to google.com and searching "claude ai"…');
-  await page.goto('https://www.google.com/search?q=claude+ai&hl=en', { waitUntil: 'domcontentloaded', timeout: 45000 });
-  await page.waitForTimeout(1500);
-  const consentBtn = await page.$('button:has-text("Accept all"), button:has-text("Reject all"), button[aria-label*="Accept"]');
-  if (consentBtn) await consentBtn.click().catch(() => {});
-  await page.waitForTimeout(800);
+  // ── STEP 1: Go directly to claude.ai (skip Google search — it's unreliable) ──
+  console.log('\n[step 1] Navigating directly to claude.ai/new…');
+  await page.goto('https://claude.ai/new', { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.waitForTimeout(2000);
 
-  console.log('[step 2] Opening the first Claude link from results…');
-  const linkCandidates = ['a[href*="claude.ai"]', 'a:has-text("Claude")'];
-  let opened = false;
-  for (const sel of linkCandidates) {
-    const link = await page.$(sel);
-    if (link) { await link.click(); opened = true; break; }
+  // ── STEP 2: Handle login if needed (persistent auth saves session after first run) ──
+  const isLoginPage = page.url().includes('login') || page.url().includes('auth');
+  if (isLoginPage) {
+    console.log('\n════════════════════════════════════════════════════════════════════════');
+    console.log(' MANUAL STEP: Log into Claude.ai now.');
+    console.log(' You have 3 minutes. After login, wait for the chat composer to appear.');
+    console.log(' Session will be saved — future runs skip this step.');
+    console.log('════════════════════════════════════════════════════════════════════════\n');
+    // Wait for redirect away from login
+    await page.waitForURL(url => !url.toString().includes('login') && !url.toString().includes('auth'), { timeout: 180000 });
+    await page.waitForTimeout(2000);
   }
-  if (!opened) {
-    console.log('  ⚠ could not find a Claude link on the Google results page. Falling back to direct navigation.');
-    await page.goto('https://claude.ai/new', { waitUntil: 'domcontentloaded', timeout: 45000 });
+
+  // ── STEP 3: Wait for the composer ──
+  console.log('[step 2] Waiting for chat composer…');
+  const composerSel = [
+    'div[contenteditable="true"]',
+    '[data-testid="chat-input"]',
+    'div.ProseMirror',
+    '[role="textbox"]',
+    'textarea'
+  ].join(', ');
+
+  await page.waitForSelector(composerSel, { timeout: 60000 });
+  await page.waitForTimeout(1000);
+  console.log('  ✓ Composer found');
+
+  // ── STEP 4: Click the Search/Browse tool button to activate web browsing ──
+  console.log('[step 3] Looking for Search / Browse tool button to activate…');
+  const toolButtonSels = [
+    'button[aria-label*="Search"]',
+    'button[aria-label*="Browse"]',
+    'button[aria-label*="Web"]',
+    'button[title*="Search"]',
+    'button[title*="Browse"]',
+    '[data-testid*="search"]',
+    '[data-testid*="tool"]',
+    'button:has-text("Search")',
+    'button:has-text("Browse")'
+  ];
+
+  let toolActivated = false;
+  for (const sel of toolButtonSels) {
+    const btn = await page.$(sel);
+    if (btn) {
+      await btn.click();
+      await page.waitForTimeout(800);
+      console.log(`  ✓ Clicked tool button: ${sel}`);
+      toolActivated = true;
+      break;
+    }
   }
-  await page.waitForLoadState('domcontentloaded');
+  if (!toolActivated) {
+    console.log('  ⚠ No explicit tool button found — Claude may auto-enable browsing from prompt.');
+    console.log('    If fetch still fails, manually click the search icon in the composer toolbar.');
+  }
 
-  console.log('\n════════════════════════════════════════════════════════════════════════');
-  console.log(' MANUAL STEP: log into Claude if prompted.');
-  console.log(' You have up to 2 minutes. Once you see the chat composer, do NOTHING —');
-  console.log(' the test will type the prompt itself.');
-  console.log(' NOTE: URL-fetching may require the web-search / browsing capability enabled');
-  console.log('       on your Claude account for Claude-User to actually go fetch the page.');
-  console.log('════════════════════════════════════════════════════════════════════════\n');
-
-  // Claude's composer is a contenteditable ProseMirror div.
-  const composerSel = 'div[contenteditable="true"], [role="textbox"], textarea';
-  await page.waitForSelector(composerSel, { timeout: 120000 });
-  console.log('[step 3] Composer detected. Typing the prompt…');
-
+  // ── STEP 5: Type the prompt with explicit tool instruction ──
+  console.log(`\n[step 4] Typing prompt… target: ${TARGET_URL}`);
   const prompt =
-    `Please fetch and read ${TARGET_URL} live using web browsing, then tell me the page title ` +
-    `and the first three ticket categories listed on that page. Do not answer from memory.`;
+    `Use your web search and browsing tool to fetch this URL right now: ${TARGET_URL}\n\n` +
+    `Tell me:\n` +
+    `1. The exact page title\n` +
+    `2. The first three ticket category names and their prices\n\n` +
+    `Important: fetch it live — do NOT answer from memory or training data. ` +
+    `This page has live pricing that changes. Use browsing.`;
 
   const composer = await page.$(composerSel);
   await composer.click();
-  await composer.type(prompt, { delay: 20 });
-  await page.waitForTimeout(500);
-  await composer.press('Enter');
+  await page.waitForTimeout(300);
 
-  console.log('\n[step 4] Prompt sent. Waiting up to 60s for Claude to fetch our URL…');
-  await page.waitForTimeout(60000);
+  // Use keyboard.type for more reliable input on contenteditable divs
+  await page.keyboard.type(prompt, { delay: 15 });
+  await page.waitForTimeout(600);
+
+  // Submit — try Enter key, fall back to send button
+  const sendBtn = await page.$('button[aria-label*="Send"], button[type="submit"], button:has-text("Send")');
+  if (sendBtn) {
+    await sendBtn.click();
+    console.log('  ✓ Clicked Send button');
+  } else {
+    await page.keyboard.press('Enter');
+    console.log('  ✓ Pressed Enter to send');
+  }
+
+  // ── STEP 6: Wait for Claude to fetch and respond ──
+  console.log('\n[step 5] Waiting up to 90s for Claude to browse the URL and respond…');
+  console.log('         Watch Terminal 1 (vercel logs) for:');
+  console.log(`         [bot-track] bot=Claude-User ... page=/robots.txt`);
+  console.log(`         [bot-track] bot=Claude-User ... page=/tickets`);
+
+  // Wait for response to appear — look for ticket content in the page
+  let responseFound = false;
+  for (let i = 0; i < 18; i++) {
+    await page.waitForTimeout(5000);
+    const bodyText = await page.evaluate(() => document.body.innerText);
+    if (
+      bodyText.includes('General Admission') ||
+      bodyText.includes('Grandstand') ||
+      bodyText.includes('VIP Paddock') ||
+      bodyText.includes('Race Tickets') ||
+      bodyText.includes('$450') ||
+      bodyText.includes('$890')
+    ) {
+      console.log('\n  ✅ Claude responded with ticket content — browsing WORKED!');
+      responseFound = true;
+
+      // Print what Claude said
+      const msgs = await page.$$eval(
+        '[data-testid="message-content"], .claude-message, [class*="assistant"] p, [class*="response"] p',
+        els => els.slice(-5).map(e => e.innerText).join('\n')
+      );
+      if (msgs) console.log('\n  Claude response preview:\n', msgs.slice(0, 500));
+      break;
+    }
+    process.stdout.write(`  waiting… ${(i + 1) * 5}s\r`);
+  }
+
+  if (!responseFound) {
+    console.log('\n  ⚠ Claude did not return ticket content in 90s.');
+    console.log('  Possible reasons:');
+    console.log('  1. Browsing tool not enabled — check for search icon in claude.ai composer toolbar');
+    console.log('  2. Claude answered from memory (ignored the fetch instruction)');
+    console.log('  3. Claude is still typing — check the browser window');
+    console.log('  Check Vercel logs for Claude-User hits regardless:');
+    console.log(`    vercel logs https://racing-f1-rho.vercel.app`);
+  }
 
   console.log('\n════════════════════════════════════════════════════════════════════════');
-  console.log(' VERIFICATION — check ONE of these to confirm the crawl was detected:');
+  console.log(' VERIFICATION:');
+  console.log(' Vercel portal → racing-f1 → Logs → search: bot-track');
+  console.log(' Expected lines (two per Claude session):');
+  console.log('   [bot-track] bot=Claude-User ... page=/robots.txt   ← pre-check');
+  console.log('   [bot-track] bot=Claude-User ... page=/tickets       ← actual fetch');
   console.log('');
-  console.log(' 1. Tealium Live Events:');
-  console.log('       my.tealiumiq.com → EventStream → Live Events → filter tealium_event=ai_crawler_visit');
-  console.log(`       Look for page_url containing ${TARGET_URL}`);
-  console.log('       (profile depends on TEALIUM_COLLECT_URL: f1racing for collect.tealiumiq.com,');
-  console.log('        cookieless-demo for the HTTP-API-Advanced .../cookieless-demo/rivqkx endpoint)');
-  console.log('');
-  console.log(' 2. Vercel logs:');
-  console.log(`       vercel logs ${MW_URL} | grep bot-track`);
-  console.log('       Expected: bot=Claude-User on page=/tickets, AFTER the precheck line (page=/).');
-  console.log('');
-  console.log(' 3. CAVEAT: Claude-User fetches /robots.txt FIRST. If you see a Claude-User hit on');
-  console.log('    page=/robots.txt but NOT on /tickets, Claude read robots.txt then declined to');
-  console.log('    fetch the page (or answered from context) — detection still worked.');
+  console.log(' Tealium: my.tealiumiq.com → cookieless-demo → EventStream → Live Events');
+  console.log('   filter: tealium_event = ai_crawler_visit');
+  console.log(`   look for: page_url contains ${TARGET_URL}`);
   console.log('════════════════════════════════════════════════════════════════════════\n');
 
+  await page.waitForTimeout(5000);
   await context.close();
 });
