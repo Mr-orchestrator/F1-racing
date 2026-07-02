@@ -676,3 +676,399 @@ Not necessarily. The point of this section is that **we *could*, cheaply**, beca
 detection logic separate from the hosting platform. Whether to actually move is a business
 decision (cost, existing infrastructure, whether Cloudflare's paid Bot Management is worth it to
 close the UA-spoofing gap from Part 9) — not a technical blocker either way.
+
+---
+
+## Part 13 — The CDN Cache Layer Explained: Initiator, Cache HIT/MISS, and Where Middleware Sits
+
+### Q: When I click a search result and open DevTools, I see an "Initiator" column. What is that?
+
+The **Initiator** column in Chrome DevTools (Network tab) tells you *what caused* a particular
+network request to be made. Common values:
+
+| Initiator value | Plain-English meaning |
+|---|---|
+| `(browser)` | You typed a URL, clicked a bookmark, or clicked a search result — the browser started this request directly |
+| A `.js` filename (e.g. `utag.js:42`) | A script running on the page triggered this request — e.g. Tealium's `utag.js` fired a beacon |
+| `prefetch` | The browser pre-loaded this resource before you clicked, because it predicted you would |
+| `<img>` element | The browser loaded an image tag, which is how the old `i.gif` trick worked (see Part 2) |
+
+So when you see `(browser)` as the initiator on the first request to your site — that's you
+clicking the Google search result. Everything after that (scripts, beacons, images) has a
+different initiator showing *which piece of code* asked for it.
+
+### Q: What is `X-Vercel-Cache: HIT` vs `MISS`, and which is better?
+
+These headers appear on every response from Vercel (visible in DevTools → Network → click a
+request → Headers tab):
+
+| Header value | What happened | Speed |
+|---|---|---|
+| `X-Vercel-Cache: HIT` | The file was already stored at the nearest Vercel edge location. Served from there. **Origin never contacted.** | ⚡ Fastest — often under 10ms |
+| `X-Vercel-Cache: MISS` | The edge didn't have the file yet. Had to fetch it from the origin (Vercel's storage). Now it's cached for next time. | Slower first time, fast after |
+| `X-Vercel-Cache: BYPASS` | Middleware or config told Vercel "don't cache this one" | Same as MISS speed |
+| `X-Vercel-Cache: STALE` | Served a cached copy but triggering a background refresh at the same time | Fast (serves old version while updating) |
+
+`HIT` is better for speed. But it does **not** mean our middleware was skipped — see below.
+
+### Q: If the CDN serves from cache (HIT), does our middleware still run?
+
+**Yes — always.** This is the critical difference between Vercel Edge Middleware and a normal
+server function:
+
+```
+Normal server function:
+  Browser → CDN → [cache HIT → serve file directly] → middleware NEVER runs
+                  [cache MISS → middleware → origin → serve file]
+
+Vercel Edge Middleware:
+  Browser → CDN → [middleware ALWAYS runs FIRST]
+                      ↓
+                  [cache HIT → serve cached file]
+                  [cache MISS → fetch from origin → serve file]
+```
+
+Middleware sits **before** the cache decision, not after it. So:
+- A bot hits your site → middleware detects it → POSTs to Tealium → **then** the CDN serves
+  the cached HTML instantly (showing as `X-Vercel-Cache: HIT` in the bot's DevTools)
+- The bot gets the page fast AND we tracked it
+- If middleware was a regular server function, a cache HIT would bypass it entirely
+
+### Q: Show me the exact order from "user clicks Google result" to "page appears"
+
+```
+1. USER clicks a Google search result
+   └─► Browser issues GET request to racing-f1-rho.vercel.app/tickets
+
+2. DNS LOOKUP
+   └─► racing-f1-rho.vercel.app → resolves to Vercel's nearest edge IP
+       (Mumbai, Singapore, Frankfurt, etc. — whichever is closest to the user)
+
+3. TCP + TLS HANDSHAKE
+   └─► Secure connection established to that edge location
+
+4. ⚡ VERCEL EDGE MIDDLEWARE runs (middleware.js) ← THIS IS OUR CODE
+   └─► Reads the User-Agent header
+       Is it Claude-User / GPTBot / ChatGPT-User / etc.?
+         ├─► YES (bot): POST event to Tealium → await 204 → log [bot-track] line
+         │              then let the request continue (never blocks the page)
+         └─► NO (human): pass straight through, <1ms overhead
+
+5. CACHE CHECK
+   └─► Does the edge location have a fresh copy of /tickets?
+       ├─► HIT: serve it immediately (X-Vercel-Cache: HIT)
+       └─► MISS: fetch from Vercel origin storage → serve → cache for next time
+
+6. RESPONSE ARRIVES IN BROWSER
+   └─► HTML is rendered
+       utag.js loads from tags.tiqcdn.com (Tealium's CDN)
+       If user consented: GA4, Meta, Adobe tags fire
+       Collect Tag sends i.gif beacon for human tracking
+
+7. (FOR CLAUDE-USER ONLY — extra step before step 6)
+   └─► Claude checks /robots.txt FIRST (before fetching any page)
+       robots.txt → HTTP 200, "Allow: /"
+       Claude reads green light → then proceeds to GET /tickets (back to step 1)
+```
+
+### Q: What do I look for in DevTools to confirm each layer is working?
+
+Open Chrome DevTools (F12) → **Network tab** on `racing-f1-rho.vercel.app`:
+
+| What to check | Where to look in DevTools | What a healthy result looks like |
+|---|---|---|
+| **Page loaded from CDN** | Click first request → Headers | `X-Vercel-Cache: HIT` (or MISS on first ever load) |
+| **Middleware ran** | Click first request → Headers | `x-bot-detected: true` (only if you spoofed a bot UA) |
+| **Tealium loaded** | Filter requests by `utag` | Request to `tags.tiqcdn.com/utag/cognizant-sandbox/f1racing/...` → 200 |
+| **Collect Tag fired** | Filter by `i.gif` | Request to `collect.tealiumiq.com/.../i.gif` → 200 |
+| **GA4 fired** | Filter by `google-analytics` | Request to `www.google-analytics.com/g/collect` → 204 |
+| **Consent banner loaded** | Filter by `jsdelivr` | Request to `cdn.jsdelivr.net/...` → 200 |
+| **CSP blocked something** | Console tab → red errors | `Refused to load script from '...' because it violates Content Security Policy` |
+
+---
+
+## Part 14 — New Tealium Endpoint: HTTP API Advanced (rivqkx)
+
+### Q: We changed the Tealium endpoint. What's the difference?
+
+We started with the standard Tealium Collect endpoint:
+```
+https://collect.tealiumiq.com/event
+```
+And switched to the **HTTP API Advanced** endpoint:
+```
+https://collect-us-west-2.tealiumiq.com/integration/event/cognizant-sandbox/cookieless-demo/rivqkx
+```
+
+The differences:
+
+| Feature | Standard Collect (`collect.tealiumiq.com/event`) | HTTP API Advanced (`integration/event/...`) |
+|---|---|---|
+| **Routing** | Via JSON body (`tealium_account`, `tealium_profile` fields) | Via URL path — account/profile/datasource embedded in the URL itself |
+| **Complex objects** | Flat key-value pairs only | Full nested JSON — auto-flattened (key paths lowercased + underscore-joined) |
+| **Success response** | `HTTP 200` | `HTTP 204` (no body) |
+| **Profile** | Routes to whatever profile you put in the body | Routes to `cookieless-demo` (from the URL path) |
+| **Data Source Key** | Optional field in body | Embedded in the URL path (`rivqkx`) |
+
+### Q: Where do I see the events now? (profile changed)
+
+**Important:** Events now go to the **`cookieless-demo`** profile, not `f1racing`. Wherever you
+check in Tealium, use `cookieless-demo`:
+
+```
+my.tealiumiq.com → cognizant-sandbox → cookieless-demo
+  → EventStream → Live Events
+  → filter: tealium_event = ai_crawler_visit
+```
+
+The old `f1racing` profile won't show these events anymore.
+
+### Q: What env vars are currently set on the Vercel project?
+
+| Variable | Current value | Purpose |
+|---|---|---|
+| `TEALIUM_COLLECT_URL` | `https://collect-us-west-2.tealiumiq.com/integration/event/cognizant-sandbox/cookieless-demo/rivqkx` | Where middleware POSTs bot events |
+| `TEALIUM_DATA_SOURCE_KEY` | *(not set)* | Optional — embedded in URL already for the new endpoint |
+| `TEALIUM_ACCOUNT` | *(not set — defaults to `cognizant-sandbox`)* | Used in event body |
+| `TEALIUM_PROFILE` | *(not set — defaults to `f1racing`)* | Used in event body (note: body says f1racing, URL routes to cookieless-demo — URL wins for routing) |
+
+---
+
+## Part 15 — robots.txt: Why It Matters for Claude (and How We Fixed It)
+
+### Q: What is robots.txt and why did we need to add it?
+
+`robots.txt` is a plain text file at the root of your site that tells crawlers which pages
+they're allowed or not allowed to access. It's a **convention** (honor system — well-behaved
+crawlers respect it, bad ones ignore it).
+
+We did not have a `robots.txt` before. The file simply didn't exist, so every request to
+`/robots.txt` returned **HTTP 404** (not found).
+
+### Q: Why did this break Claude but not ChatGPT?
+
+Different AI products have different "politeness" policies around robots.txt:
+
+| AI Agent | robots.txt behavior |
+|---|---|
+| **ChatGPT-User** (chat browsing) | Ignores robots.txt, fetches the page directly |
+| **GPTBot** (training crawler) | Checks robots.txt and respects `Disallow` rules |
+| **Claude-User** (chat browsing) | **Strictly checks robots.txt FIRST.** A 404 (missing file) is treated as ambiguous/blocked → Claude aborts and shows an error in chat |
+| **ClaudeBot** (training crawler) | Checks robots.txt and respects it |
+| **PerplexityBot** | Checks robots.txt |
+
+So when you asked Claude to browse your site, here's what actually happened before the fix:
+```
+Claude-User → GET /robots.txt → HTTP 404 (not found)
+Claude interprets 404 as "unclear — I shouldn't proceed"
+Claude returns an error to the user in chat
+/tickets is NEVER fetched
+```
+
+And in our Vercel logs, we saw exactly that — one entry for `/robots.txt` (404), nothing for
+`/tickets`. The middleware correctly detected and tracked the robots.txt hit, but there was no
+page hit because Claude stopped there.
+
+### Q: What does our robots.txt say and why?
+
+```
+# robots.txt — F1 Racing Store
+# We WELCOME AI agents and crawlers.
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Gemini-Deep-Research
+Allow: /
+
+...
+
+User-agent: *
+Allow: /
+```
+
+**Why `Allow: /` for everyone?** This is a **deliberate business decision** — we want AI
+agents to be able to read our site (product visibility in AI answers is a marketing channel).
+We detect and track them, but we don't block them.
+
+If the decision ever changes, `Allow: /` becomes `Disallow: /` — one character change.
+
+### Q: After the robots.txt fix, what do I see in logs for a Claude-User visit?
+
+Now you see **two** events per Claude session (instead of the one orphaned robots.txt hit):
+
+```
+[bot-track] bot=Claude-User dest=...cookieless-demo/rivqkx status=204 page=/robots.txt
+[bot-track] bot=Claude-User dest=...cookieless-demo/rivqkx status=204 page=/tickets
+```
+
+Line 1: Claude politely checked `/robots.txt`, we detected and tracked it, served 200 + Allow.
+Line 2: Claude got the green light, fetched `/tickets`, we detected and tracked that too.
+
+---
+
+## Part 16 — The Full AI Agent Registry (18 Crawlers)
+
+### Q: Which AI crawlers does the middleware currently detect?
+
+`lib/bot-detection.js` contains 18 known AI crawlers and agents:
+
+| Name | Vendor | Class | What it is |
+|---|---|---|---|
+| `GPTBot` | OpenAI | crawler | Background training data crawler |
+| `OAI-SearchBot` | OpenAI | crawler | OpenAI's search indexing crawler |
+| `ChatGPT-User` | OpenAI | agent | Fired when a user asks ChatGPT to browse a URL |
+| `ClaudeBot` | Anthropic | crawler | Background training data crawler |
+| `Claude-User` | Anthropic | agent | Fired when a user asks Claude to browse a URL — checks robots.txt first |
+| `Claude-SearchBot` | Anthropic | crawler | Anthropic's search indexing crawler |
+| `Claude-Web` | Anthropic | crawler | Legacy Anthropic crawler |
+| `anthropic-ai` | Anthropic | crawler | Generic Anthropic identifier |
+| `PerplexityBot` | Perplexity | crawler | Background crawling |
+| `Perplexity-User` | Perplexity | agent | User-initiated browsing via Perplexity |
+| `cohere-ai` | Cohere | crawler | Cohere's crawler |
+| `Google-Extended` | Google | crawler | Google's AI training opt-out crawler |
+| `Gemini-Deep-Research` | Google | agent | Gemini's Deep Research feature |
+| `Bytespider` | ByteDance | crawler | TikTok/ByteDance crawler |
+| `Applebot-Extended` | Apple | crawler | Apple Intelligence crawler |
+| `Meta-ExternalAgent` | Meta | crawler | Meta AI crawler |
+| `Diffbot` | Diffbot | crawler | AI data extraction service |
+| `CCBot` | CommonCrawl | crawler | Open dataset crawler used by many AI companies |
+
+**Key distinction** — `crawler` vs `agent`:
+- **crawler**: autonomous background process that crawls the web without a human triggering it
+- **agent**: triggered by a specific human action (someone asked the AI to read this URL right now)
+
+Agents tend to be more "polite" (check robots.txt, don't hit pages repeatedly) because a human
+is waiting for the answer. Crawlers run in bulk, are faster, and are less concerned with
+individual page delays.
+
+---
+
+## Part 17 — Google Sheets Connector: Configuration and Rate Limits
+
+### Q: How does the Google Sheets connector work in EventStream?
+
+Once an `ai_crawler_visit` event arrives in Tealium's `cookieless-demo` EventStream, a
+connector can route it to a Google Sheet automatically:
+
+```
+Event arrives (ai_crawler_visit)
+  → EventStream Load Rule: tealium_event = ai_crawler_visit
+    → Google Sheets Connector Action: Append Row
+      → Calls Google Sheets API
+        → New row appears in your sheet
+```
+
+### Q: What columns should the sheet have, and what Tealium attributes map to them?
+
+Create the sheet with these headers in Row 1, then map in the connector:
+
+| Sheet Column | Tealium Attribute | Example value |
+|---|---|---|
+| Timestamp | `timestamp_iso` | `2026-07-01T19:07:24.000Z` |
+| Bot Name | `bot_name` | `Claude-User` |
+| Bot Vendor | `bot_vendor` | `Anthropic` |
+| Bot Class | `bot_class` | `agent` |
+| Page Path | `page_path` | `/tickets` |
+| Page URL | `page_url` | `https://racing-f1-rho.vercel.app/tickets?src=...` |
+| User Agent | `user_agent` | `Mozilla/5.0 (compatible; Claude-User/1.0...)` |
+| Referrer | `referrer` | *(blank for most AI crawlers)* |
+| IP | `ip` | *(OpenAI/Anthropic server IP, not user IP)* |
+
+### Q: Why does the sheet sometimes not get new rows even though Tealium shows events?
+
+**Google Sheets API rate limits.** The connector makes one API call per event (one append per
+row). Google allows:
+- **60 write requests per minute per user**
+- **300 write requests per minute per project**
+
+When we fire 50–100 events in a few seconds (burst testing), that's 50–100 append calls in
+seconds → Google returns HTTP 429 (Too Many Requests) → the connector drops those rows.
+
+**Fix:** Send events slowly (1 every 5 seconds) for testing. In real-world use, AI crawler
+visits are naturally spread out — the rate limit won't be an issue for genuine organic traffic.
+
+For **high-volume testing**, use the direct Tealium endpoint instead of Google Sheets as the
+proof point — if `status=204` appears in Vercel logs, Tealium received the event. The connector
+failure is a *display* problem, not a *collection* problem.
+
+### Q: What are the common connector errors and how to fix them?
+
+| Error in Connector Logs | Cause | Fix |
+|---|---|---|
+| `401 / invalid_grant` | OAuth token expired | Re-authenticate the connector in Tealium |
+| `403 / permission denied` | Wrong Google account used | Share the sheet with the Google account that authorized the connector |
+| `Requested entity was not found` | Wrong Spreadsheet ID or wrong tab name | Fix in connector config — copy Sheet ID from the URL, use exact tab name |
+| `Attribute not found` | Attributes like `bot_name` not registered in EventStream | Go to Live Events → click an event → "Add as Event Attribute" for each field |
+| `429 / Too Many Requests` | Google API rate limit (burst testing) | Slow down test traffic, or switch to BigQuery for high volume |
+
+---
+
+## Part 18 — What Gets Updated Where: Complete Reference
+
+### Q: When a bot crawls our site, what gets updated in which system and where do I see it?
+
+This is the complete reference for "what happened and where to look":
+
+| System | What updates | Where to see it | Timing |
+|---|---|---|---|
+| **Vercel Logs** | `[bot-track]` log line with bot name, destination, status code, page path | `vercel.com` → project → Logs tab → search `bot-track` | Immediate (within seconds) |
+| **Tealium EventStream** | `ai_crawler_visit` event with all bot attributes | `my.tealiumiq.com` → `cookieless-demo` → EventStream → Live Events | Immediate (if provisioned) |
+| **Google Sheets** | New row appended with all 9 columns | Your sheet → newest row at bottom | 1–2 minutes (connector processes asynchronously) |
+| **Tealium Collect Tag (i.gif)** | Fires for **human visitors only** — not for bot visits | Browser DevTools → Network → filter `i.gif` | Only for human page views |
+| **GA4** | Fires for **human visitors only** (bot traffic is excluded by load rules) | GA4 dashboard → Realtime | Only for human events |
+
+### Q: When I make a code change, what needs to be done for it to go live?
+
+| Change type | Steps required |
+|---|---|
+| Edit `middleware.js` or `lib/bot-detection.js` | `git commit` → `vercel --prod` |
+| Edit HTML/CSS/JS page files | `git commit` → `vercel --prod` |
+| Change Vercel env var (`TEALIUM_COLLECT_URL` etc.) | `vercel env rm` → `vercel env add` → `vercel --prod` (redeploy required) |
+| Change Tealium tag config / Load Rules / extensions | Publish in Tealium iQ → changes go live immediately (no Vercel redeploy needed) |
+| Change Google Sheets connector in EventStream | Save in Tealium UI → live immediately |
+| Push to GitHub | `git push origin main` — does NOT auto-deploy to Vercel (unless Git Integration is enabled) |
+
+### Q: What does the Vercel portal show vs. what the Tealium portal shows?
+
+| | Vercel Portal | Tealium Portal |
+|---|---|---|
+| **URL** | vercel.com | my.tealiumiq.com |
+| **What you see** | Deployments, env vars, function logs (`[bot-track]`), CDN cache status | Tag configs, Load Rules, EventStream, Live Events, Connector logs |
+| **Bot tracking proof** | `[bot-track] bot=X status=204` lines in Logs tab | `ai_crawler_visit` events in Live Events |
+| **Collect Tag proof** | Not visible here (browser-side) | Live Events shows i.gif payloads |
+| **Cache status** | Visible in each request's response headers (`X-Vercel-Cache`) | Not applicable |
+| **Connector errors** | Not applicable | EventStream → Connectors → [connector] → Logs |
+
+---
+
+## Part 19 — Complete Chronological Record of Everything Built (This Full Session)
+
+| # | What was built / fixed | Files changed | Why |
+|---|---|---|---|
+| 1 | AI-crawler detection registry (15 initial crawlers) | `lib/bot-detection.js` | Core detection logic, pure JS, platform-agnostic |
+| 2 | Vercel Edge Middleware | `middleware.js` | Detects bots before any page is served |
+| 3 | Self-hosted receiver | `api/bot-collect.js` | Local audit log, optional Tealium forwarder |
+| 4 | CSP fix — Tealium CDN blocked | `vercel.json` | `tags.tiqcdn.com` was missing from `script-src` / `connect-src` |
+| 5 | CSP fix — consent banner blocked | `vercel.json` | `cdn.jsdelivr.net` was missing from CSP |
+| 6 | Middleware matcher fix | `middleware.js` | Old pattern excluded `.html` pages — fixed to cover all clean URLs |
+| 7 | Cross-stream analytics validator | `tests/full-funnel-validator.spec.js` | Playwright test: drives full purchase funnel, validates GridBox→Adobe→GTM→GA4, writes Excel report |
+| 8 | GA4 mapping fix | `extensions/20-after-load-rules/01-ga4-ecommerce-mapping.js` | Added `gb_checkout_begin` and `gb_purchase_complete` keys |
+| 9 | AI-crawler detection test suite (44 tests) | `tests/ai-crawler-detection.spec.js` | Unit + HTTP integration tests, all pass against live prod |
+| 10 | ChatGPT crawl scenario | `tests/google-chatgpt-crawl-scenario.spec.js` | Headed browser → Google → ChatGPT → prompt to browse our URL — proved LIVE |
+| 11 | Gemini crawl scenario | `tests/google-gemini-crawl-scenario.spec.js` | Same pattern for Gemini — inconclusive (Gemini uses generic UA for regular chat) |
+| 12 | Perplexity crawl scenario | `tests/google-perplexity-crawl-scenario.spec.js` | Same pattern for Perplexity — partial (PerplexityBot hit robots.txt) |
+| 13 | Added Gemini-Deep-Research to registry | `lib/bot-detection.js` | Google's official published UA for Deep Research feature |
+| 14 | Added Claude-User + Claude-SearchBot | `lib/bot-detection.js` | Claude chat uses `Claude-User` (not `ClaudeBot`) when browsing a URL |
+| 15 | Claude crawl scenario | `tests/google-claude-crawl-scenario.spec.js` | Headed browser scenario for Claude.ai |
+| 16 | Switched to HTTP API Advanced endpoint | `middleware.js` + Vercel env var | New endpoint encodes account/profile/datasource in URL; returns 204; routes to `cookieless-demo` |
+| 17 | Added `robots.txt` | `robots.txt` | Claude-User requires a 200 robots.txt with `Allow: /` — 404 caused it to abort |
+| 18 | CDN + middleware explainer doc | `docs/CDN-TEALIUM-EDGE-EXPLAINED.md` | This document — plain-English guide for non-technical readers |
+| 19 | Verified 100 events across all 10 agents | *(test run, no file change)* | 100/100 detected + tracked to new endpoint, 0 failures |
+| 20 | Google Sheets connector | *(Tealium UI config, no code)* | Routes `ai_crawler_visit` events to a spreadsheet for non-technical review |
