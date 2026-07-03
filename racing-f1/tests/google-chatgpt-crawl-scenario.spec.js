@@ -51,10 +51,10 @@ test('drive Google → ChatGPT → ask to crawl our URL, then verify', async () 
     headers: { 'user-agent': 'Mozilla/5.0 AppleWebKit/537.36 (compatible; ChatGPT-User/1.0; +https://openai.com/bot)' }
   });
   const h = precheck.headers();
-  expect(h['x-bot-detected'], 'middleware is not detecting ChatGPT-User — investigate before running ChatGPT flow').toBe('true');
-  expect(h['x-bot-name']).toBe('ChatGPT-User');
-  expect(h['x-bot-track-sent'], 'server-side track not initiated — TEALIUM_COLLECT_URL not set?').toBe('true');
-  console.log(`  ✓ middleware detects ChatGPT-User and initiated POST to ${h['x-bot-track-url']}`);
+  expect(h['x-crawl-agent-detected'], 'middleware is not detecting ChatGPT-User — investigate before running ChatGPT flow').toBe('true');
+  expect(h['x-crawl-agent-name']).toBe('ChatGPT-User');
+  expect(h['x-crawl-agent-track-sent'], 'server-side track not initiated — TEALIUM_COLLECT_URL not set?').toBe('true');
+  console.log(`  ✓ middleware detects ChatGPT-User and initiated POST to ${h['x-crawl-agent-track-url']}`);
 
   // Step 1 — Google search
   console.log('\n[step 1] Navigating to google.com and searching "chatgpt"…');

@@ -70,22 +70,22 @@ export default async function middleware(request) {
       });
       trackSent = 'true';
       // eslint-disable-next-line no-console
-      console.log(`[bot-track] bot=${hit.name} dest=${collectUrl} status=${resp.status} page=${event.page_path}`);
+      console.log(`[crawl-agent-track] name=${hit.name} dest=${collectUrl} status=${resp.status} page=${event.page_path}`);
     } catch (e) {
       trackSent = 'error';
       // eslint-disable-next-line no-console
-      console.log(`[bot-track] ERROR bot=${hit.name} dest=${collectUrl} error=${String(e)}`);
+      console.log(`[crawl-agent-track] ERROR name=${hit.name} dest=${collectUrl} error=${String(e)}`);
     }
   }
 
   return next({
     headers: {
-      'x-bot-detected':    'true',
-      'x-bot-name':        hit.name,
-      'x-bot-vendor':      hit.vendor,
-      'x-bot-class':       hit.class,
-      'x-bot-track-sent':  trackSent,   // 'true' when POST fired | 'false' when env unset | 'error'
-      'x-bot-track-url':   trackPath    // e.g. '/api/bot-collect' or the full URL
+      'x-crawl-agent-detected': 'true',
+      'x-crawl-agent-name':     hit.name,
+      'x-crawl-agent-vendor':   hit.vendor,
+      'x-crawl-agent-class':    hit.class,
+      'x-crawl-agent-track-sent': trackSent,
+      'x-crawl-agent-track-url':  trackPath
     }
   });
 }

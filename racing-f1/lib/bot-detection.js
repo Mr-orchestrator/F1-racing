@@ -44,19 +44,19 @@ function detectAICrawler(ua) {
  */
 function buildCollectEvent({ hit, url, referer, ip, account, profile, dataSourceKey }) {
   const evt = {
-    tealium_account: account || 'cognizant-sandbox',
-    tealium_profile: profile || 'f1racing',
-    tealium_event:   'ai_crawler_visit',
-    bot_detected:    'true',
-    bot_name:        hit.name,
-    bot_vendor:      hit.vendor,
-    bot_class:       hit.class,
-    page_url:        url || '',
-    page_path:       (() => { try { return new URL(url).pathname; } catch { return ''; } })(),
-    referrer:        referer || '',
-    user_agent:      hit.ua,
-    ip:              ip || '',
-    timestamp_iso:   new Date().toISOString()
+    tealium_account:      account || 'cognizant-sandbox',
+    tealium_profile:      profile || 'f1racing',
+    tealium_event:        'ai_crawler_visit',
+    crawl_agent_detected: 'true',
+    crawl_agent_name:     hit.name,
+    crawl_agent_vendor:   hit.vendor,
+    crawl_agent_class:    hit.class,
+    page_url:             url || '',
+    page_path:            (() => { try { return new URL(url).pathname; } catch { return ''; } })(),
+    referrer:             referer || '',
+    user_agent:           hit.ua,
+    ip:                   ip || '',
+    timestamp_iso:        new Date().toISOString()
   };
   // Tealium data source attribution — required when routing through EventStream.
   if (dataSourceKey) evt.tealium_datasource = dataSourceKey;

@@ -5,7 +5,7 @@
  * LAYER 1 (unit) — pure detection function. Runs offline, always. 15+ UAs incl. negatives.
  * LAYER 2 (event shape) — the Tealium Collect payload builder produces the expected JSON.
  * LAYER 3 (HTTP integration, opt-in) — hit the DEPLOYED URL with each spoofed UA and verify
- *   the response carries x-bot-detected / x-bot-name / x-bot-vendor / x-bot-class headers.
+ *   the response carries x-crawl-agent-detected / x-crawl-agent-name / x-crawl-agent-vendor / x-crawl-agent-class headers.
  *   Runs only when BASE_URL_MW points to a Vercel deployment where the middleware is live.
  *
  * Run
@@ -88,10 +88,10 @@ test('buildCollectEvent produces the expected Tealium Collect shape', () => {
     referer: 'https://example.com/', ip: '1.2.3.4'
   });
   expect(evt.tealium_event).toBe('ai_crawler_visit');
-  expect(evt.bot_detected).toBe('true');
-  expect(evt.bot_name).toBe('GPTBot');
-  expect(evt.bot_vendor).toBe('OpenAI');
-  expect(evt.bot_class).toBe('crawler');
+  expect(evt.crawl_agent_detected).toBe('true');
+  expect(evt.crawl_agent_name).toBe('GPTBot');
+  expect(evt.crawl_agent_vendor).toBe('OpenAI');
+  expect(evt.crawl_agent_class).toBe('crawler');
   expect(evt.page_url).toBe('https://racing-f1-rho.vercel.app/merchandise.html');
   expect(evt.page_path).toBe('/merchandise.html');
   expect(evt.referrer).toBe('https://example.com/');
@@ -111,26 +111,26 @@ test.describe('HTTP integration — deployed middleware', () => {
       const ctx = await playwright.request.newContext({ extraHTTPHeaders: { 'user-agent': c.ua } });
       const res = await ctx.get(MW_URL + '/');
       const h = res.headers();
-      expect(h['x-bot-detected'], `${c.expect}: x-bot-detected missing (status ${res.status()})`).toBe('true');
-      expect(h['x-bot-name']).toBe(c.expect);
-      expect(h['x-bot-vendor']).toBe(c.vendor);
-      expect(h['x-bot-class']).toBe(c.klass);
-      // x-bot-track-sent proves the middleware actually fired the POST to the server-side receiver
+      expect(h['x-crawl-agent-detected'], `${c.expect}: x-crawl-agent-detected missing (status ${res.status()})`).toBe('true');
+      expect(h['x-crawl-agent-name']).toBe(c.expect);
+      expect(h['x-crawl-agent-vendor']).toBe(c.vendor);
+      expect(h['x-crawl-agent-class']).toBe(c.klass);
+      // x-crawl-agent-track-sent proves the middleware actually fired the POST to the server-side receiver
       // (Tealium Collect or our self-hosted /api/bot-collect). 'true' = POST initiated;
       // 'false' = TEALIUM_COLLECT_URL env var unset. Non-strict here so the suite passes either way.
-      expect(['true', 'false']).toContain(h['x-bot-track-sent']);
+      expect(['true', 'false']).toContain(h['x-crawl-agent-track-sent']);
       await ctx.dispose();
     });
   }
 
   // Additional test: when server-side tracking is enabled, EVERY crawler hit must fire the POST.
-  test('server-side tracking is enabled AND fires (x-bot-track-sent === "true")', async ({ playwright }) => {
+  test('server-side tracking is enabled AND fires (x-crawl-agent-track-sent === "true")', async ({ playwright }) => {
     const ctx = await playwright.request.newContext({
       extraHTTPHeaders: { 'user-agent': 'Mozilla/5.0 (compatible; GPTBot/1.2)' }
     });
     const res = await ctx.get(MW_URL + '/');
-    expect(res.headers()['x-bot-track-sent'], 'set TEALIUM_COLLECT_URL env var to enable server-side tracking').toBe('true');
-    expect(res.headers()['x-bot-track-url'], 'x-bot-track-url must be populated when tracking is on').toBeTruthy();
+    expect(res.headers()['x-crawl-agent-track-sent'], 'set TEALIUM_COLLECT_URL env var to enable server-side tracking').toBe('true');
+    expect(res.headers()['x-crawl-agent-track-url'], 'x-crawl-agent-track-url must be populated when tracking is on').toBeTruthy();
     await ctx.dispose();
   });
 
@@ -140,15 +140,15 @@ test.describe('HTTP integration — deployed middleware', () => {
     const res = await ctx.post(MW_URL + '/api/bot-collect', {
       data: {
         tealium_account: 'cognizant-sandbox', tealium_profile: 'f1racing',
-        tealium_event: 'ai_crawler_visit', bot_name: 'GPTBot', bot_vendor: 'OpenAI', bot_class: 'crawler',
+        tealium_event: 'ai_crawler_visit', crawl_agent_name: 'GPTBot', crawl_agent_vendor: 'OpenAI', crawl_agent_class: 'crawler',
         page_url: MW_URL + '/', user_agent: 'test'
       }
     });
     expect(res.status()).toBe(200);
     const body = await res.json();
     expect(body.ok).toBe(true);
-    expect(body.echo.bot_name).toBe('GPTBot');
-    expect(body.echo.bot_vendor).toBe('OpenAI');
+    expect(body.echo.crawl_agent_name).toBe('GPTBot');
+    expect(body.echo.crawl_agent_vendor).toBe('OpenAI');
     expect(body.received_at).toMatch(/^\d{4}-\d{2}-\d{2}T/);
     await ctx.dispose();
   });
@@ -158,7 +158,7 @@ test.describe('HTTP integration — deployed middleware', () => {
       extraHTTPHeaders: { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/605.1.15 Safari/605.1.15' }
     });
     const res = await ctx.get(MW_URL + '/');
-    expect(res.headers()['x-bot-detected']).toBeUndefined();
+    expect(res.headers()['x-crawl-agent-detected']).toBeUndefined();
     await ctx.dispose();
   });
 });

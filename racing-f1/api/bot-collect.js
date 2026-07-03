@@ -22,22 +22,22 @@ export default async function handler(req, res) {
 
   const receivedAt = new Date().toISOString();
   const record = {
-    received_at: receivedAt,
-    remote_addr: req.headers['x-forwarded-for'] || '',
-    tealium_account: payload.tealium_account || '',
-    tealium_profile: payload.tealium_profile || '',
-    tealium_event: payload.tealium_event || '',
-    bot_name: payload.bot_name || '',
-    bot_vendor: payload.bot_vendor || '',
-    bot_class: payload.bot_class || '',
-    page_url: payload.page_url || '',
-    user_agent: payload.user_agent || '',
-    referrer: payload.referrer || ''
+    received_at:          receivedAt,
+    remote_addr:          req.headers['x-forwarded-for'] || '',
+    tealium_account:      payload.tealium_account || '',
+    tealium_profile:      payload.tealium_profile || '',
+    tealium_event:        payload.tealium_event || '',
+    crawl_agent_name:     payload.crawl_agent_name || '',
+    crawl_agent_vendor:   payload.crawl_agent_vendor || '',
+    crawl_agent_class:    payload.crawl_agent_class || '',
+    page_url:             payload.page_url || '',
+    user_agent:           payload.user_agent || '',
+    referrer:             payload.referrer || ''
   };
 
   // Structured log line — grepable in `vercel logs <deployment>`.
   // eslint-disable-next-line no-console
-  console.log('[bot-collect] ' + JSON.stringify(record));
+  console.log('[crawl-agent-collect] ' + JSON.stringify(record));
 
   // Optional forward to REAL Tealium Collect (fire-and-forget). Set when you want a copy in the
   // Tealium profile in addition to the local audit log. Leave unset for local proof-of-concept.

@@ -47,9 +47,9 @@ test('Claude.ai → browse our URL → verify Claude-User hit middleware', async
     headers: { 'user-agent': 'Mozilla/5.0 (compatible; Claude-User/1.0; +Claude-User@anthropic.com)' }
   });
   const h = precheck.headers();
-  expect(h['x-bot-detected'], 'middleware not detecting Claude-User — check lib/bot-detection.js').toBe('true');
-  expect(h['x-bot-track-sent'], 'TEALIUM_COLLECT_URL not set or POST failed').toBe('true');
-  console.log(`  ✓ Claude-User detected, track sent to ${h['x-bot-track-url']}`);
+  expect(h['x-crawl-agent-detected'], 'middleware not detecting Claude-User — check lib/bot-detection.js').toBe('true');
+  expect(h['x-crawl-agent-track-sent'], 'TEALIUM_COLLECT_URL not set or POST failed').toBe('true');
+  console.log(`  ✓ Claude-User detected, track sent to ${h['x-crawl-agent-track-url']}`);
 
   // ── STEP 1: Go directly to claude.ai (skip Google search — it's unreliable) ──
   console.log('\n[step 1] Navigating directly to claude.ai/new…');

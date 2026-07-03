@@ -49,10 +49,10 @@ test('drive Google → Gemini → ask to fetch our URL, then verify', async () =
     headers: { 'user-agent': 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Gemini-Deep-Research; +https://gemini.google/overview/deep-research/) Chrome/135.0.0.0 Safari/537.36' }
   });
   const h = precheck.headers();
-  expect(h['x-bot-detected'], 'middleware is not detecting Gemini-Deep-Research — check lib/bot-detection.js').toBe('true');
-  expect(h['x-bot-name']).toBe('Gemini-Deep-Research');
-  expect(h['x-bot-track-sent'], 'server-side track not initiated — TEALIUM_COLLECT_URL not set?').toBe('true');
-  console.log(`  ✓ middleware detects Gemini-Deep-Research and initiated POST to ${h['x-bot-track-url']}`);
+  expect(h['x-crawl-agent-detected'], 'middleware is not detecting Gemini-Deep-Research — check lib/bot-detection.js').toBe('true');
+  expect(h['x-crawl-agent-name']).toBe('Gemini-Deep-Research');
+  expect(h['x-crawl-agent-track-sent'], 'server-side track not initiated — TEALIUM_COLLECT_URL not set?').toBe('true');
+  console.log(`  ✓ middleware detects Gemini-Deep-Research and initiated POST to ${h['x-crawl-agent-track-url']}`);
 
   // Step 1 — Google search
   console.log('\n[step 1] Navigating to google.com and searching "gemini"…');
