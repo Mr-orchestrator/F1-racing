@@ -113,16 +113,16 @@ export default async function handler(req, res) {
     // initialize: client announces itself — track the connection
     case 'initialize': {
       const start = Date.now();
-      console.log('[mcp-debug] initialize hit clientId=' + clientId);
+      // Set headers FIRST (before await) so they're never lost if Vercel commits
+      // the response early. trackMcpCall still awaits to ensure Tealium POST completes.
+      res.setHeader('x-mcp-track-sent', 'true');
+      res.setHeader('x-mcp-track-url',  collectUrl);
+      res.setHeader('x-mcp-tool-name',  'initialize');
       await trackMcpCall({
         toolName: 'initialize', toolInput: params.clientInfo || {}, resultCount: 0,
         latencyMs: Date.now() - start, statusCode: 200, errorCode: '',
         requestId: id, sessionId, clientId, requestUrl,
-      }).catch((e) => { console.error('[mcp-debug] initialize track error: ' + e); });
-      console.log('[mcp-debug] initialize track done, setting headers');
-      res.setHeader('x-mcp-track-sent', 'true');
-      res.setHeader('x-mcp-track-url',  collectUrl);
-      res.setHeader('x-mcp-tool-name',  'initialize');
+      }).catch(() => {});
       return res.status(200).json(rpcOk(id, {
         protocolVersion: '2024-11-05',
         serverInfo:      SERVER_INFO,
@@ -138,15 +138,15 @@ export default async function handler(req, res) {
     case 'tools/list': {
       const start = Date.now();
       const tools = listTools();
+      res.setHeader('x-mcp-track-sent', 'true');
+      res.setHeader('x-mcp-track-url',  collectUrl);
+      res.setHeader('x-mcp-tool-name',  'tools/list');
+      res.setHeader('x-mcp-result-count', String(tools.length));
       await trackMcpCall({
         toolName: 'tools/list', toolInput: {}, resultCount: tools.length,
         latencyMs: Date.now() - start, statusCode: 200, errorCode: '',
         requestId: id, sessionId, clientId, requestUrl,
       }).catch(() => {});
-      res.setHeader('x-mcp-track-sent', 'true');
-      res.setHeader('x-mcp-track-url',  collectUrl);
-      res.setHeader('x-mcp-tool-name',  'tools/list');
-      res.setHeader('x-mcp-result-count', String(tools.length));
       return res.status(200).json(rpcOk(id, { tools }));
     }
 
