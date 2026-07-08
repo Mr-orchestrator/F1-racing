@@ -56,15 +56,25 @@ async function trackMcpCall(opts) {
     timestamp_iso:    new Date().toISOString(),
   };
 
+  // Resolve relative URL (e.g. /api/bot-collect) to absolute — fetch() in Node.js
+  // serverless requires an absolute URL; a relative path silently fails.
+  let resolvedUrl = collectUrl;
+  if (collectUrl.startsWith('/')) {
+    resolvedUrl = 'https://racing-f1-rho.vercel.app' + collectUrl;
+  }
+
   try {
-    await fetch(collectUrl, {
+    const resp = await fetch(resolvedUrl, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify(payload),
     });
-    console.log(`[mcp-track] tool=${opts.toolName} status=${opts.statusCode} latency=${opts.latencyMs}ms`);
+    // Log actual Tealium HTTP response status (same pattern as crawler middleware.js)
+    // 204 = event accepted by Tealium HTTP API Advanced
+    // Anything else = rejected — check Tealium account/profile/datasource config
+    console.log(`[mcp-track] tool=${opts.toolName} tealium_status=${resp.status} dest=${resolvedUrl} latency_ms=${opts.latencyMs}`);
   } catch (e) {
-    console.error('[mcp-track] failed: ' + String(e));
+    console.error('[mcp-track] FAILED tool=' + opts.toolName + ' dest=' + resolvedUrl + ' err=' + String(e));
   }
 }
 
