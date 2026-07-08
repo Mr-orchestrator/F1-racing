@@ -104,26 +104,52 @@ export default async function handler(req, res) {
   const clientId   = req.headers['x-mcp-client'] || req.headers['user-agent'] || 'unknown';
   const requestUrl = `https://racing-f1-rho.vercel.app/api/mcp`;
 
+  const collectUrl = (process.env.TEALIUM_COLLECT_URL ||
+    'https://collect-us-west-2.tealiumiq.com/integration/event/cognizant-sandbox/cookieless-demo/rivqkx').trim();
+
   // ── Method routing ────────────────────────────────────────────────────────
   switch (method) {
 
-    // initialize: client announces itself, server returns info + capabilities
-    case 'initialize':
-      return res.status(200).json(rpcOk(id, {
+    // initialize: client announces itself — track the connection
+    case 'initialize': {
+      const start = Date.now();
+      const response = rpcOk(id, {
         protocolVersion: '2024-11-05',
         serverInfo:      SERVER_INFO,
         capabilities:    CAPABILITIES,
-      }));
+      });
+      await trackMcpCall({
+        toolName: 'initialize', toolInput: params.clientInfo || {}, resultCount: 0,
+        latencyMs: Date.now() - start, statusCode: 200, errorCode: '',
+        requestId: id, sessionId, clientId, requestUrl,
+      }).catch(() => {});
+      res.setHeader('x-mcp-track-sent', 'true');
+      res.setHeader('x-mcp-track-url',  collectUrl);
+      res.setHeader('x-mcp-tool-name',  'initialize');
+      return res.status(200).json(response);
+    }
 
     // notifications/initialized: client confirms init — acknowledge silently
     case 'notifications/initialized':
       return res.status(200).end();
 
-    // tools/list: return all tool definitions
-    case 'tools/list':
-      return res.status(200).json(rpcOk(id, { tools: listTools() }));
+    // tools/list: client discovers available tools — track the discovery
+    case 'tools/list': {
+      const start = Date.now();
+      const tools = listTools();
+      await trackMcpCall({
+        toolName: 'tools/list', toolInput: {}, resultCount: tools.length,
+        latencyMs: Date.now() - start, statusCode: 200, errorCode: '',
+        requestId: id, sessionId, clientId, requestUrl,
+      }).catch(() => {});
+      res.setHeader('x-mcp-track-sent', 'true');
+      res.setHeader('x-mcp-track-url',  collectUrl);
+      res.setHeader('x-mcp-tool-name',  'tools/list');
+      res.setHeader('x-mcp-result-count', String(tools.length));
+      return res.status(200).json(rpcOk(id, { tools }));
+    }
 
-    // tools/call: execute a tool and emit Tealium event
+    // tools/call: execute a tool — track with full detail
     case 'tools/call': {
       const toolName = params.name;
       const toolArgs = params.arguments || {};
@@ -137,48 +163,41 @@ export default async function handler(req, res) {
       const latencyMs = Date.now() - start;
 
       if (error) {
-        // Track failed call to Tealium (fire-and-forget, don't await)
         await trackMcpCall({
           toolName, toolInput: toolArgs, resultCount: 0, latencyMs,
           statusCode: 404, errorCode: String(error.code),
           requestId: id, sessionId, clientId, requestUrl,
         }).catch(() => {});
-
         return res.status(200).json(rpcErr(id, error.code, error.message));
       }
 
-      // Count items returned (for Tealium metric)
       let resultCount = 0;
       try {
         const parsed = JSON.parse(result.content[0].text);
         resultCount = parsed.count || 0;
       } catch (_) {}
 
-      // Track to Tealium EventStream — await before responding.
-      // Vercel freezes the serverless function the moment res.json() is called,
-      // so fire-and-forget (.catch(()=>{})) never completes. Awaiting adds ~50ms
-      // but guarantees the Tealium POST actually reaches the collect endpoint.
-      const collectUrl = (process.env.TEALIUM_COLLECT_URL ||
-        'https://collect-us-west-2.tealiumiq.com/integration/event/cognizant-sandbox/cookieless-demo/rivqkx').trim();
       await trackMcpCall({
         toolName, toolInput: toolArgs, resultCount, latencyMs,
         statusCode: 200, errorCode: '',
         requestId: id, sessionId, clientId, requestUrl,
       }).catch(() => {});
 
-      // Proof headers — same pattern as x-bot-track-sent in middleware.js
-      // Lets Playwright / curl verify tracking fired without needing Vercel log access
       res.setHeader('x-mcp-track-sent', 'true');
       res.setHeader('x-mcp-track-url',  collectUrl);
       res.setHeader('x-mcp-tool-name',  toolName);
       res.setHeader('x-mcp-result-count', String(resultCount));
-
       return res.status(200).json(rpcOk(id, result));
     }
 
-    // ping: liveness check
-    case 'ping':
+    // ping: liveness check — track it
+    case 'ping': {
+      await trackMcpCall({
+        toolName: 'ping', toolInput: {}, resultCount: 0, latencyMs: 0,
+        statusCode: 200, errorCode: '', requestId: id, sessionId, clientId, requestUrl,
+      }).catch(() => {});
       return res.status(200).json(rpcOk(id, {}));
+    }
 
     default:
       return res.status(200).json(rpcErr(id, -32601, `Method not found: ${method}`));
