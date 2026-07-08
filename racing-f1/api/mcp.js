@@ -138,7 +138,7 @@ export default async function handler(req, res) {
 
       if (error) {
         // Track failed call to Tealium (fire-and-forget, don't await)
-        trackMcpCall({
+        await trackMcpCall({
           toolName, toolInput: toolArgs, resultCount: 0, latencyMs,
           statusCode: 404, errorCode: String(error.code),
           requestId: id, sessionId, clientId, requestUrl,
@@ -154,10 +154,13 @@ export default async function handler(req, res) {
         resultCount = parsed.count || 0;
       } catch (_) {}
 
-      // Track to Tealium EventStream (fire-and-forget)
+      // Track to Tealium EventStream — await before responding.
+      // Vercel freezes the serverless function the moment res.json() is called,
+      // so fire-and-forget (.catch(()=>{})) never completes. Awaiting adds ~50ms
+      // but guarantees the Tealium POST actually reaches the collect endpoint.
       const collectUrl = (process.env.TEALIUM_COLLECT_URL ||
         'https://collect-us-west-2.tealiumiq.com/integration/event/cognizant-sandbox/cookieless-demo/rivqkx').trim();
-      trackMcpCall({
+      await trackMcpCall({
         toolName, toolInput: toolArgs, resultCount, latencyMs,
         statusCode: 200, errorCode: '',
         requestId: id, sessionId, clientId, requestUrl,
