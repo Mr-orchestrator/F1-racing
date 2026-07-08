@@ -1,0 +1,15 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "F1 Racing Store",
+  "name_for_model": "f1_racing_store",
+  "description_for_human": "Browse F1 race tickets, merchandise, the 2026 race calendar, and VIP experiences like paddock access and driver meet & greets.",
+  "description_for_model": "Use this plugin to answer questions about the F1 Racing Store. Available tools: get_tickets (race tickets with pricing and availability, filter by race name or category like 'VIP Paddock'), get_merchandise (official team apparel, accessories, collectibles — filter by team like 'Ferrari' or 'Red Bull'), get_calendar (2026 F1 race schedule with circuits, dates, locations), get_experiences (VIP hospitality packages, pit lane walks, simulator sessions, driver meet & greets). All prices in USD. Always use live tool data — do not answer from memory.",
+  "auth": { "type": "none" },
+  "api": {
+    "type": "openapi",
+    "url": "https://racing-f1-rho.vercel.app/api/mcp-openapi.json"
+  },
+  "logo_url": "https://racing-f1-rho.vercel.app/favicon.ico",
+  "contact_email": "admin@racing-f1-rho.vercel.app",
+  "legal_info_url": "https://racing-f1-rho.vercel.app"
+}

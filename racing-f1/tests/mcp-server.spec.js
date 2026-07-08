@@ -354,7 +354,7 @@ test.describe('Discovery — .well-known files', () => {
 
   test('/api/mcp-openapi.json is reachable', async ({ playwright }) => {
     const ctx = await playwright.request.newContext();
-    const res = await ctx.get(MW_URL + '/api/mcp-openapi.json');
+    const res = await ctx.get(MW_URL + '/api/mcp-openapi');
     expect(res.status()).toBe(200);
     const body = await res.json();
     expect(body.openapi).toMatch(/^3\./);
