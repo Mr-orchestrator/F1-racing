@@ -155,11 +155,20 @@ export default async function handler(req, res) {
       } catch (_) {}
 
       // Track to Tealium EventStream (fire-and-forget)
+      const collectUrl = (process.env.TEALIUM_COLLECT_URL ||
+        'https://collect-us-west-2.tealiumiq.com/integration/event/cognizant-sandbox/cookieless-demo/rivqkx').trim();
       trackMcpCall({
         toolName, toolInput: toolArgs, resultCount, latencyMs,
         statusCode: 200, errorCode: '',
         requestId: id, sessionId, clientId, requestUrl,
       }).catch(() => {});
+
+      // Proof headers — same pattern as x-bot-track-sent in middleware.js
+      // Lets Playwright / curl verify tracking fired without needing Vercel log access
+      res.setHeader('x-mcp-track-sent', 'true');
+      res.setHeader('x-mcp-track-url',  collectUrl);
+      res.setHeader('x-mcp-tool-name',  toolName);
+      res.setHeader('x-mcp-result-count', String(resultCount));
 
       return res.status(200).json(rpcOk(id, result));
     }
