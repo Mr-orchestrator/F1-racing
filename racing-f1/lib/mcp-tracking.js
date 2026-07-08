@@ -26,8 +26,13 @@ const DEFAULT_COLLECT_URL =
  * @param {string} [opts.requestUrl]   - full request URL
  */
 async function trackMcpCall(opts) {
-  const collectUrl = (process.env.TEALIUM_COLLECT_URL || DEFAULT_COLLECT_URL).trim();
-  if (!collectUrl) return;
+  // TEALIUM_COLLECT_URL may be set to /api/bot-collect (relative path used by
+  // crawler middleware for local logging). Node.js serverless fetch() requires an
+  // absolute URL — relative paths throw TypeError: fetch failed with no outgoing request.
+  // Rule: only use the env var when it is already an absolute URL (starts with http).
+  // Otherwise always use the hardcoded Tealium HTTP API Advanced endpoint directly.
+  const envUrl = (process.env.TEALIUM_COLLECT_URL || '').trim();
+  const resolvedUrl = envUrl.startsWith('http') ? envUrl : DEFAULT_COLLECT_URL;
 
   const payload = {
     tealium_account:  'cognizant-sandbox',
@@ -55,13 +60,6 @@ async function trackMcpCall(opts) {
     page_url:         String(opts.requestUrl  || ''),
     timestamp_iso:    new Date().toISOString(),
   };
-
-  // Resolve relative URL (e.g. /api/bot-collect) to absolute — fetch() in Node.js
-  // serverless requires an absolute URL; a relative path silently fails.
-  let resolvedUrl = collectUrl;
-  if (collectUrl.startsWith('/')) {
-    resolvedUrl = 'https://racing-f1-rho.vercel.app' + collectUrl;
-  }
 
   try {
     const resp = await fetch(resolvedUrl, {
