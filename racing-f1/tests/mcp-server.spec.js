@@ -26,8 +26,10 @@ async function rpc(playwright, method, params = {}) {
     data: { jsonrpc: '2.0', id: 1, method, params },
     headers: { 'Content-Type': 'application/json' }
   });
+  const status = res.status();
+  const body = await res.json();
   await ctx.dispose();
-  return { status: res.status(), body: await res.json() };
+  return { status, body };
 }
 
 // ════════════════════════════════════════════════════════════════════════════
