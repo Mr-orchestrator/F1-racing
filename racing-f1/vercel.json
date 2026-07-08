@@ -52,7 +52,7 @@
     },
     {
       "source": "/mcp-demo",
-      "destination": "/public/mcp-client.html"
+      "destination": "/public/mcp-client"
     },
     {
       "source": "/.well-known/mcp.json",
