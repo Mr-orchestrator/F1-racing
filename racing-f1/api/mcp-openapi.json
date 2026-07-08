@@ -1,0 +1,89 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "F1 Racing Store API",
+    "description": "REST-compatible interface for F1 race tickets, merchandise, calendar, and VIP experiences. Also accessible via the MCP protocol at /api/mcp.",
+    "version": "1.0.0",
+    "contact": { "url": "https://racing-f1-rho.vercel.app" }
+  },
+  "servers": [
+    { "url": "https://racing-f1-rho.vercel.app", "description": "Production" }
+  ],
+  "paths": {
+    "/api/mcp": {
+      "post": {
+        "operationId": "mcpRpc",
+        "summary": "MCP JSON-RPC 2.0 endpoint",
+        "description": "Send any MCP method (initialize, tools/list, tools/call) as a JSON-RPC 2.0 POST body.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["jsonrpc", "method"],
+                "properties": {
+                  "jsonrpc": { "type": "string", "enum": ["2.0"] },
+                  "id":      { "type": ["string", "number", "null"] },
+                  "method":  { "type": "string" },
+                  "params":  { "type": "object" }
+                }
+              },
+              "examples": {
+                "list_tools": {
+                  "summary": "List all tools",
+                  "value": { "jsonrpc": "2.0", "id": 1, "method": "tools/list" }
+                },
+                "get_tickets": {
+                  "summary": "Get Monaco tickets",
+                  "value": { "jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": { "name": "get_tickets", "arguments": { "race": "Monaco" } } }
+                },
+                "get_merchandise": {
+                  "summary": "Get Ferrari apparel",
+                  "value": { "jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": { "name": "get_merchandise", "arguments": { "team": "Ferrari", "category": "Apparel" } } }
+                },
+                "get_calendar": {
+                  "summary": "Get April races",
+                  "value": { "jsonrpc": "2.0", "id": 4, "method": "tools/call", "params": { "name": "get_calendar", "arguments": { "month": "April" } } }
+                },
+                "get_experiences": {
+                  "summary": "Get hospitality packages",
+                  "value": { "jsonrpc": "2.0", "id": 5, "method": "tools/call", "params": { "name": "get_experiences", "arguments": { "type": "Hospitality" } } }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JSON-RPC 2.0 response (success or error)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "jsonrpc": { "type": "string" },
+                    "id":      {},
+                    "result":  { "type": "object" },
+                    "error":   { "type": "object", "properties": { "code": { "type": "number" }, "message": { "type": "string" } } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "mcpDiscover",
+        "summary": "MCP server discovery",
+        "description": "Returns server metadata, available tools, and connection info.",
+        "responses": {
+          "200": {
+            "description": "Server info",
+            "content": { "application/json": { "schema": { "type": "object" } } }
+          }
+        }
+      }
+    }
+  }
+}
