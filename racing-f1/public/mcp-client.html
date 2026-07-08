@@ -2,360 +2,380 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>F1 Racing Store — MCP Client</title>
+<title>F1 AI Assistant — Ask anything</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-       background: #0d1117; color: #e6edf3; height: 100vh; display: flex; }
+       background: #0d1117; color: #e6edf3; height: 100vh; display: flex; overflow: hidden; }
 
 /* ── Sidebar ── */
-.sidebar { width: 280px; background: #010409; border-right: 1px solid #21262d;
-           display: flex; flex-direction: column; padding: 0; flex-shrink: 0; }
-.sidebar-header { padding: 16px 20px; border-bottom: 1px solid #21262d; }
-.sidebar-header h2 { font-size: 14px; color: #f0f6fc; display: flex; align-items: center; gap: 8px; }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: #3fb950; display: inline-block; }
-.dot.off { background: #f85149; }
-.server-url { font-size: 11px; color: #58a6ff; font-family: monospace; margin-top: 4px;
-              overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sidebar { width: 240px; background: #010409; border-right: 1px solid #21262d;
+           display: flex; flex-direction: column; flex-shrink: 0; }
+.sidebar-top { padding: 16px; border-bottom: 1px solid #21262d; }
+.sidebar-top h2 { font-size: 13px; color: #f0f6fc; display: flex; align-items: center; gap: 6px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: #f85149; flex-shrink: 0; }
+.dot.on { background: #3fb950; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+.srv { font-size: 10px; color: #8b949e; margin-top: 4px; font-family: monospace; }
 
-.tools-list { flex: 1; overflow-y: auto; padding: 12px; }
-.tools-list h3 { font-size: 11px; color: #8b949e; text-transform: uppercase;
-                 letter-spacing: 1px; margin-bottom: 8px; padding: 0 4px; }
-.tool-btn { width: 100%; text-align: left; background: #161b22; border: 1px solid #21262d;
-            border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; cursor: pointer;
-            color: #e6edf3; font-size: 13px; transition: all .15s; }
-.tool-btn:hover  { background: #1f2937; border-color: #3b82f6; }
-.tool-btn.active { background: #0d2318; border-color: #3fb950; }
-.tool-btn .tname { color: #58a6ff; font-family: monospace; font-weight: 600; font-size: 12px; }
-.tool-btn .tdesc { color: #8b949e; font-size: 11px; margin-top: 3px; line-height: 1.4; }
+.suggestions { padding: 12px; flex: 1; overflow-y: auto; }
+.suggestions h3 { font-size: 10px; color: #8b949e; text-transform: uppercase;
+                  letter-spacing: 1px; margin-bottom: 8px; }
+.sugg { background: #161b22; border: 1px solid #21262d; border-radius: 8px;
+        padding: 9px 11px; margin-bottom: 6px; font-size: 12px; color: #8b949e;
+        cursor: pointer; transition: all .15s; line-height: 1.4; }
+.sugg:hover { background: #1f2937; color: #e6edf3; border-color: #3b82f6; }
 
-.events-panel { border-top: 1px solid #21262d; padding: 12px; max-height: 200px; overflow-y: auto; }
-.events-panel h3 { font-size: 11px; color: #8b949e; text-transform: uppercase;
-                   letter-spacing: 1px; margin-bottom: 8px; }
-.event-chip { background: #0d2318; border: 1px solid #3fb95033; border-radius: 6px;
-              padding: 6px 10px; margin-bottom: 4px; font-family: monospace; font-size: 11px; }
-.event-chip .ev-name { color: #3fb950; }
-.event-chip .ev-tool { color: #58a6ff; }
-.event-chip .ev-time { color: #8b949e; font-size: 10px; }
+.events { border-top: 1px solid #21262d; padding: 12px; max-height: 220px; overflow-y: auto; }
+.events h3 { font-size: 10px; color: #8b949e; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.ev-chip { background: #0d2318; border: 1px solid #3fb95033; border-radius: 6px;
+           padding: 6px 9px; margin-bottom: 5px; font-family: monospace; font-size: 10px; }
+.ev-name { color: #3fb950; font-weight: 700; }
+.ev-tool { color: #58a6ff; }
+.ev-meta { color: #8b949e; font-size: 9px; margin-top: 2px; }
+.no-events { color: #8b949e; font-size: 11px; }
 
-/* ── Main panel ── */
-.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+/* ── Chat area ── */
+.chat-wrap { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
-.args-panel { border-bottom: 1px solid #21262d; padding: 16px 20px; background: #010409; }
-.args-panel h3 { font-size: 12px; color: #8b949e; margin-bottom: 10px; }
-.args-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
-.arg-field label { display: block; font-size: 11px; color: #8b949e; margin-bottom: 4px; }
-.arg-field input, .arg-field select {
-  width: 100%; background: #161b22; border: 1px solid #30363d; border-radius: 6px;
-  padding: 6px 10px; color: #e6edf3; font-size: 13px; outline: none;
-}
-.arg-field input:focus { border-color: #58a6ff; }
-.run-btn { margin-top: 12px; background: #238636; border: none; border-radius: 6px;
-           padding: 8px 20px; color: #fff; font-size: 13px; font-weight: 600;
-           cursor: pointer; display: flex; align-items: center; gap: 8px; }
-.run-btn:hover { background: #2ea043; }
-.run-btn:disabled { background: #21262d; color: #8b949e; cursor: not-allowed; }
-.run-btn .spinner { width: 14px; height: 14px; border: 2px solid #ffffff44;
-                    border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; display: none; }
-.run-btn.loading .spinner { display: block; }
+.messages { flex: 1; overflow-y: auto; padding: 24px 20px; display: flex;
+            flex-direction: column; gap: 16px; }
+
+.msg { display: flex; gap: 10px; align-items: flex-start; max-width: 720px; }
+.msg.user { flex-direction: row-reverse; align-self: flex-end; }
+.msg.ai   { align-self: flex-start; }
+
+.avatar { width: 30px; height: 30px; border-radius: 50%; display: flex;
+          align-items: center; justify-content: center; font-size: 14px;
+          flex-shrink: 0; background: #21262d; }
+.msg.user .avatar { background: #1f6feb; }
+
+.bubble { padding: 11px 14px; border-radius: 12px; font-size: 14px; line-height: 1.65; max-width: 580px; }
+.msg.user .bubble { background: #1f6feb; color: #fff; border-radius: 12px 12px 2px 12px; }
+.msg.ai   .bubble { background: #161b22; border: 1px solid #30363d;
+                    border-radius: 12px 12px 12px 2px; color: #e6edf3; }
+
+/* tool call bubble */
+.tool-bubble { background: #0d2318; border: 1px solid #3fb95033; border-radius: 8px;
+               padding: 8px 12px; font-family: monospace; font-size: 11px;
+               color: #8b949e; align-self: flex-start; max-width: 480px;
+               display: flex; align-items: center; gap: 8px; }
+.tool-bubble .spin { width: 12px; height: 12px; border: 2px solid #3fb95044;
+                     border-top-color: #3fb950; border-radius: 50%;
+                     animation: spin .6s linear infinite; flex-shrink: 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── Result ── */
-.result-panel { flex: 1; overflow-y: auto; padding: 20px; }
-.result-panel h3 { font-size: 12px; color: #8b949e; margin-bottom: 12px; }
-.result-meta { display: flex; gap: 16px; margin-bottom: 12px; flex-wrap: wrap; }
-.badge { background: #21262d; border-radius: 20px; padding: 3px 10px;
-         font-size: 11px; color: #8b949e; font-family: monospace; }
-.badge.green { background: #0d2318; color: #3fb950; border: 1px solid #3fb95044; }
-.badge.blue  { background: #0d1b2e; color: #58a6ff; border: 1px solid #58a6ff44; }
-.cards { display: grid; gap: 8px; }
-.card { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 14px 16px; }
-.card-top { display: flex; justify-content: space-between; align-items: flex-start; }
-.card-name { font-weight: 600; color: #f0f6fc; font-size: 14px; }
-.card-price { color: #3fb950; font-weight: 700; font-size: 16px; font-family: monospace; }
-.card-sub { color: #8b949e; font-size: 12px; margin-top: 4px; }
-.card-tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-.tag { background: #21262d; border-radius: 4px; padding: 2px 8px; font-size: 11px; color: #8b949e; }
-.avail-yes { color: #3fb950; }
-.avail-no  { color: #f85149; }
-.empty-state { text-align: center; padding: 60px 20px; color: #8b949e; }
-.empty-state .icon { font-size: 48px; margin-bottom: 12px; }
-.track-bar { background: #0d2318; border: 1px solid #3fb95033; border-radius: 6px;
-             padding: 8px 14px; margin-bottom: 12px; font-size: 12px; font-family: monospace;
-             display: none; }
-.track-bar.show { display: block; }
-.track-bar span { color: #3fb950; }
+/* result cards inside bubble */
+.cards { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.card  { background: #0d1117; border: 1px solid #21262d; border-radius: 6px; padding: 8px 12px; }
+.card-row { display: flex; justify-content: space-between; align-items: center; }
+.card-name  { font-weight: 600; font-size: 13px; color: #f0f6fc; }
+.card-price { color: #3fb950; font-weight: 700; font-size: 14px; font-family: monospace; }
+.card-sub   { font-size: 11px; color: #8b949e; margin-top: 3px; }
+.avail-y { color: #3fb950; font-size: 11px; }
+.avail-n { color: #f85149; font-size: 11px; }
 
-/* ── JSON view ── */
-.json-toggle { font-size: 11px; color: #58a6ff; cursor: pointer; margin-top: 12px;
-               background: none; border: none; padding: 0; }
-.json-view { background: #161b22; border: 1px solid #21262d; border-radius: 8px;
-             padding: 14px; font-family: monospace; font-size: 12px; color: #8b949e;
-             white-space: pre; overflow: auto; max-height: 300px; margin-top: 8px; display: none; }
-.json-view.show { display: block; }
+/* typing indicator */
+.typing { display: flex; gap: 4px; align-items: center; padding: 14px; }
+.typing span { width: 7px; height: 7px; background: #8b949e; border-radius: 50%;
+               animation: bounce .9s infinite; }
+.typing span:nth-child(2) { animation-delay: .15s; }
+.typing span:nth-child(3) { animation-delay: .3s; }
+@keyframes bounce { 0%,80%,100%{transform:scale(1)} 40%{transform:scale(1.4)} }
+
+/* ── Input bar ── */
+.input-bar { border-top: 1px solid #21262d; padding: 14px 16px; display: flex; gap: 10px;
+             background: #010409; align-items: flex-end; }
+textarea { flex: 1; background: #161b22; border: 1px solid #30363d; border-radius: 10px;
+           padding: 10px 14px; color: #e6edf3; font-size: 14px; resize: none;
+           outline: none; font-family: inherit; max-height: 120px; min-height: 42px;
+           line-height: 1.5; }
+textarea:focus { border-color: #58a6ff; }
+textarea::placeholder { color: #8b949e; }
+.send-btn { background: #238636; border: none; border-radius: 8px; width: 42px; height: 42px;
+            color: #fff; font-size: 18px; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; flex-shrink: 0; transition: background .15s; }
+.send-btn:hover { background: #2ea043; }
+.send-btn:disabled { background: #21262d; cursor: not-allowed; }
 </style>
 </head>
 <body>
 
-<!-- ── Sidebar ── -->
+<!-- Sidebar -->
 <div class="sidebar">
-  <div class="sidebar-header">
-    <h2><span class="dot off" id="statusDot"></span> F1 MCP Server</h2>
-    <div class="server-url" id="serverUrl">https://racing-f1-rho.vercel.app/api/mcp</div>
-    <div style="margin-top:8px;font-size:11px;color:#8b949e" id="serverInfo">Not connected</div>
+  <div class="sidebar-top">
+    <h2><span class="dot" id="dot"></span> F1 MCP Server</h2>
+    <div class="srv">racing-f1-rho.vercel.app/api/mcp</div>
   </div>
 
-  <div class="tools-list">
-    <h3>Tools</h3>
-    <div id="toolsList">
-      <div style="color:#8b949e;font-size:12px;padding:8px 4px">Connecting...</div>
-    </div>
+  <div class="suggestions">
+    <h3>Try asking</h3>
+    <div class="sugg" onclick="ask(this.textContent)">What tickets are available for Monaco?</div>
+    <div class="sugg" onclick="ask(this.textContent)">Show me Ferrari merchandise under $50</div>
+    <div class="sugg" onclick="ask(this.textContent)">What VIP experiences do you offer?</div>
+    <div class="sugg" onclick="ask(this.textContent)">When is the next race after Monaco?</div>
+    <div class="sugg" onclick="ask(this.textContent)">I want a Red Bull cap, what's available?</div>
+    <div class="sugg" onclick="ask(this.textContent)">Show me all races in May</div>
+    <div class="sugg" onclick="ask(this.textContent)">What's the cheapest ticket for Silverstone?</div>
+    <div class="sugg" onclick="ask(this.textContent)">Do you have any pit lane walk experiences?</div>
   </div>
 
-  <div class="events-panel">
+  <div class="events">
     <h3>Tealium EventStream</h3>
-    <div id="eventsList"><div style="color:#8b949e;font-size:11px">Waiting for tool calls...</div></div>
+    <div id="evList"><div class="no-events">Waiting for tool calls…</div></div>
   </div>
 </div>
 
-<!-- ── Main ── -->
-<div class="main">
-  <div class="args-panel">
-    <h3 id="selectedTool" style="color:#58a6ff;font-family:monospace;font-size:14px">← Select a tool</h3>
-    <div class="args-grid" id="argsGrid"></div>
-    <button class="run-btn" id="runBtn" disabled onclick="runTool()">
-      <div class="spinner"></div>
-      <span>Run Tool</span>
-    </button>
-  </div>
-
-  <div class="result-panel">
-    <div class="track-bar" id="trackBar">
-      <span>✓ mcp_tool_call</span> fired to Tealium &nbsp;|&nbsp;
-      <span id="trackTool"></span> &nbsp;|&nbsp;
-      <span id="trackCount"></span> results &nbsp;|&nbsp;
-      <span>x-mcp-track-sent: true</span> &nbsp;|&nbsp; No PII
-    </div>
-    <div id="resultArea">
-      <div class="empty-state">
-        <div class="icon">🏎️</div>
-        <div>Select a tool from the sidebar and click Run Tool</div>
+<!-- Chat -->
+<div class="chat-wrap">
+  <div class="messages" id="msgs">
+    <div class="msg ai">
+      <div class="avatar">🤖</div>
+      <div class="bubble">
+        Hey! I'm the F1 Racing Store AI assistant. I can help you find tickets, merchandise, check the 2026 race calendar, and explore VIP experiences.<br><br>
+        What would you like to know? You can ask me anything — like <em>"What tickets are available for Monaco?"</em> or <em>"Show me Ferrari merchandise under $50."</em>
       </div>
     </div>
-    <button class="json-toggle" id="jsonToggle" onclick="toggleJson()" style="display:none">Show raw JSON</button>
-    <div class="json-view" id="jsonView"></div>
+  </div>
+
+  <div class="input-bar">
+    <textarea id="inp" placeholder="Ask me anything about F1 tickets, merchandise, experiences…"
+              rows="1" onkeydown="onKey(event)" oninput="resize(this)"></textarea>
+    <button class="send-btn" id="sendBtn" onclick="send()">➤</button>
   </div>
 </div>
 
 <script>
-const MCP_URL = 'https://racing-f1-rho.vercel.app/api/mcp';
-let lastJson = null;
-let selectedTool = null;
+const MCP = 'https://racing-f1-rho.vercel.app/api/mcp';
+let busy = false;
 
-// ── Tool schemas (same as server) ─────────────────────────────────────────────
-const TOOL_ARGS = {
-  get_tickets: [
-    { key: 'race',           label: 'Race name',      placeholder: 'e.g. Monaco',       type: 'text'   },
-    { key: 'category',       label: 'Category',       placeholder: 'e.g. VIP Paddock',  type: 'text'   },
-    { key: 'max_price',      label: 'Max price (USD)',placeholder: 'e.g. 1000',          type: 'number' },
-    { key: 'available_only', label: 'Available only', placeholder: '',                  type: 'checkbox'},
-  ],
-  get_merchandise: [
-    { key: 'team',        label: 'Team',          placeholder: 'e.g. Ferrari',    type: 'text'   },
-    { key: 'category',    label: 'Category',      placeholder: 'Apparel / Accessories / Collectibles', type: 'text' },
-    { key: 'max_price',   label: 'Max price (USD)',placeholder: 'e.g. 50',        type: 'number' },
-    { key: 'in_stock_only',label: 'In stock only',placeholder: '',               type: 'checkbox'},
-  ],
-  get_calendar: [
-    { key: 'month',    label: 'Month',    placeholder: 'e.g. May',   type: 'text' },
-    { key: 'location', label: 'Location', placeholder: 'e.g. Japan', type: 'text' },
-  ],
-  get_experiences: [
-    { key: 'type',      label: 'Type',          placeholder: 'Hospitality / Track Access / Exclusive', type: 'text'   },
-    { key: 'max_price', label: 'Max price (USD)',placeholder: 'e.g. 500',  type: 'number' },
-  ],
-};
+// ── Auto-resize textarea ──────────────────────────────────────────────────────
+function resize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
 
-// ── JSON-RPC call ──────────────────────────────────────────────────────────────
-async function rpc(method, params = {}) {
-  const res = await fetch(MCP_URL, {
+function onKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+}
+
+// ── MCP call ──────────────────────────────────────────────────────────────────
+async function mcp(method, params = {}) {
+  const r = await fetch(MCP, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-MCP-Client': 'mcp-client-browser' },
-    body: JSON.stringify({ jsonrpc: '2.0', id: Date.now(), method, params }),
+    headers: { 'Content-Type': 'application/json', 'X-MCP-Client': 'f1-chat-browser' },
+    body: JSON.stringify({ jsonrpc: '2.0', id: Date.now(), method, params })
   });
-  const trackSent  = res.headers.get('x-mcp-track-sent');
-  const trackUrl   = res.headers.get('x-mcp-track-url');
-  const resultCount= res.headers.get('x-mcp-result-count');
-  const toolName   = res.headers.get('x-mcp-tool-name');
-  const data = await res.json();
-  return { data, trackSent, trackUrl, resultCount, toolName };
+  return {
+    data:        await r.json(),
+    trackSent:   r.headers.get('x-mcp-track-sent'),
+    toolName:    r.headers.get('x-mcp-tool-name'),
+    resultCount: r.headers.get('x-mcp-result-count'),
+  };
 }
 
-// ── Connect & initialise ──────────────────────────────────────────────────────
-async function connect() {
+// ── Connect ───────────────────────────────────────────────────────────────────
+(async () => {
   try {
-    const { data } = await rpc('initialize', {
-      protocolVersion: '2024-11-05',
-      clientInfo: { name: 'mcp-browser-client', version: '1.0' }
-    });
-    const info = data.result?.serverInfo;
-    document.getElementById('statusDot').classList.remove('off');
-    document.getElementById('serverInfo').textContent =
-      `${info?.name} v${info?.version} · Connected`;
+    await mcp('initialize', { protocolVersion: '2024-11-05', clientInfo: { name: 'f1-chat', version: '1' } });
+    document.getElementById('dot').classList.add('on');
+  } catch(e) { console.error('MCP connect failed', e); }
+})();
 
-    const { data: td } = await rpc('tools/list');
-    renderTools(td.result?.tools || []);
-  } catch(e) {
-    document.getElementById('serverInfo').textContent = 'Connection failed: ' + e.message;
-    document.getElementById('toolsList').innerHTML =
-      '<div style="color:#f85149;font-size:12px;padding:8px 4px">Failed to connect</div>';
+// ── Intent routing ────────────────────────────────────────────────────────────
+function route(q) {
+  const t = q.toLowerCase();
+
+  // Extract filters from the question
+  const raceMatch  = q.match(/monaco|silverstone|spa|suzuka|monza|bahrain|japan|british|italian|belgian/i);
+  const teamMatch  = q.match(/ferrari|red bull|mercedes|mclaren|aston|alpine|williams|haas/i);
+  const monthMatch = q.match(/january|february|march|april|may|june|july|august|september|october|november|december/i);
+  const priceMatch = q.match(/under\s*\$?(\d+)|below\s*\$?(\d+)|\$?(\d+)\s*or less/i);
+  const maxPrice   = priceMatch ? parseInt(priceMatch[1] || priceMatch[2] || priceMatch[3]) : null;
+
+  if (/experience|hospitality|vip|paddock|pit.?lane|simulator|driver.?meet|meet.*driver/i.test(t)) {
+    const args = {};
+    if (/pit.?lane|track/i.test(t)) args.type = 'Track Access';
+    else if (/exclusive/i.test(t))  args.type = 'Exclusive';
+    else if (/hospitality|vip/i.test(t)) args.type = 'Hospitality';
+    if (maxPrice) args.max_price = maxPrice;
+    return { tool: 'get_experiences', args };
   }
-}
 
-// ── Render tool buttons ────────────────────────────────────────────────────────
-function renderTools(tools) {
-  const el = document.getElementById('toolsList');
-  el.innerHTML = tools.map(t => `
-    <button class="tool-btn" onclick="selectTool('${t.name}', this)">
-      <div class="tname">${t.name}</div>
-      <div class="tdesc">${t.description.slice(0, 80)}…</div>
-    </button>
-  `).join('');
-}
+  if (/calendar|schedule|when|race.?date|date.*race|next race|upcoming race/i.test(t)) {
+    const args = {};
+    if (monthMatch) args.month = monthMatch[0];
+    if (raceMatch && !monthMatch) args.location = raceMatch[0];
+    return { tool: 'get_calendar', args };
+  }
 
-// ── Select tool ───────────────────────────────────────────────────────────────
-function selectTool(name, btn) {
-  document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  selectedTool = name;
-  document.getElementById('selectedTool').textContent = name;
-  document.getElementById('runBtn').disabled = false;
-  document.getElementById('trackBar').classList.remove('show');
-  document.getElementById('resultArea').innerHTML =
-    '<div class="empty-state"><div>Fill in filters (optional) and click Run Tool</div></div>';
-  document.getElementById('jsonToggle').style.display = 'none';
-  document.getElementById('jsonView').classList.remove('show');
+  if (/merch|shop|wear|jacket|cap|hat|shirt|hoodie|collectible|model|figurine|buy|purchase|apparel|accessory|accessories/i.test(t)
+    || (teamMatch && !/ticket/i.test(t))) {
+    const args = {};
+    if (teamMatch) args.team = teamMatch[0].replace(' ', ' ');
+    if (/cap|hat/i.test(t))        args.category = 'Accessories';
+    if (/jacket|shirt|hoodie/i.test(t)) args.category = 'Apparel';
+    if (/collectible|model/i.test(t))   args.category = 'Collectibles';
+    if (maxPrice) args.max_price = maxPrice;
+    if (/in.?stock|available/i.test(t)) args.in_stock_only = true;
+    return { tool: 'get_merchandise', args };
+  }
 
-  const args = TOOL_ARGS[name] || [];
-  document.getElementById('argsGrid').innerHTML = args.map(a => `
-    <div class="arg-field">
-      <label>${a.label}</label>
-      ${a.type === 'checkbox'
-        ? `<input type="checkbox" id="arg_${a.key}" style="width:auto;margin-top:6px">`
-        : `<input type="${a.type}" id="arg_${a.key}" placeholder="${a.placeholder}">`
-      }
-    </div>
-  `).join('');
-}
-
-// ── Run tool ──────────────────────────────────────────────────────────────────
-async function runTool() {
-  if (!selectedTool) return;
-  const btn = document.getElementById('runBtn');
-  btn.disabled = true; btn.classList.add('loading');
-  document.getElementById('trackBar').classList.remove('show');
-
-  // Collect args
+  // Default → tickets
   const args = {};
-  (TOOL_ARGS[selectedTool] || []).forEach(a => {
-    const el = document.getElementById('arg_' + a.key);
-    if (!el) return;
-    const val = a.type === 'checkbox' ? el.checked : el.value.trim();
-    if (a.type === 'checkbox' && val) args[a.key] = true;
-    else if (a.type === 'number' && val) args[a.key] = parseFloat(val);
-    else if (a.type === 'text' && val) args[a.key] = val;
-  });
-
-  try {
-    const { data, trackSent, resultCount, toolName } = await rpc('tools/call', {
-      name: selectedTool, arguments: args
-    });
-    const parsed = JSON.parse(data.result?.content?.[0]?.text || '{}');
-    lastJson = parsed;
-    renderResult(parsed);
-
-    if (trackSent === 'true') {
-      document.getElementById('trackTool').textContent = 'tool=' + (toolName || selectedTool);
-      document.getElementById('trackCount').textContent = resultCount || parsed.count || 0;
-      document.getElementById('trackBar').classList.add('show');
-      addTealiumEvent(toolName || selectedTool, resultCount || parsed.count || 0);
-    }
-    document.getElementById('jsonToggle').style.display = 'block';
-    document.getElementById('jsonView').textContent = JSON.stringify(parsed, null, 2);
-  } catch(e) {
-    document.getElementById('resultArea').innerHTML =
-      `<div style="color:#f85149;padding:20px">Error: ${e.message}</div>`;
-  }
-
-  btn.disabled = false; btn.classList.remove('loading');
+  if (raceMatch) args.race = raceMatch[0];
+  if (maxPrice)  args.max_price = maxPrice;
+  if (/available|in.?stock/i.test(t)) args.available_only = true;
+  if (/vip|paddock/i.test(t))   args.category = 'VIP Paddock';
+  if (/grandstand/i.test(t))    args.category = 'Grandstand';
+  if (/general|cheapest|cheap/i.test(t)) args.category = 'General Admission';
+  return { tool: 'get_tickets', args };
 }
 
-// ── Render result cards ───────────────────────────────────────────────────────
-function renderResult(data) {
-  const area = document.getElementById('resultArea');
+// ── Compose natural language answer ──────────────────────────────────────────
+function compose(q, tool, args, data) {
   const items = data.tickets || data.items || data.races || data.experiences || [];
-  if (!items.length) { area.innerHTML = '<div class="empty-state"><div>No results found</div></div>'; return; }
+  const count = data.count || items.length;
+  const t = q.toLowerCase();
 
-  const meta = `
-    <div class="result-meta">
-      <span class="badge blue">${data.count} results</span>
-      ${data.currency ? `<span class="badge">${data.currency}</span>` : ''}
-      ${data.season   ? `<span class="badge">Season ${data.season}</span>` : ''}
-    </div>`;
+  if (count === 0) return "I couldn't find anything matching that — try different filters.";
 
-  const cards = items.map(item => {
-    const name  = item.name || item.race || item.category || '—';
-    const price = item.price != null ? `$${item.price}` : (item.date || '');
-    const sub   = item.team || item.circuit || item.description || item.category || '';
-    const avail = item.available != null
-      ? `<span class="${item.available ? 'avail-yes' : 'avail-no'}">${item.available ? '✓ Available' : '✗ Sold Out'}</span>`
-      : item.inStock != null
-        ? `<span class="${item.inStock ? 'avail-yes' : 'avail-no'}">${item.inStock ? '✓ In Stock' : '✗ Out of Stock'}</span>`
-        : '';
-    const tags = [item.category, item.type, item.country, item.brand]
-      .filter(Boolean).map(t => `<span class="tag">${t}</span>`).join('');
-
-    return `<div class="card">
-      <div class="card-top">
-        <div class="card-name">${name}</div>
-        <div class="card-price">${price}</div>
-      </div>
-      <div class="card-sub">${sub}</div>
-      ${tags ? `<div class="card-tags">${tags} ${avail}</div>` : avail ? `<div style="margin-top:6px">${avail}</div>` : ''}
-    </div>`;
-  }).join('');
-
-  area.innerHTML = meta + '<div class="cards">' + cards + '</div>';
-  if (data.site_url) {
-    area.innerHTML += `<div style="margin-top:12px;font-size:12px;color:#8b949e">
-      Book / shop at: <a href="${data.site_url}" target="_blank" style="color:#58a6ff">${data.site_url}</a>
-    </div>`;
+  if (tool === 'get_tickets') {
+    const race = args.race ? `**${args.race} Grand Prix**` : 'available races';
+    let r = `Here are the tickets for ${race}:\n\n`;
+    items.forEach(i => {
+      r += `• **${i.category}** — $${i.price} USD  ${i.available ? '✓ Available' : '✗ Sold Out'}\n`;
+    });
+    if (args.max_price) r += `\n*Filtered to tickets under $${args.max_price}*`;
+    r += `\n\nBook at: ${data.site_url}`;
+    return r;
   }
+
+  if (tool === 'get_merchandise') {
+    const team = args.team ? `**${args.team}**` : 'our store';
+    let r = `Here's what we have from ${team}:\n\n`;
+    items.forEach(i => {
+      r += `• **${i.name}** — $${i.price} USD  ${i.inStock ? '✓ In Stock' : '✗ Out of Stock'}\n`;
+      if (i.description) r += `  _${i.description}_\n`;
+    });
+    r += `\nShop at: ${data.site_url}`;
+    return r;
+  }
+
+  if (tool === 'get_calendar') {
+    let r = `Here's the **2026 F1 Calendar**`;
+    if (args.month) r += ` for ${args.month}`;
+    r += `:\n\n`;
+    items.forEach(i => {
+      r += `• **${i.name}** — ${i.date} @ ${i.circuit}, ${i.country}\n`;
+    });
+    return r;
+  }
+
+  if (tool === 'get_experiences') {
+    const type = args.type || 'VIP';
+    let r = `Here are our **${type} Experiences**:\n\n`;
+    items.forEach(i => {
+      r += `• **${i.name}** — $${i.price} USD\n`;
+      r += `  ${i.description}\n`;
+      if (i.includes?.length) r += `  _Includes: ${i.includes.join(', ')}_\n`;
+      r += '\n';
+    });
+    return r;
+  }
+
+  return JSON.stringify(data, null, 2);
 }
 
-// ── Tealium event sidebar ─────────────────────────────────────────────────────
-function addTealiumEvent(tool, count) {
-  const list = document.getElementById('eventsList');
-  if (list.children[0]?.style.color === 'rgb(139, 148, 158)') list.innerHTML = '';
+// ── Render markdown-ish ───────────────────────────────────────────────────────
+function md(text) {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/_(.+?)_/g, '<em>$1</em>')
+    .replace(/✓/g, '<span style="color:#3fb950">✓</span>')
+    .replace(/✗/g, '<span style="color:#f85149">✗</span>')
+    .replace(/\n/g, '<br>');
+}
+
+// ── Add Tealium event chip ────────────────────────────────────────────────────
+function addEvent(tool, count) {
+  const list = document.getElementById('evList');
+  if (list.querySelector('.no-events')) list.innerHTML = '';
   const chip = document.createElement('div');
-  chip.className = 'event-chip';
+  chip.className = 'ev-chip';
   chip.innerHTML = `
     <div class="ev-name">mcp_tool_call</div>
     <div class="ev-tool">${tool} · ${count} results</div>
-    <div class="ev-time">${new Date().toLocaleTimeString()} → rivqkx ✓</div>`;
+    <div class="ev-meta">${new Date().toLocaleTimeString()} → rivqkx ✓ · No PII</div>`;
   list.insertBefore(chip, list.firstChild);
 }
 
-function toggleJson() {
-  const v = document.getElementById('jsonView');
-  const b = document.getElementById('jsonToggle');
-  const show = !v.classList.contains('show');
-  v.classList.toggle('show', show);
-  b.textContent = show ? 'Hide raw JSON' : 'Show raw JSON';
+// ── Append message ────────────────────────────────────────────────────────────
+function appendMsg(role, html, id) {
+  const msgs = document.getElementById('msgs');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  if (id) div.id = id;
+  if (role === 'tool') {
+    div.className = '';
+    div.innerHTML = `<div class="tool-bubble">${html}</div>`;
+  } else {
+    div.innerHTML = `
+      <div class="avatar">${role === 'user' ? '👤' : '🤖'}</div>
+      <div class="bubble">${html}</div>`;
+  }
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
 }
 
-// ── Boot ──────────────────────────────────────────────────────────────────────
-connect();
+function removeEl(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+// ── Main send ─────────────────────────────────────────────────────────────────
+async function send() {
+  const inp = document.getElementById('inp');
+  const q = inp.value.trim();
+  if (!q || busy) return;
+  busy = true;
+  document.getElementById('sendBtn').disabled = true;
+  inp.value = ''; inp.style.height = 'auto';
+
+  appendMsg('user', q.replace(/</g, '&lt;'));
+
+  // Tool call indicator
+  const { tool, args } = route(q);
+  const toolEl = appendMsg('tool',
+    `<div class="spin"></div> Calling <span style="color:#3fb950">${tool}</span>` +
+    (Object.keys(args).length ? ` with ${JSON.stringify(args)}` : '') +
+    ` → racing-f1-rho.vercel.app/api/mcp`, 'toolMsg');
+
+  try {
+    const { data, trackSent, resultCount } = await mcp('tools/call', { name: tool, arguments: args });
+    removeEl('toolMsg');
+
+    const parsed = JSON.parse(data.result?.content?.[0]?.text || '{}');
+    const answer = compose(q, tool, args, parsed);
+    appendMsg('ai', md(answer));
+
+    if (trackSent === 'true') addEvent(tool, resultCount || parsed.count || 0);
+
+  } catch(e) {
+    removeEl('toolMsg');
+    appendMsg('ai', `<span style="color:#f85149">Error: ${e.message}</span>`);
+  }
+
+  busy = false;
+  document.getElementById('sendBtn').disabled = false;
+  inp.focus();
+}
+
+function ask(text) {
+  document.getElementById('inp').value = text;
+  send();
+}
 </script>
 </body>
 </html>
