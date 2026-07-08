@@ -1,4 +1,5 @@
 {
+  "outputDirectory": ".",
   "cleanUrls": true,
   "trailingSlash": false,
   "headers": [
@@ -48,6 +49,10 @@
     {
       "source": "/validate",
       "destination": "/analytics-validator.html"
+    },
+    {
+      "source": "/mcp-demo",
+      "destination": "/public/mcp-client.html"
     },
     {
       "source": "/.well-known/mcp.json",
