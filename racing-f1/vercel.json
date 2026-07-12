@@ -43,6 +43,10 @@
       "destination": "/booking-spa.html"
     },
     {
+      "source": "/api/cart",
+      "destination": "/api/cart.js"
+    },
+    {
       "source": "/test",
       "destination": "/test-datalayer.html"
     },

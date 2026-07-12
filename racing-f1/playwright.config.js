@@ -13,10 +13,11 @@ module.exports = defineConfig({
   },
   
   reporter: [
-    ['html', { open: 'never' }],
+    ['html', { open: 'always' }],
     ['list'],
     ['json', { outputFile: 'test-results/results.json' }],
   ],
+  globalTeardown: './teardown.js',
   
   use: {
     baseURL: process.env.BASE_URL || 'https://racing-f1-rho.vercel.app',

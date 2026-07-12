@@ -1,27 +1,83 @@
 {
   "schema_version": "v1",
   "name": "F1 Racing Store MCP",
-  "description": "Query F1 race tickets, merchandise, race calendar, and VIP experiences. All data is read-only. No authentication required.",
+  "description": "Full agentic access to the F1 Racing Store. Query tickets, merchandise, calendar, and experiences — or perform human-like actions: navigate pages, search products, manage a shopping cart, and complete checkout. All in one MCP server.",
   "server_url": "https://racing-f1-rho.vercel.app/api/mcp",
   "protocol": "MCP/1.0",
   "transport": "http",
   "auth": { "type": "none" },
+  "capabilities": {
+    "tools": true,
+    "actions": true,
+    "cart": true,
+    "checkout": true
+  },
   "tools": [
     {
+      "name": "navigate_to",
+      "description": "Navigate to any page (home, merchandise, tickets, cart, checkout, experiences, calendar) and get page context + available next actions"
+    },
+    {
+      "name": "search_products",
+      "description": "Keyword search across all merchandise, tickets, and experiences — returns product IDs for add_to_cart"
+    },
+    {
+      "name": "get_product",
+      "description": "Get full details for a single product by ID"
+    },
+    {
+      "name": "get_cart_token",
+      "description": "Start a new empty cart and get a cart_token for your shopping session"
+    },
+    {
+      "name": "add_to_cart",
+      "description": "Add any product to the cart by ID — simulates clicking Add to Cart on the site"
+    },
+    {
+      "name": "view_cart",
+      "description": "View all cart items, quantities, subtotal, tax, shipping, and order total"
+    },
+    {
+      "name": "update_cart",
+      "description": "Change item quantity or remove item (quantity=0) from the cart"
+    },
+    {
+      "name": "begin_checkout",
+      "description": "Start checkout — validates cart and returns the form schema required for submit_order"
+    },
+    {
+      "name": "submit_order",
+      "description": "Complete the purchase with shipping + payment details — returns confirmed order ID"
+    },
+    {
       "name": "get_tickets",
-      "description": "Get available F1 race tickets with pricing, categories, and availability"
+      "description": "Query race tickets with pricing, categories, and availability — filter by race or category"
     },
     {
       "name": "get_merchandise",
-      "description": "Browse F1 official merchandise — apparel, accessories, collectibles by team"
+      "description": "Browse team apparel, accessories, and collectibles — filter by team or category"
     },
     {
       "name": "get_calendar",
-      "description": "Get the 2026 F1 World Championship race calendar with circuit details"
+      "description": "Get the 2026 F1 race calendar with circuits and dates"
     },
     {
       "name": "get_experiences",
-      "description": "Get VIP F1 experiences — hospitality suites, pit lane walks, driver meet & greets"
+      "description": "Get VIP hospitality, pit lane, and exclusive F1 experiences"
     }
-  ]
+  ],
+  "example_flows": {
+    "buy_merchandise": [
+      "search_products(query='Red Bull jacket')",
+      "add_to_cart(product_id='RB-JKT-2024', quantity=1)",
+      "begin_checkout(cart_token='...')",
+      "submit_order(cart_token='...', name='...', email='...', address='...', payment_method='credit_card')"
+    ],
+    "browse_and_buy_ticket": [
+      "navigate_to(page='tickets')",
+      "get_tickets(race='Monaco', available_only=true)",
+      "add_to_cart(product_id='TICKET-monaco-grand-prix-grandstand')",
+      "submit_order(...)"
+    ]
+  }
 }

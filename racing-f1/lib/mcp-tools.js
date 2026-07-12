@@ -6,6 +6,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 const { TICKETS, MERCHANDISE, RACES, EXPERIENCES } = require('./mcp-data.js');
+const { ACTION_TOOLS } = require('./mcp-actions.js');
 
 const BASE_URL = 'https://racing-f1-rho.vercel.app';
 
@@ -206,7 +207,11 @@ const GET_EXPERIENCES = {
 };
 
 // ─── Registry ─────────────────────────────────────────────────────────────────
-const TOOLS = [GET_TICKETS, GET_MERCHANDISE, GET_CALENDAR, GET_EXPERIENCES];
+// Query tools (read-only catalog)
+const QUERY_TOOLS = [GET_TICKETS, GET_MERCHANDISE, GET_CALENDAR, GET_EXPERIENCES];
+
+// Action tools (navigate, cart, checkout) imported from mcp-actions.js
+const TOOLS = [...QUERY_TOOLS, ...ACTION_TOOLS];
 const TOOL_MAP = Object.fromEntries(TOOLS.map(t => [t.name, t]));
 
 /**

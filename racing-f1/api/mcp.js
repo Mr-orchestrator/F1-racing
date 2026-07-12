@@ -23,8 +23,8 @@ const { trackMcpCall }        = require('../lib/mcp-tracking.js');
 
 const SERVER_INFO = {
   name:        'f1-racing-store',
-  version:     '1.0.0',
-  description: 'F1 Racing Store — query tickets, merchandise, race calendar, and VIP experiences',
+  version:     '2.0.0',
+  description: 'F1 Racing Store — full agentic access: browse, search, add to cart, and complete checkout. Also query tickets, merchandise, race calendar, and VIP experiences.',
 };
 
 const CAPABILITIES = {
@@ -66,13 +66,20 @@ export default async function handler(req, res) {
 
   // Discovery ping: GET /api/mcp → return server info
   if (req.method === 'GET') {
+    const tools = listTools();
+    const queryTools  = tools.filter(t => ['get_tickets','get_merchandise','get_calendar','get_experiences'].includes(t.name));
+    const actionTools = tools.filter(t => !queryTools.find(q => q.name === t.name));
     return res.status(200).json({
       ...SERVER_INFO,
-      protocol:    'MCP/1.0',
-      transport:   'http',
-      endpoint:    'https://racing-f1-rho.vercel.app/api/mcp',
-      tools_count: listTools().length,
-      tools:       listTools().map(t => t.name),
+      protocol:      'MCP/1.0',
+      transport:     'http',
+      endpoint:      'https://racing-f1-rho.vercel.app/api/mcp',
+      tools_count:   tools.length,
+      query_tools:   queryTools.map(t => t.name),
+      action_tools:  actionTools.map(t => t.name),
+      capabilities:  ['query', 'navigate', 'cart', 'checkout'],
+      cart_endpoint: 'https://racing-f1-rho.vercel.app/api/cart',
+      discovery:     'https://racing-f1-rho.vercel.app/.well-known/mcp.json',
     });
   }
 
@@ -165,7 +172,8 @@ export default async function handler(req, res) {
 
       if (error) {
         await trackMcpCall({
-          toolName, toolInput: toolArgs, resultCount: 0, latencyMs,
+          toolName, toolInput: toolArgs, resultContent: null,
+          resultCount: 0, latencyMs,
           statusCode: 404, errorCode: String(error.code),
           requestId: id, sessionId, clientId, requestUrl,
         }).catch(() => {});
@@ -175,11 +183,13 @@ export default async function handler(req, res) {
       let resultCount = 0;
       try {
         const parsed = JSON.parse(result.content[0].text);
-        resultCount = parsed.count || 0;
+        resultCount = parsed.count || parsed.items?.length || 0;
       } catch (_) {}
 
       await trackMcpCall({
-        toolName, toolInput: toolArgs, resultCount, latencyMs,
+        toolName, toolInput: toolArgs,
+        resultContent: result.content,   // ← full content for rich field extraction
+        resultCount, latencyMs,
         statusCode: 200, errorCode: '',
         requestId: id, sessionId, clientId, requestUrl,
       }).catch(() => {});
