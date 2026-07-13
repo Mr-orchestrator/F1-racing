@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -96,7 +96,7 @@
         .order-detail-row { display: flex; justify-content: space-between; padding: var(--space-md) 0; border-bottom: 1px solid var(--border-color); color: var(--text-secondary); }
         .order-detail-row strong { color: var(--text-primary); }
     </style>
-        <!-- Free Consent (CookieConsent) — load before Tealium so consent is ready -->
+        <!-- Free Consent (CookieConsent) â€” load before Tealium so consent is ready -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3.1.0/dist/cookieconsent.css">
     <script src="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3.1.0/dist/cookieconsent.umd.js"></script>
     <script src="cookieconsent-init.js"></script>
@@ -465,6 +465,7 @@
     <button id="toggle-debug" class="toggle-debug-btn">Debug</button>
 
     <!-- Core analytics + app scripts (load before the SPA controller) -->
+    <script src="/privacy-detect.js" defer></script>
     <script src="analytics.js"></script>
     <script src="app.js"></script>
 
