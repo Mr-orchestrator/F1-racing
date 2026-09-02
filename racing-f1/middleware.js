@@ -1,23 +1,49 @@
 /**
- * Vercel Edge Middleware — Nonce-based CSP
+ * Vercel Edge Middleware
  *
- * Equivalent to the Cloudflare Worker approach in Solution 1.
- * Runs at the edge on EVERY request before Vercel serves the static file.
+ * Two responsibilities on every HTML page request:
  *
- * Per request:
- *  1. Generate a cryptographically random nonce (16 bytes, base64)
- *  2. Fetch the original static HTML from this deployment's origin
- *  3. Inject nonce="" into every inline <script> tag
- *  4. Return the modified HTML with a Content-Security-Policy header
- *     containing 'nonce-{value}' + 'strict-dynamic'
+ *  1. AI Crawler Detection (server-side, zero client JS)
+ *     Reads User-Agent → matches against known AI crawler signatures →
+ *     fires a fire-and-forget POST to /api/bot-collect for Tealium ingestion.
  *
- * 'unsafe-inline' is kept ONLY as a fallback for browsers that don't
- * support nonces (IE11, very old Safari). Modern browsers ignore it
- * entirely when a nonce is present in the policy (CSP Level 2+).
+ *  2. Nonce-based CSP (Solution 1)
+ *     Generates a cryptographically random nonce per request → injects it
+ *     into every <script> tag → sets Content-Security-Policy header.
+ *     'unsafe-inline' is kept as IE11 fallback only; modern browsers ignore
+ *     it when a nonce is present (CSP Level 2+).
  */
 
+// ── AI Crawler signatures ──────────────────────────────────────────────────
+const AI_CRAWLERS = [
+  { name: 'GPTBot',               re: /\bGPTBot\b/i,               vendor: 'OpenAI',      class: 'crawler' },
+  { name: 'OAI-SearchBot',        re: /\bOAI-SearchBot\b/i,        vendor: 'OpenAI',      class: 'crawler' },
+  { name: 'ChatGPT-User',         re: /\bChatGPT-User\b/i,         vendor: 'OpenAI',      class: 'agent'   },
+  { name: 'ClaudeBot',            re: /\bClaudeBot\b/i,            vendor: 'Anthropic',   class: 'crawler' },
+  { name: 'Claude-User',          re: /\bClaude-User\b/i,          vendor: 'Anthropic',   class: 'agent'   },
+  { name: 'Claude-SearchBot',     re: /\bClaude-SearchBot\b/i,     vendor: 'Anthropic',   class: 'crawler' },
+  { name: 'anthropic-ai',         re: /\banthropic-ai\b/i,         vendor: 'Anthropic',   class: 'crawler' },
+  { name: 'PerplexityBot',        re: /\bPerplexityBot\b/i,        vendor: 'Perplexity',  class: 'crawler' },
+  { name: 'Perplexity-User',      re: /\bPerplexity-User\b/i,      vendor: 'Perplexity',  class: 'agent'   },
+  { name: 'cohere-ai',            re: /\bcohere-ai\b/i,            vendor: 'Cohere',      class: 'crawler' },
+  { name: 'Google-Extended',      re: /\bGoogle-Extended\b/i,      vendor: 'Google',      class: 'crawler' },
+  { name: 'Gemini-Deep-Research', re: /\bGemini-Deep-Research\b/i, vendor: 'Google',      class: 'agent'   },
+  { name: 'Bytespider',           re: /\bBytespider\b/i,           vendor: 'ByteDance',   class: 'crawler' },
+  { name: 'Applebot-Extended',    re: /\bApplebot-Extended\b/i,    vendor: 'Apple',       class: 'crawler' },
+  { name: 'Meta-ExternalAgent',   re: /\bMeta-ExternalAgent\b/i,   vendor: 'Meta',        class: 'crawler' },
+  { name: 'Diffbot',              re: /\bDiffbot\b/i,              vendor: 'Diffbot',     class: 'crawler' },
+  { name: 'CCBot',                re: /\bCCBot\b/i,                vendor: 'CommonCrawl', class: 'crawler' },
+];
+
+function detectAICrawler(ua) {
+  if (!ua) return null;
+  for (const bot of AI_CRAWLERS) {
+    if (bot.re.test(ua)) return bot;
+  }
+  return null;
+}
+
 export const config = {
-  // Match all HTML pages; skip API routes, static assets, and internal fetches
   matcher: [
     '/((?!api/|_vercel/|.*\\.(?:css|js|png|jpg|jpeg|svg|ico|woff2?|ttf|gif|webp|json|txt|xml)).*)'
   ]
@@ -31,13 +57,43 @@ export default async function middleware(request) {
     return new Response(null, { status: 404 });
   }
 
-  // ── Generate nonce: 16 random bytes → base64 ─────────────────────────────
+  // ── 1. AI Crawler Detection ───────────────────────────────────────────────
+  const ua = request.headers.get('user-agent') || '';
+  const crawler = detectAICrawler(ua);
+
+  if (crawler) {
+    // Fire-and-forget — never block the page response waiting for this
+    const collectUrl = new URL('/api/bot-collect', request.url).toString();
+    const payload = {
+      tealium_account:      'cognizant-sandbox',
+      tealium_profile:      'f1racing',
+      tealium_event:        'ai_crawler_visit',
+      crawl_agent_detected: 'true',
+      crawl_agent_name:     crawler.name,
+      crawl_agent_vendor:   crawler.vendor,
+      crawl_agent_class:    crawler.class,
+      page_url:             request.url,
+      page_path:            url.pathname,
+      referrer:             request.headers.get('referer') || '',
+      user_agent:           ua,
+      ip:                   request.headers.get('x-forwarded-for') || '',
+      timestamp_iso:        new Date().toISOString()
+    };
+
+    // waitUntil-style: no await — response continues immediately
+    fetch(collectUrl, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'x-nonce-middleware': '1' },
+      body:    JSON.stringify(payload)
+    }).catch(() => {});
+  }
+
+  // ── 2. Nonce Generation ───────────────────────────────────────────────────
   const randomBytes = new Uint8Array(16);
   crypto.getRandomValues(randomBytes);
   const nonce = btoa(String.fromCharCode(...randomBytes));
 
-  // ── Fetch the original static HTML from Vercel's origin ──────────────────
-  // We add x-nonce-middleware:1 so the guard above prevents recursion.
+  // ── 3. Fetch original static HTML from Vercel's origin ───────────────────
   let originalResponse;
   try {
     originalResponse = await fetch(request.url, {
@@ -48,41 +104,27 @@ export default async function middleware(request) {
       redirect: 'follow'
     });
   } catch {
-    // If fetch fails, fall through to Vercel default handling
     return;
   }
 
-  // ── For non-HTML responses (CSS, JS, images etc.), just pass through ──────
+  // ── 4. Pass through non-HTML responses unchanged ──────────────────────────
   const contentType = originalResponse.headers.get('content-type') || '';
   if (!contentType.includes('text/html')) {
     return originalResponse;
   }
 
-  // ── Read and transform the HTML ───────────────────────────────────────────
+  // ── 5. Inject nonce into ALL <script> tags ────────────────────────────────
+  // Both inline and external src= scripts need the nonce because strict-dynamic
+  // disables host allowlists — external <script src=""> are blocked without it.
   let html = await originalResponse.text();
+  html = html.replace(/<script([^>]*)>/gi, (match, attrs) => {
+    if (/\bnonce\s*=/i.test(attrs)) return match;
+    return `<script${attrs} nonce="${nonce}">`;
+  });
 
-  // Inject nonce into ALL <script> tags — both inline AND external (src=).
-  // With 'strict-dynamic', host allowlists are disabled for external scripts
-  // unless those <script src="..."> tags themselves carry the nonce.
-  // Without the nonce on external scripts they are blocked even if their
-  // host is in the allowlist.
-  html = html.replace(
-    /<script([^>]*)>/gi,
-    (match, attrs) => {
-      // Avoid double-injecting if nonce already present
-      if (/\bnonce\s*=/i.test(attrs)) return match;
-      return `<script${attrs} nonce="${nonce}">`;
-    }
-  );
-
-  // ── Build the CSP header ──────────────────────────────────────────────────
+  // ── 6. Build CSP header ───────────────────────────────────────────────────
   const csp = [
     "default-src 'self'",
-
-    // script-src: nonce + strict-dynamic is the core of Solution 1.
-    // 'strict-dynamic' lets trusted scripts (those with the nonce) load
-    // additional scripts dynamically — covers GTM, Tealium, Launch loaders.
-    // 'unsafe-inline' ignored by modern browsers when nonce present (fallback only).
     `script-src 'nonce-${nonce}' 'strict-dynamic' 'unsafe-inline'` +
       " https://www.googletagmanager.com" +
       " https://www.google-analytics.com" +
@@ -90,7 +132,6 @@ export default async function middleware(request) {
       " https://tags.tiqcdn.com" +
       " https://*.tiqcdn.com" +
       " https://cdn.jsdelivr.net",
-
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: https:",
@@ -114,21 +155,21 @@ export default async function middleware(request) {
     "report-uri /api/csp-report"
   ].join('; ');
 
-  // ── Build response headers ────────────────────────────────────────────────
+  // ── 7. Build and return response ──────────────────────────────────────────
   const responseHeaders = new Headers(originalResponse.headers);
   responseHeaders.set('Content-Security-Policy', csp);
   responseHeaders.set('Content-Type', 'text/html; charset=utf-8');
-  // Prevent CDN/browser from caching the nonce-injected HTML.
-  // Without this, Vercel's edge CDN returns the same cached response
-  // (same nonce) to every visitor — defeating per-request uniqueness.
   responseHeaders.set('Cache-Control', 'no-store, no-cache, must-revalidate');
   responseHeaders.set('Surrogate-Control', 'no-store');
-  // Pass nonce in a header so Adobe Launch / Tag Manager extensions can read it
   responseHeaders.set('x-csp-nonce', nonce);
+  // Expose detected crawler in response header for debugging/logging
+  if (crawler) {
+    responseHeaders.set('x-crawler-detected', `${crawler.name} (${crawler.vendor})`);
+  }
 
   return new Response(html, {
-    status: originalResponse.status,
+    status:     originalResponse.status,
     statusText: originalResponse.statusText,
-    headers: responseHeaders
+    headers:    responseHeaders
   });
 }
