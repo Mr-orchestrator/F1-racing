@@ -137,6 +137,7 @@ export default async function middleware(request) {
     "img-src 'self' data: https:",
     "connect-src 'self'" +
       " https://www.google-analytics.com" +
+      " https://www.google.com" +
       " https://region1.google-analytics.com" +
       " https://region1.analytics.google.com" +
       " https://www.googletagmanager.com" +
