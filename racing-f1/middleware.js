@@ -61,11 +61,18 @@ export default async function middleware(request) {
   // ── Read and transform the HTML ───────────────────────────────────────────
   let html = await originalResponse.text();
 
-  // Inject nonce into every inline <script> (tags WITHOUT a src= attribute).
-  // Regex: matches <script ...> where the tag does NOT already contain src=
+  // Inject nonce into ALL <script> tags — both inline AND external (src=).
+  // With 'strict-dynamic', host allowlists are disabled for external scripts
+  // unless those <script src="..."> tags themselves carry the nonce.
+  // Without the nonce on external scripts they are blocked even if their
+  // host is in the allowlist.
   html = html.replace(
-    /<script((?![^>]*\bsrc\s*=)[^>]*)>/gi,
-    (match, attrs) => `<script${attrs} nonce="${nonce}">`
+    /<script([^>]*)>/gi,
+    (match, attrs) => {
+      // Avoid double-injecting if nonce already present
+      if (/\bnonce\s*=/i.test(attrs)) return match;
+      return `<script${attrs} nonce="${nonce}">`;
+    }
   );
 
   // ── Build the CSP header ──────────────────────────────────────────────────
@@ -108,9 +115,12 @@ export default async function middleware(request) {
   // ── Build response headers ────────────────────────────────────────────────
   const responseHeaders = new Headers(originalResponse.headers);
   responseHeaders.set('Content-Security-Policy', csp);
-  // Remove any static CSP set by vercel.json (middleware CSP takes precedence,
-  // but explicitly deleting avoids duplicate header confusion)
   responseHeaders.set('Content-Type', 'text/html; charset=utf-8');
+  // Prevent CDN/browser from caching the nonce-injected HTML.
+  // Without this, Vercel's edge CDN returns the same cached response
+  // (same nonce) to every visitor — defeating per-request uniqueness.
+  responseHeaders.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+  responseHeaders.set('Surrogate-Control', 'no-store');
   // Pass nonce in a header so Adobe Launch / Tag Manager extensions can read it
   responseHeaders.set('x-csp-nonce', nonce);
 
