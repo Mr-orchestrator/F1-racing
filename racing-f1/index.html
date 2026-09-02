@@ -34,10 +34,12 @@
     <!-- End Free Consent -->
 <!-- Tealium Universal Tag -->
     <script type="text/javascript">
-    (function(a,b,c,d){
+    (function(a,b,c,d,e){
     a='https://tags.tiqcdn.com/utag/cognizant-sandbox/f1racing/qa/utag.js';
-    b=document;c='script';d=b.createElement(c);d.src=a;d.type='text/java'+c;d.async=true;
-    a=b.getElementsByTagName(c)[0];a.parentNode.insertBefore(d,a);
+    b=document;c='script';e='utag-unique';
+    if(b.visibilityState!=='prerender'&&b.getElementById(e)===null){
+    d=b.createElement(c);d.src=a;d.id=e;d.type='text/java'+c;d.async=!0;
+    a=b.getElementsByTagName(c)[0];a.parentNode.insertBefore(d,a)}
     })();
     </script>
     <!-- End Tealium Universal Tag -->
