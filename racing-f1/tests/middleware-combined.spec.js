@@ -44,21 +44,24 @@ test('Normal browser request: CSP nonce present, no crawler header', async ({ pa
 
 // ════════════════════════════════════════════════════════
 // TEST 2: Crawler User-Agents — detected + CSP still works
+// Uses Playwright's request API which correctly sends custom UA headers
 // ════════════════════════════════════════════════════════
 for (const bot of CRAWLER_UAS) {
-  test(`Crawler detected: ${bot.name} — CSP nonce still injected`, async () => {
-    const response = await fetch(BASE_URL, {
-      headers: { 'User-Agent': bot.ua }
+  test(`Crawler detected: ${bot.name} — CSP nonce still injected`, async ({ playwright }) => {
+    // Create a fresh API context with the crawler UA — Playwright's request
+    // API reliably sends the exact headers we set, unlike Node's native fetch
+    const apiContext = await playwright.request.newContext({
+      extraHTTPHeaders: { 'User-Agent': bot.ua }
     });
 
-    const csp = response.headers.get('content-security-policy');
-    const crawlerHeader = response.headers.get('x-crawler-detected');
+    const response = await apiContext.get(BASE_URL);
+    const csp = response.headers()['content-security-policy'] ?? null;
+    const crawlerHeader = response.headers()['x-crawler-detected'] ?? null;
     const html = await response.text();
 
     const nonceMatch = csp?.match(/'nonce-([^']+)'/);
     const cspNonce = nonceMatch?.[1] ?? null;
 
-    // Count script tags with nonce in raw HTML
     const nonceTagCount = [...html.matchAll(/nonce="([^"]+)"/g)].length;
 
     console.log(`\n=== ${bot.name} ===`);
@@ -67,11 +70,10 @@ for (const bot of CRAWLER_UAS) {
     console.log(`  CSP nonce:          ${cspNonce ? '✅ ' + cspNonce.slice(0, 16) + '...' : '❌ missing'}`);
     console.log(`  Script tags with nonce: ${nonceTagCount}`);
 
-    // Crawler must be detected
+    await apiContext.dispose();
+
     expect(crawlerHeader).toBeTruthy();
     expect(crawlerHeader).toContain(bot.name);
-
-    // CSP must still work for crawlers too
     expect(cspNonce).toBeTruthy();
     expect(csp).toContain("'strict-dynamic'");
     expect(nonceTagCount).toBeGreaterThan(0);
@@ -81,8 +83,8 @@ for (const bot of CRAWLER_UAS) {
 // ════════════════════════════════════════════════════════
 // TEST 3: Crawler tracking fires to /api/bot-collect
 // ════════════════════════════════════════════════════════
-test('Crawler hit fires tracking event to /api/bot-collect', async () => {
-  // Directly POST to bot-collect to verify endpoint is live
+test('Crawler hit fires tracking event to /api/bot-collect', async ({ playwright }) => {
+  const apiContext = await playwright.request.newContext();
   const payload = {
     tealium_account:      'cognizant-sandbox',
     tealium_profile:      'f1racing',
@@ -97,22 +99,22 @@ test('Crawler hit fires tracking event to /api/bot-collect', async () => {
     timestamp_iso:        new Date().toISOString()
   };
 
-  const resp = await fetch(`${BASE_URL}/api/bot-collect`, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify(payload)
+  const resp = await apiContext.post(`${BASE_URL}/api/bot-collect`, {
+    data: payload,
+    headers: { 'Content-Type': 'application/json' }
   });
 
   const body = await resp.json();
+  await apiContext.dispose();
 
   console.log('\n=== /api/bot-collect RESPONSE ===');
-  console.log(`  HTTP status:       ${resp.status}`);
+  console.log(`  HTTP status:       ${resp.status()}`);
   console.log(`  ok:                ${body.ok}`);
   console.log(`  received_at:       ${body.received_at}`);
   console.log(`  crawl_agent_name:  ${body.echo?.crawl_agent_name}`);
   console.log(`  tealium_event:     ${body.echo?.tealium_event}`);
 
-  expect(resp.status).toBe(200);
+  expect(resp.status()).toBe(200);
   expect(body.ok).toBe(true);
   expect(body.echo.crawl_agent_name).toBe('GPTBot');
   expect(body.echo.tealium_event).toBe('ai_crawler_visit');
@@ -121,19 +123,20 @@ test('Crawler hit fires tracking event to /api/bot-collect', async () => {
 // ════════════════════════════════════════════════════════
 // TEST 4: Regular user — no tracking event fires
 // ════════════════════════════════════════════════════════
-test('Regular browser UA: no x-crawler-detected header', async () => {
+test('Regular browser UA: no x-crawler-detected header', async ({ playwright }) => {
   const regularUAs = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15',
-    'Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/109.0',
+    { name: 'Chrome',  ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36' },
+    { name: 'Safari',  ua: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15' },
+    { name: 'Firefox', ua: 'Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/109.0' },
   ];
 
   console.log('\n=== REGULAR BROWSER UAs — should NOT be detected ===');
-  for (const ua of regularUAs) {
-    const resp = await fetch(BASE_URL, { headers: { 'User-Agent': ua } });
-    const detected = resp.headers.get('x-crawler-detected');
-    const browser = ua.includes('Chrome') ? 'Chrome' : ua.includes('Safari') ? 'Safari' : 'Firefox';
-    console.log(`  ${browser}: ${detected ? '❌ falsely detected as ' + detected : '✅ not detected'}`);
+  for (const { name, ua } of regularUAs) {
+    const ctx = await playwright.request.newContext({ extraHTTPHeaders: { 'User-Agent': ua } });
+    const resp = await ctx.get(BASE_URL);
+    const detected = resp.headers()['x-crawler-detected'] ?? null;
+    await ctx.dispose();
+    console.log(`  ${name}: ${detected ? '❌ falsely detected as ' + detected : '✅ not detected'}`);
     expect(detected).toBeNull();
   }
 });
