@@ -1,9 +1,6 @@
-node_modules
-test-results
-playwright-report
-tests
+playwright-report/
+test-results/
+tests/
+node_modules/
 *.spec.js
 *.test.js
-.git
-.gitignore
-playwright.config.js
