@@ -16,19 +16,6 @@
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Adobe Experience Platform Launch -->
-    <!-- Adobe Target prehiding snippet - prevents flicker while personalization loads -->
-    <script>
-      !function(e,a,n,t){var i=e.head;if(i){
-      if (a) return;
-      var o=e.createElement("style");
-      o.id="alloy-prehiding",o.innerText=n,i.appendChild(o),setTimeout(function(){o.parentNode&&o.parentNode.removeChild(o)},t)}}
-      (document, document.location.href.indexOf("adobe_authoring_enabled") !== -1, ".personalization-container { opacity: 0 !important }", 3000);
-    </script>
-    <script>window.adobeDataLayer = window.adobeDataLayer || [];</script>
-    <script src="https://assets.adobedtm.com/236ca7d75265/a5282319db5b/launch-53116e4becf9.min.js" async></script>
-    <!-- End Adobe Experience Platform Launch -->
-
     <!-- Booking-flow specific styles (dark F1 theme, reusing styles.css tokens) -->
     <style>
         .booking-wrap { max-width: 1200px; margin: 0 auto; padding: var(--space-xl) var(--space-lg); }
