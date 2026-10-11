@@ -93,6 +93,18 @@ var pageDl = triggeringEvent ? (triggeringEvent.page || {}) : {};
 var pageInfo = pageDl.pageInfo || {};
 var category = pageDl.category || {};
 
+// ─── ACDL STATE: read full cart from computed state, not just pushed event ───
+// Bug: productListItems built from item_0_* flat attrs on the push event
+// only contains the last item added. Full cart lives in getState().
+// Fix: prefer adobeDataLayer.getState().cart.item[] when available.
+// Reference: https://experienceleaguecommunities.adobe.com/t5/adobe-analytics-questions/
+//   productlistitems-only-shows-last-added-item-in-web-sdk/
+var cartStateItems = [];
+if (typeof dl.getState === 'function') {
+    var fullState = dl.getState();
+    cartStateItems = (fullState && fullState.cart && fullState.cart.item) ? fullState.cart.item : [];
+}
+
 // ═══ STEP 3: Map event name → Adobe XDM eventType ═══════════════════════════
 // Per Adobe official commerce.* and web.* eventType strings
 var eventTypeMap = {
@@ -202,42 +214,60 @@ if (eventName === 'Remove from cart' || eventName === 'ClearCart') {
   }
 }
 
+// ─── SHARED: build productListItems from ACDL computed state ─────────────────
+// Prefer getState() over flat item_0_* attrs — getState has the full cart.
+// Fall back to flat attrs only when ACDL getState is not available (older ACDL).
+function buildItemsFromState(fallbackCurrency) {
+  if (cartStateItems.length) {
+    return cartStateItems.map(function (it) {
+      var info = it.productInfo || {};
+      var rawPrice = it.price;
+      var unitPrice = 0;
+      if (rawPrice !== null && rawPrice !== undefined) {
+        unitPrice = (typeof rawPrice === 'object' && rawPrice.amount !== undefined)
+          ? parseFloat(rawPrice.amount) : parseFloat(rawPrice);
+      }
+      if (!unitPrice && info.price) unitPrice = parseFloat(info.price);
+      var qty = parseInt(info.quantity || it.quantity || 1);
+      return {
+        SKU: String(info.productID || it.product_id || ''),
+        name: String(info.productName || it.product_name || ''),
+        quantity: qty,
+        priceTotal: parseFloat((unitPrice * qty).toFixed(2)),
+        currencyCode: fallbackCurrency || 'USD',
+        productCategories: it.category ? [{ categoryID: String(it.category) }] : []
+      };
+    }).filter(function (it) { return it.SKU; });
+  }
+  // Legacy flat attrs fallback
+  var items = [];
+  var count = parseInt(attrs.item_count) || 0;
+  for (var i = 0; i < count; i++) {
+    var id = attrs['item_' + i + '_id'];
+    if (!id) continue;
+    var qty = parseInt(attrs['item_' + i + '_qty']) || 1;
+    var price = parseFloat(attrs['item_' + i + '_price']) || 0;
+    items.push({
+      SKU: String(id),
+      name: String(attrs['item_' + i + '_name'] || ''),
+      quantity: qty,
+      priceTotal: parseFloat((price * qty).toFixed(2)),
+      currencyCode: fallbackCurrency || 'USD'
+    });
+  }
+  return items;
+}
+
 // commerce.productListViews — View Cart (ADOBE REQUIREMENT: .value REQUIRED)
 if (eventName === 'View cart') {
   xdm.commerce = { productListViews: { value: 1 } };
-  var viewItems = [];
-  var viewCount = parseInt(attrs.item_count) || 0;
-  for (var v = 0; v < viewCount; v++) {
-    if (attrs['item_' + v + '_id']) {
-      viewItems.push({
-        SKU: String(attrs['item_' + v + '_id']),
-        name: String(attrs['item_' + v + '_name'] || ''),
-        priceTotal: parseFloat(attrs['item_' + v + '_price']) || 0,
-        quantity: parseInt(attrs['item_' + v + '_qty']) || 1,
-        currencyCode: 'USD'
-      });
-    }
-  }
-  xdm.productListItems = viewItems;
+  xdm.productListItems = buildItemsFromState('USD');
 }
 
 // commerce.checkouts — Begin Checkout (and step events)
 if (eventName === 'BeginCheckout' || eventName === 'Add payment info' || eventName === 'Add shipping info') {
   xdm.commerce = { checkouts: { value: 1 } };
-  var coItems = [];
-  var coCount = parseInt(attrs.item_count) || 0;
-  for (var k = 0; k < coCount; k++) {
-    if (attrs['item_' + k + '_id']) {
-      coItems.push({
-        SKU: String(attrs['item_' + k + '_id']),
-        name: String(attrs['item_' + k + '_name'] || ''),
-        priceTotal: parseFloat(attrs['item_' + k + '_price']) || 0,
-        quantity: parseInt(attrs['item_' + k + '_qty']) || 1,
-        currencyCode: String(attrs.currency || 'USD')
-      });
-    }
-  }
-  xdm.productListItems = coItems;
+  xdm.productListItems = buildItemsFromState(String(attrs.currency || 'USD'));
 }
 
 // commerce.purchases — Purchase (ADOBE CRITICAL: order.purchaseID REQUIRED for dedup)
@@ -262,20 +292,8 @@ if (eventName === 'Purchase' || eventName === 'Purchase completed') {
   };
 
   // Build productListItems[] from all items in the transaction
-  var purchaseItems = [];
-  var purchaseCount = parseInt(attrs.item_count) || 0;
-  for (var m = 0; m < purchaseCount; m++) {
-    if (attrs['item_' + m + '_id']) {
-      purchaseItems.push({
-        SKU: String(attrs['item_' + m + '_id']),
-        name: String(attrs['item_' + m + '_name'] || ''),
-        priceTotal: parseFloat(attrs['item_' + m + '_price']) || 0,
-        quantity: parseInt(attrs['item_' + m + '_qty']) || 1,
-        currencyCode: orderCurrency
-      });
-    }
-  }
-  xdm.productListItems = purchaseItems;
+  // Use getState() for full cart; flat attrs are a fallback only
+  xdm.productListItems = buildItemsFromState(orderCurrency);
 
   // AA mappings
   xdm._experience.analytics.customDimensions.eVars.eVar10 = String(attrs.transaction_id || '');
@@ -291,21 +309,42 @@ if (eventName === 'Experience booked') {
 // ═══ STEP 6: Web interaction events (link clicks) ═══════════════════════════
 
 // User Login — sets identityMap for authentication
+// FIXED: email must be SHA-256 hashed before sending to Edge (raw PII rejected
+// by DULE I1 enforcement and causes 400s on strict datastreams).
+// FIXED: crmId (profile primary key) must be in the same event as ECID so the
+// private identity graph can stitch the pre-auth anonymous journey to the profile.
+// Reference: https://experienceleaguecommunities.adobe.com/t5/adobe-experience-platform/
+//   ecid-not-stitched-to-crmid-rtcdp-profile-after-login/
 if (eventName === 'User logged in') {
   xdm.web.webInteraction = {
     name: 'User Login',
     type: 'other',
     linkClicks: { value: 1 }
   };
-  if (attrs.user_email || attrs.user_id) {
-    xdm.identityMap = {
-      'Email': [{
-        id: String(attrs.user_email || attrs.user_id),
-        authenticatedState: 'authenticated',
-        primary: true
-      }]
-    };
+  var loginMap = {};
+  // crmId — profile primary key (must accompany ECID in same event for stitching)
+  var crmId = attrs.user_id || attrs.crmId || '';
+  if (crmId) {
+    loginMap['crmId'] = [{ id: String(crmId), primary: true, authenticatedState: 'authenticated' }];
   }
+  // Email — hashed only; never raw. Use __adobeBridge.identity if available (async),
+  // else skip — never fall back to raw email.
+  var rawEmail = attrs.user_email || '';
+  if (rawEmail && window.__adobeBridge && window.__adobeBridge.identity) {
+    // Async: bridge will fire a follow-up sendEvent with the hash once available.
+    // The login event fires immediately without email to avoid blocking.
+    window.__adobeBridge.identity.hashEmail(rawEmail).then(function (hash) {
+      if (hash && window.alloy) {
+        window.alloy('sendEvent', {
+          xdm: {
+            eventType: 'web.webinteraction.linkClicks',
+            identityMap: { 'Email_LC_SHA256': [{ id: hash, primary: false, authenticatedState: 'authenticated' }] }
+          }
+        });
+      }
+    });
+  }
+  if (Object.keys(loginMap).length) xdm.identityMap = loginMap;
   xdm._experience.analytics.customDimensions.eVars.eVar6 = 'true';
   xdm._experience.analytics.customDimensions.eVars.eVar7 = String(attrs.user_type || '');
   xdm._experience.analytics.customDimensions.eVars.eVar8 = String(attrs.customer_tier || '');
@@ -319,13 +358,10 @@ if (eventName === 'User logged out') {
     type: 'other',
     linkClicks: { value: 1 }
   };
-  if (attrs.user_id) {
+  var logoutCrmId = attrs.user_id || '';
+  if (logoutCrmId) {
     xdm.identityMap = {
-      'Email': [{
-        id: String(attrs.user_id),
-        authenticatedState: 'loggedOut',
-        primary: true
-      }]
+      'crmId': [{ id: String(logoutCrmId), primary: true, authenticatedState: 'loggedOut' }]
     };
   }
   xdm._experience.analytics.customDimensions.eVars.eVar6 = 'false';
@@ -338,14 +374,23 @@ if (eventName === 'User signed up') {
     type: 'other',
     linkClicks: { value: 1 }
   };
-  if (attrs.user_email || attrs.user_id) {
-    xdm.identityMap = {
-      'Email': [{
-        id: String(attrs.user_email || attrs.user_id),
-        authenticatedState: 'authenticated',
-        primary: true
-      }]
-    };
+  var signupCrmId = attrs.user_id || '';
+  if (signupCrmId) {
+    xdm.identityMap = { 'crmId': [{ id: String(signupCrmId), primary: true, authenticatedState: 'authenticated' }] };
+  }
+  // Email hash fired async via bridge — same pattern as login
+  var signupEmail = attrs.user_email || '';
+  if (signupEmail && window.__adobeBridge && window.__adobeBridge.identity) {
+    window.__adobeBridge.identity.hashEmail(signupEmail).then(function (hash) {
+      if (hash && window.alloy) {
+        window.alloy('sendEvent', {
+          xdm: {
+            eventType: 'web.webinteraction.linkClicks',
+            identityMap: { 'Email_LC_SHA256': [{ id: hash, primary: false, authenticatedState: 'authenticated' }] }
+          }
+        });
+      }
+    });
   }
   xdm._experience.analytics.event1to100.event4 = { value: 1 };
 }

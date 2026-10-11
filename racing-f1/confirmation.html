@@ -18,6 +18,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3.1.0/dist/cookieconsent.css">
     <script src="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3.1.0/dist/cookieconsent.umd.js"></script>
     <script src="cookieconsent-init.js"></script>
+    <!-- Adobe Web SDK Bridge: consent queue, purchase dedup, identity hashing -->
+    <script src="/lib/adobe-websdk-bridge.js"></script>
     <!-- End Free Consent -->
 <!-- Tealium Universal Tag -->
     <script type="text/javascript">
@@ -173,6 +175,53 @@
     <script src="/privacy-detect.js" defer></script>
     <script src="analytics.js"></script>
     <script src="app.js"></script>
+
+    <!-- Purchase dedup: registers transaction before AppMeasurement s.t() fires.
+         Prevents Web SDK sending a duplicate purchase hit to the same AA RSID
+         during the dual-tag overlap phase of the AppMeasurement → Web SDK migration.
+         Problem: https://experienceleaguecommunities.adobe.com/t5/adobe-analytics-questions/
+           purchase-event-double-counting-after-web-sdk-migration/ -->
+    <script>
+    (function () {
+        // Read transaction_id from gridboxLayer (set by app.js before this runs)
+        function getTransactionId() {
+            try {
+                var t = window.gridboxLayer && window.gridboxLayer.transaction;
+                if (t && t.transactionId) return String(t.transactionId);
+                // Also check gridboxLayer.event[] for the most recent Purchase event
+                var events = (window.gridboxLayer && window.gridboxLayer.event) || [];
+                for (var i = events.length - 1; i >= 0; i--) {
+                    var ev = events[i];
+                    if (ev && ev.eventInfo && (ev.eventInfo.key === 'Purchase' || ev.eventInfo.key === 'PurchaseCompleted')) {
+                        var attrs = ev.attributes || [];
+                        for (var j = 0; j < attrs.length; j++) {
+                            if (attrs[j].key === 'transaction_id') return String(attrs[j].value);
+                        }
+                    }
+                }
+                // Fallback: sessionStorage from checkout
+                return sessionStorage.getItem('f1_txn_id') || '';
+            } catch (e) { return ''; }
+        }
+
+        // Wait for analytics.js to initialise (it may push the Purchase event async)
+        window.addEventListener('load', function () {
+            var txnId = getTransactionId();
+            if (!txnId) return;
+
+            var bridge = window.__adobeBridge;
+            if (!bridge) return;
+
+            // If AppMeasurement already fired this purchase (unlikely on first load,
+            // but possible on a reload/back-button scenario), mark it so Web SDK skips.
+            // More importantly: if Web SDK fires first, mark it so AppMeasurement won't.
+            if (!bridge.purchase.shouldSkipWebSDK(txnId)) {
+                // Web SDK fires this purchase — mark so AppMeasurement rule skips it.
+                bridge.purchase.markWebSDKFired(txnId);
+            }
+        });
+    }());
+    </script>
 </body>
 </html>
 

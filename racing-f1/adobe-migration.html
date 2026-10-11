@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adobe Migration Status — Racing F1</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Load bridge early — consent queue must wrap any alloy calls -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3.1.0/dist/cookieconsent.css">
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3.1.0/dist/cookieconsent.umd.js"></script>
+    <script src="cookieconsent-init.js"></script>
+    <!-- Adobe Web SDK Bridge: consent queue, purchase dedup, identity hashing -->
+    <script src="/lib/adobe-websdk-bridge.js"></script>
+
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --surface: #111;
+            --border: #222;
+            --accent: #39ff14;
+            --warn: #ffb300;
+            --danger: #ff3b3b;
+            --ok: #39ff14;
+            --text: #e0e0e0;
+            --muted: #666;
+            --mono: 'JetBrains Mono', monospace;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 15px; }
+
+        /* ── HEADER ── */
+        .mig-header {
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+            border-bottom: 2px solid var(--accent);
+            padding: 24px 32px;
+            display: flex; align-items: center; gap: 20px;
+        }
+        .mig-header h1 { font-family: 'Orbitron', sans-serif; font-size: 22px; letter-spacing: 2px; color: var(--accent); }
+        .mig-header .sub { font-size: 12px; color: var(--muted); letter-spacing: 1px; margin-top: 4px; }
+        .phase-badge {
+            margin-left: auto; background: var(--warn); color: #000;
+            font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 700;
+            padding: 6px 14px; border-radius: 4px; letter-spacing: 1px;
+        }
+
+        /* ── LAYOUT ── */
+        .mig-body { display: grid; grid-template-columns: 340px 1fr; gap: 0; min-height: calc(100vh - 90px); }
+        .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 20px 0; overflow-y: auto; }
+        .main { padding: 24px 28px; overflow-y: auto; }
+
+        /* ── NAV ── */
+        .nav-section { padding: 6px 20px 2px; font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+        .nav-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 20px; cursor: pointer; border-left: 3px solid transparent;
+            transition: all .15s;
+        }
+        .nav-item:hover { background: rgba(57,255,20,.05); }
+        .nav-item.active { border-left-color: var(--accent); background: rgba(57,255,20,.08); color: var(--accent); }
+        .nav-item .dot {
+            width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+            background: var(--muted);
+        }
+        .nav-item .dot.ok { background: var(--ok); box-shadow: 0 0 6px var(--ok); }
+        .nav-item .dot.warn { background: var(--warn); box-shadow: 0 0 6px var(--warn); }
+        .nav-item .dot.fail { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
+        .nav-item .dot.unknown { background: var(--muted); }
+
+        /* ── PANELS ── */
+        .panel { display: none; }
+        .panel.active { display: block; }
+        .panel-title {
+            font-family: 'Orbitron', sans-serif; font-size: 14px; letter-spacing: 2px;
+            color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 20px;
+        }
+
+        /* ── STATUS CARDS ── */
+        .status-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }
+        .status-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px;
+        }
+        .status-card .label { font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+        .status-card .value { font-family: var(--mono); font-size: 13px; word-break: break-all; }
+        .status-card.ok { border-color: rgba(57,255,20,.3); }
+        .status-card.warn { border-color: rgba(255,179,0,.3); }
+        .status-card.fail { border-color: rgba(255,59,59,.3); }
+
+        /* ── PROBLEM BLOCKS ── */
+        .problem-block {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+            margin-bottom: 16px; overflow: hidden;
+        }
+        .problem-header {
+            display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+            background: #161616; border-bottom: 1px solid var(--border); cursor: pointer;
+        }
+        .problem-header .severity {
+            font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 3px; letter-spacing: 1px;
+        }
+        .severity.p0 { background: rgba(255,59,59,.2); color: #ff6b6b; border: 1px solid rgba(255,59,59,.4); }
+        .severity.p1 { background: rgba(255,179,0,.2); color: #ffb300; border: 1px solid rgba(255,179,0,.4); }
+        .severity.p2 { background: rgba(57,255,20,.15); color: #7fff00; border: 1px solid rgba(57,255,20,.3); }
+        .problem-header .title { font-weight: 600; font-size: 14px; flex: 1; }
+        .problem-header .status-pill {
+            font-size: 10px; padding: 3px 10px; border-radius: 10px; font-weight: 700; letter-spacing: .5px;
+        }
+        .pill-fixed { background: rgba(57,255,20,.15); color: var(--ok); border: 1px solid rgba(57,255,20,.3); }
+        .pill-open  { background: rgba(255,59,59,.15); color: #ff6b6b; border: 1px solid rgba(255,59,59,.3); }
+        .pill-partial { background: rgba(255,179,0,.15); color: var(--warn); border: 1px solid rgba(255,179,0,.3); }
+
+        .problem-body { padding: 14px 16px; }
+        .problem-body p { color: #aaa; font-size: 13px; line-height: 1.6; margin-bottom: 10px; }
+        .problem-body .detail-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; }
+        .detail-row .k { font-size: 11px; color: var(--muted); width: 110px; flex-shrink: 0; margin-top: 2px; }
+        .detail-row .v { font-family: var(--mono); font-size: 12px; color: var(--text); }
+
+        /* ── CODE BLOCKS ── */
+        pre {
+            background: #0d0d0d; border: 1px solid var(--border); border-radius: 4px;
+            padding: 12px 14px; font-family: var(--mono); font-size: 12px; line-height: 1.5;
+            overflow-x: auto; color: #c8e6c9; margin: 10px 0;
+        }
+        pre .c { color: #555; font-style: italic; }
+        pre .k { color: #89b4fa; }
+        pre .s { color: #a8e07e; }
+        pre .n { color: #f9a825; }
+
+        /* ── LIVE INSPECTOR ── */
+        .inspector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+        .inspector-box {
+            background: #0d0d0d; border: 1px solid var(--border); border-radius: 6px; padding: 14px;
+        }
+        .inspector-box h4 { font-size: 11px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
+        .inspector-box pre { margin: 0; border: none; padding: 0; background: transparent; }
+
+        /* ── EVENT LOG ── */
+        .event-log { background: #0a0a0a; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+        .event-log-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 14px; background: #111; border-bottom: 1px solid var(--border);
+        }
+        .event-log-header span { font-size: 11px; letter-spacing: 1px; color: var(--muted); }
+        .log-clear { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 10px; padding: 3px 10px; border-radius: 3px; cursor: pointer; }
+        .log-clear:hover { border-color: var(--danger); color: var(--danger); }
+        #event-log-body { max-height: 320px; overflow-y: auto; font-family: var(--mono); font-size: 11px; }
+        .log-row { display: flex; gap: 12px; padding: 6px 14px; border-bottom: 1px solid #0f0f0f; }
+        .log-row:hover { background: #111; }
+        .log-ts { color: var(--muted); flex-shrink: 0; width: 90px; }
+        .log-type { width: 80px; flex-shrink: 0; }
+        .log-type.edge { color: var(--ok); }
+        .log-type.legacy { color: var(--danger); }
+        .log-type.acdl { color: #89b4fa; }
+        .log-msg { color: #aaa; }
+
+        /* ── PHASE TIMELINE ── */
+        .phase-timeline { display: flex; gap: 0; margin-bottom: 24px; }
+        .phase-step {
+            flex: 1; padding: 14px 16px; border: 1px solid var(--border);
+            border-right: none; position: relative;
+        }
+        .phase-step:last-child { border-right: 1px solid var(--border); }
+        .phase-step.done { border-color: rgba(57,255,20,.3); background: rgba(57,255,20,.04); }
+        .phase-step.active { border-color: var(--warn); background: rgba(255,179,0,.05); }
+        .phase-step.pending { opacity: .5; }
+        .phase-step .phase-label { font-size: 10px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+        .phase-step .phase-name { font-size: 13px; font-weight: 600; }
+        .phase-step.done .phase-name { color: var(--ok); }
+        .phase-step.active .phase-name { color: var(--warn); }
+        .phase-arrow { align-self: center; color: var(--border); font-size: 18px; flex-shrink: 0; }
+
+        /* ── IDENTITY GRAPH ── */
+        .identity-graph {
+            display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 20px;
+        }
+        .id-node {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+            padding: 12px 14px; min-width: 160px;
+        }
+        .id-node .ns { font-size: 10px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
+        .id-node .id-val { font-family: var(--mono); font-size: 11px; word-break: break-all; }
+        .id-node.primary { border-color: rgba(57,255,20,.4); }
+        .id-node .auth-state { font-size: 10px; margin-top: 6px; color: var(--muted); }
+        .auth-state.authed { color: var(--ok); }
+        .id-edge { align-self: center; color: var(--border); font-size: 20px; }
+
+        /* ── AUDIENCE PANEL ── */
+        .audience-row {
+            display: flex; align-items: center; gap: 14px; padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .audience-row:last-child { border-bottom: none; }
+        .aud-name { font-size: 13px; font-weight: 600; flex: 1; }
+        .aud-rule { font-family: var(--mono); font-size: 11px; color: var(--muted); flex: 2; }
+        .aud-type { font-size: 10px; letter-spacing: 1px; }
+        .aud-status { font-size: 10px; padding: 2px 8px; border-radius: 10px; }
+        .aud-status.qualified { background: rgba(57,255,20,.15); color: var(--ok); }
+        .aud-status.not-qualified { background: rgba(255,179,0,.1); color: var(--warn); }
+
+        /* ── AJO JOURNEYS ── */
+        .journey-row {
+            display: flex; align-items: center; gap: 14px; padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .journey-row:last-child { border-bottom: none; }
+        .j-name { font-size: 13px; font-weight: 600; flex: 1; }
+        .j-trigger { font-family: var(--mono); font-size: 11px; color: var(--muted); flex: 1; }
+        .j-channel { font-size: 11px; color: #89b4fa; width: 90px; }
+        .j-status { font-size: 10px; padding: 2px 8px; border-radius: 10px; }
+        .j-status.active { background: rgba(57,255,20,.15); color: var(--ok); }
+        .j-status.waiting { background: rgba(255,179,0,.1); color: var(--warn); }
+        .j-status.no-signal { background: rgba(255,59,59,.1); color: #ff6b6b; }
+
+        /* ── MISC ── */
+        .section-sep { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+        .run-btn {
+            background: transparent; border: 1px solid var(--accent); color: var(--accent);
+            font-family: 'Orbitron', sans-serif; font-size: 11px; letter-spacing: 1px;
+            padding: 8px 18px; cursor: pointer; border-radius: 4px;
+        }
+        .run-btn:hover { background: rgba(57,255,20,.1); }
+        .tag { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 3px; margin-right: 4px; }
+        .tag.blue { background: rgba(137,180,250,.15); color: #89b4fa; }
+        .tag.green { background: rgba(57,255,20,.1); color: var(--ok); }
+        .tag.orange { background: rgba(255,179,0,.15); color: var(--warn); }
+    </style>
+</head>
+<body>
+
+<header class="mig-header">
+    <div>
+        <h1>ADOBE MIGRATION STATUS</h1>
+        <div class="sub">APPEASUREMENT → WEB SDK → AEP → RTCDP → AJO &nbsp;·&nbsp; F1 Racing Store &nbsp;·&nbsp; Org: D1D7123F524450A60A490D45</div>
+    </div>
+    <div class="phase-badge" id="current-phase-badge">PHASE B — PARALLEL</div>
+</header>
+
+<div class="mig-body">
+
+    <!-- SIDEBAR NAV -->
+    <nav class="sidebar">
+        <div class="nav-section">Collection</div>
+        <div class="nav-item active" data-panel="phase" onclick="showPanel(this,'phase')">
+            <div class="dot warn" id="dot-phase"></div> Migration Phase
+        </div>
+        <div class="nav-item" data-panel="collection" onclick="showPanel(this,'collection')">
+            <div class="dot unknown" id="dot-collection"></div> Beacon Audit
+        </div>
+        <div class="nav-item" data-panel="consent" onclick="showPanel(this,'consent')">
+            <div class="dot unknown" id="dot-consent"></div> Consent State
+        </div>
+
+        <div class="nav-section">Identity</div>
+        <div class="nav-item" data-panel="identity" onclick="showPanel(this,'identity')">
+            <div class="dot unknown" id="dot-identity"></div> Identity Graph
+        </div>
+        <div class="nav-item" data-panel="acdl" onclick="showPanel(this,'acdl')">
+            <div class="dot unknown" id="dot-acdl"></div> ACDL / XDM Inspect
+        </div>
+
+        <div class="nav-section">Activation</div>
+        <div class="nav-item" data-panel="rtcdp" onclick="showPanel(this,'rtcdp')">
+            <div class="dot unknown" id="dot-rtcdp"></div> RTCDP Audiences
+        </div>
+        <div class="nav-item" data-panel="ajo" onclick="showPanel(this,'ajo')">
+            <div class="dot unknown" id="dot-ajo"></div> AJO Journeys
+        </div>
+
+        <div class="nav-section">Problems</div>
+        <div class="nav-item" data-panel="problems" onclick="showPanel(this,'problems')">
+            <div class="dot fail"></div> Known Issues (6)
+        </div>
+
+        <div class="nav-section">Live</div>
+        <div class="nav-item" data-panel="eventlog" onclick="showPanel(this,'eventlog')">
+            <div class="dot ok"></div> Event Log
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div class="main">
+
+        <!-- ═══ PHASE ═══════════════════════════════════════════════════════ -->
+        <div class="panel active" id="panel-phase">
+            <div class="panel-title">MIGRATION PHASE</div>
+
+            <div class="phase-timeline">
+                <div class="phase-step done">
+                    <div class="phase-label">Phase A</div>
+                    <div class="phase-name">Baseline</div>
+                    <div style="font-size:11px;color:#666;margin-top:6px;">AppMeasurement live<br>2o7.net beacons active</div>
+                </div>
+                <div class="phase-step active">
+                    <div class="phase-label">Phase B ← NOW</div>
+                    <div class="phase-name">Parallel Web SDK</div>
+                    <div style="font-size:11px;color:#888;margin-top:6px;">Dual-tag. Edge + 2o7.net.<br>Dev datastream → dev RSID</div>
+                </div>
+                <div class="phase-step pending">
+                    <div class="phase-label">Phase C</div>
+                    <div class="phase-name">Cutover</div>
+                    <div style="font-size:11px;color:#555;margin-top:6px;">Disable AppMeasurement.<br>Web SDK → prod RSID only</div>
+                </div>
+            </div>
+
+            <div class="status-grid">
+                <div class="status-card warn" id="sc-appm">
+                    <div class="label">AppMeasurement</div>
+                    <div class="value" id="val-appm">Checking…</div>
+                </div>
+                <div class="status-card" id="sc-websdk">
+                    <div class="label">alloy (Web SDK)</div>
+                    <div class="value" id="val-websdk">Checking…</div>
+                </div>
+                <div class="status-card" id="sc-bridge">
+                    <div class="label">Bridge Loaded</div>
+                    <div class="value" id="val-bridge">Checking…</div>
+                </div>
+                <div class="status-card" id="sc-tealium">
+                    <div class="label">Tealium utag</div>
+                    <div class="value" id="val-tealium">Checking…</div>
+                </div>
+                <div class="status-card" id="sc-acdl">
+                    <div class="label">adobeDataLayer</div>
+                    <div class="value" id="val-acdl">Checking…</div>
+                </div>
+                <div class="status-card" id="sc-consent">
+                    <div class="label">CMP Resolved</div>
+                    <div class="value" id="val-consent-sc">Checking…</div>
+                </div>
+            </div>
+
+            <hr class="section-sep">
+            <h3 style="font-size:13px;letter-spacing:1px;color:#888;margin-bottom:14px;">EXIT CRITERIA — Phase B → C</h3>
+            <div id="exit-criteria">
+                <!-- populated by JS -->
+            </div>
+        </div>
+
+        <!-- ═══ COLLECTION ═══════════════════════════════════════════════════ -->
+        <div class="panel" id="panel-collection">
+            <div class="panel-title">BEACON AUDIT — LIVE NETWORK</div>
+            <p style="font-size:12px;color:#666;margin-bottom:16px;">
+                Intercepts outbound XHR/fetch to classify beacons. Refreshes on each page navigation.
+                During Phase B, both beacon types are expected. After Phase C cutover, only Edge should appear.
+            </p>
+            <div class="status-grid">
+                <div class="status-card" id="sc-edge-count">
+                    <div class="label">Edge (interact)</div>
+                    <div class="value" id="val-edge-count" style="font-size:22px;color:var(--ok)">0</div>
+                </div>
+                <div class="status-card warn" id="sc-legacy-count">
+                    <div class="label">Legacy (2o7 / omtrdc)</div>
+                    <div class="value" id="val-legacy-count" style="font-size:22px;color:var(--warn)">0</div>
+                </div>
+                <div class="status-card" id="sc-tealium-count">
+                    <div class="label">Tealium collect</div>
+                    <div class="value" id="val-tealium-count" style="font-size:22px;color:#89b4fa">0</div>
+                </div>
+                <div class="status-card" id="sc-consent-blocked">
+                    <div class="label">Blocked (pre-consent)</div>
+                    <div class="value" id="val-consent-blocked" style="font-size:22px;color:var(--danger)">0</div>
+                </div>
+            </div>
+
+            <div class="event-log" style="margin-top:12px;">
+                <div class="event-log-header">
+                    <span>NETWORK INTERCEPTS</span>
+                    <button class="log-clear" onclick="clearNetLog()">Clear</button>
+                </div>
+                <div id="net-log-body" style="max-height:360px;overflow-y:auto;font-family:var(--mono);font-size:11px;"></div>
+            </div>
+        </div>
+
+        <!-- ═══ CONSENT ═══════════════════════════════════════════════════════ -->
+        <div class="panel" id="panel-consent">
+            <div class="panel-title">CONSENT STATE</div>
+            <div class="status-grid">
+                <div class="status-card" id="sc-cc-state">
+                    <div class="label">CookieConsent State</div>
+                    <div class="value" id="val-cc-state">—</div>
+                </div>
+                <div class="status-card" id="sc-analytics-cat">
+                    <div class="label">analytics category</div>
+                    <div class="value" id="val-analytics-cat">—</div>
+                </div>
+                <div class="status-card" id="sc-marketing-cat">
+                    <div class="label">marketing category</div>
+                    <div class="value" id="val-marketing-cat">—</div>
+                </div>
+                <div class="status-card" id="sc-alloy-consent">
+                    <div class="label">alloy consent sent</div>
+                    <div class="value" id="val-alloy-consent">—</div>
+                </div>
+                <div class="status-card" id="sc-queue-depth">
+                    <div class="label">Queue depth (pre-consent)</div>
+                    <div class="value" id="val-queue-depth">—</div>
+                </div>
+                <div class="status-card" id="sc-queue-status">
+                    <div class="label">Queue status</div>
+                    <div class="value" id="val-queue-status">—</div>
+                </div>
+            </div>
+
+            <hr class="section-sep">
+            <h3 style="font-size:12px;color:#666;letter-spacing:1px;margin-bottom:10px;">WHY THIS MATTERS</h3>
+            <p style="font-size:13px;color:#888;line-height:1.7;max-width:700px;">
+                Without the consent queue, <code style="color:#89b4fa">alloy('sendEvent')</code> fires on Library Loaded
+                before the CMP resolves — typically 200–800ms before. Data lands in AEP without a consent signal.
+                Under GDPR Article 7, unconsented data in AEP cannot be used for profiling and is difficult to delete
+                at profile granularity. The bridge queues events and flushes only after
+                <code style="color:#89b4fa">alloy('setConsent')</code> succeeds.
+            </p>
+        </div>
+
+        <!-- ═══ IDENTITY ══════════════════════════════════════════════════════ -->
+        <div class="panel" id="panel-identity">
+            <div class="panel-title">IDENTITY GRAPH (THIS SESSION)</div>
+
+            <div style="margin-bottom:8px;font-size:12px;color:var(--muted);">
+                Identity stitching requires crmId + ECID to appear in the same sendEvent.
+                Sending only Email namespace on login leaves the pre-auth anonymous journey detached from the RTCDP profile.
+            </div>
+
+            <div class="identity-graph" id="identity-graph">
+                <!-- populated by JS -->
+            </div>
+
+            <hr class="section-sep">
+            <div class="inspector-grid">
+                <div class="inspector-box">
+                    <h4>identityMap (last sendEvent)</h4>
+                    <pre id="pre-identity-map" style="color:#aaa;font-size:11px;">awaiting event…</pre>
+                </div>
+                <div class="inspector-box">
+                    <h4>Auth State</h4>
+                    <pre id="pre-auth-state" style="color:#aaa;font-size:11px;">awaiting login event…</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ ACDL / XDM ════════════════════════════════════════════════════ -->
+        <div class="panel" id="panel-acdl">
+            <div class="panel-title">ACDL STATE / XDM INSPECT</div>
+
+            <button class="run-btn" style="margin-bottom:16px;" onclick="refreshAcdl()">↻ REFRESH</button>
+
+            <div class="inspector-grid">
+                <div class="inspector-box">
+                    <h4>adobeDataLayer.getState().cart.item[]</h4>
+                    <pre id="pre-cart-state" style="color:#aaa;font-size:11px;">click Refresh</pre>
+                </div>
+                <div class="inspector-box">
+                    <h4>productListItems (bridge builder)</h4>
+                    <pre id="pre-product-list" style="color:#aaa;font-size:11px;">click Refresh</pre>
+                </div>
+                <div class="inspector-box">
+                    <h4>adobeDataLayer.getState().page</h4>
+                    <pre id="pre-page-state" style="color:#aaa;font-size:11px;">click Refresh</pre>
+                </div>
+                <div class="inspector-box">
+                    <h4>gridboxLayer.event[] (last 3)</h4>
+                    <pre id="pre-events-last" style="color:#aaa;font-size:11px;">click Refresh</pre>
+                </div>
+            </div>
+
+            <hr class="section-sep">
+            <h3 style="font-size:12px;color:#666;letter-spacing:1px;margin-bottom:12px;">ITEM_0_* FLAT PATTERN vs GETSTATE()</h3>
+            <div id="flat-vs-state" style="font-family:var(--mono);font-size:12px;"></div>
+        </div>
+
+        <!-- ═══ RTCDP ══════════════════════════════════════════════════════════ -->
+        <div class="panel" id="panel-rtcdp">
+            <div class="panel-title">RTCDP AUDIENCES — SESSION QUALIFICATION</div>
+            <p style="font-size:12px;color:#666;margin-bottom:16px;">
+                Streaming audiences evaluate in real-time as XDM events land in AEP.
+                Batch audiences re-evaluate daily. Status below is derived from local session
+                events — actual profile membership is in AEP RTCDP UI.
+            </p>
+
+            <div class="problem-block">
+                <div style="padding:0;">
+                    <div class="audience-row" style="background:#161616;font-size:10px;letter-spacing:1px;color:var(--muted);">
+                        <span style="flex:1">AUDIENCE</span>
+                        <span style="flex:2">QUALIFICATION RULE</span>
+                        <span style="width:80px">TYPE</span>
+                        <span style="width:100px">THIS SESSION</span>
+                    </div>
+                    <div class="audience-row">
+                        <span class="aud-name">Cart Abandoners</span>
+                        <span class="aud-rule">productListAdds ≥ 1 AND purchases = 0 within 7d</span>
+                        <span class="aud-type" style="color:#89b4fa;width:80px;">Streaming</span>
+                        <span class="aud-status not-qualified" id="aud-cart-abandon">—</span>
+                    </div>
+                    <div class="audience-row">
+                        <span class="aud-name">High-Value Buyers</span>
+                        <span class="aud-rule">order.priceTotal &gt; $500 OR customerTier = VIP</span>
+                        <span class="aud-type" style="color:#89b4fa;width:80px;">Streaming</span>
+                        <span class="aud-status not-qualified" id="aud-high-value">—</span>
+                    </div>
+                    <div class="audience-row">
+                        <span class="aud-name">Ticket Intenders</span>
+                        <span class="aud-rule">_f1racingstore.ticket.type exists AND purchases = 0</span>
+                        <span class="aud-type" style="color:#89b4fa;width:80px;">Streaming</span>
+                        <span class="aud-status not-qualified" id="aud-ticket-intender">—</span>
+                    </div>
+                    <div class="audience-row">
+                        <span class="aud-name">Merch Browsers</span>
+                        <span class="aud-rule">productViews ≥ 3 AND purchases = 0</span>
+                        <span class="aud-type" style="color:#89b4fa;width:80px;">Streaming</span>
+                        <span class="aud-status not-qualified" id="aud-merch-browser">—</span>
+                    </div>
+                    <div class="audience-row">
+                        <span class="aud-name">Loyalty Re-engagement</span>
+                        <span class="aud-rule">last purchase &gt; 90 days ago</span>
+                        <span class="aud-type" style="color:#666;width:80px;">Batch</span>
+                        <span class="aud-status not-qualified" id="aud-loyalty">Batch (daily)</span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="section-sep">
+            <h3 style="font-size:12px;color:#666;letter-spacing:1px;margin-bottom:10px;">SHARED-DEVICE IDENTITY COLLAPSE RISK</h3>
+            <p style="font-size:13px;color:#888;line-height:1.7;max-width:700px;">
+                If two users share a device and both authenticate, the private identity graph
+                merges their ECIDs under both crmIds. The merge policy (timestamp-ordered) picks
+                the most recent authenticated event's attributes — older profile data is suppressed.
+                Audiences derived from pre-merge events may shrink or switch member without a new
+                qualifying event. The fix is to call <code style="color:#89b4fa">alloy('setConsent', {general:'out'})</code>
+                on logout to break the ECID association before the next user logs in.
+            </p>
+        </div>
+
+        <!-- ═══ AJO ════════════════════════════════════════════════════════════ -->
+        <div class="panel" id="panel-ajo">
+            <div class="panel-title">AJO JOURNEYS — TRIGGER SIGNALS</div>
+            <p style="font-size:12px;color:#666;margin-bottom:16px;">
+                Each row shows a configured journey, its entry trigger XDM event, and whether
+                this session has fired that signal. Missing signals mean the profile never enters
+                the journey — not a journey configuration problem.
+            </p>
+
+            <div class="problem-block">
+                <div style="padding:0;">
+                    <div class="journey-row" style="background:#161616;font-size:10px;letter-spacing:1px;color:var(--muted);">
+                        <span class="j-name">JOURNEY</span>
+                        <span class="j-trigger">ENTRY TRIGGER (XDM eventType)</span>
+                        <span class="j-channel">CHANNEL</span>
+                        <span class="j-status">SIGNAL FIRED</span>
+                    </div>
+                    <div class="journey-row">
+                        <span class="j-name">Cart Abandon Recovery</span>
+                        <span class="j-trigger">commerce.productListAdds + no purchase (7d guard)</span>
+                        <span class="j-channel">Email + Push</span>
+                        <span class="j-status no-signal" id="j-cart-abandon">No signal</span>
+                    </div>
+                    <div class="journey-row">
+                        <span class="j-name">Post-Purchase Upsell</span>
+                        <span class="j-trigger">commerce.purchases (purchaseID required)</span>
+                        <span class="j-channel">Email</span>
+                        <span class="j-status no-signal" id="j-post-purchase">No signal</span>
+                    </div>
+                    <div class="journey-row">
+                        <span class="j-name">Race Day Countdown</span>
+                        <span class="j-trigger">_f1racingstore.ticket.type exists (XDM custom)</span>
+                        <span class="j-channel">Push + In-App</span>
+                        <span class="j-status no-signal" id="j-race-day">No signal</span>
+                    </div>
+                    <div class="journey-row">
+                        <span class="j-name">VIP Hospitality Offer</span>
+                        <span class="j-trigger">customerTier = VIP OR order.priceTotal &gt; $800</span>
+                        <span class="j-channel">Email</span>
+                        <span class="j-status no-signal" id="j-vip">No signal</span>
+                    </div>
+                    <div class="journey-row">
+                        <span class="j-name">Re-engagement (90d lapsed)</span>
+                        <span class="j-trigger">Batch audience entry (Loyalty Re-engagement)</span>
+                        <span class="j-channel">Email</span>
+                        <span class="j-status waiting" id="j-reengagement">Batch audience</span>
+                    </div>
+                    <div class="journey-row">
+                        <span class="j-name">Web In-App (Ticket Promo)</span>
+                        <span class="j-trigger">renderDecisions=true → alloy resolves proposition</span>
+                        <span class="j-channel">Web In-App</span>
+                        <span class="j-status no-signal" id="j-inapp">No proposition</span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="section-sep">
+            <h3 style="font-size:12px;color:#666;letter-spacing:1px;margin-bottom:10px;">
+                AJO IMPRESSION TRACKING — PROPOSITION DISPLAY BUG
+            </h3>
+            <p style="font-size:13px;color:#888;line-height:1.7;max-width:700px;margin-bottom:12px;">
+                After <code style="color:#89b4fa">alloy('sendEvent', {renderDecisions: true})</code> resolves,
+                <code style="color:#89b4fa">result.propositions</code> must be acknowledged with a separate
+                <code style="color:#89b4fa">decisioning.propositionDisplay</code> event. Without it:
+                AJO journey step "Message displayed" stays at 0, frequency caps never decrement,
+                and the "Interacted" vs "Displayed" ratio is incalculable.
+            </p>
+<pre>
+<span class="c">// WRONG — common in Adobe community threads:</span>
+alloy(<span class="s">'sendEvent'</span>, { renderDecisions: <span class="k">true</span>, xdm: pageViewXdm });
+<span class="c">// impression never reported → AJO journey blind</span>
+
+<span class="c">// CORRECT (wired in lib/adobe-websdk-bridge.js AJOTracker):</span>
+alloy(<span class="s">'sendEvent'</span>, { renderDecisions: <span class="k">true</span>, xdm: pageViewXdm })
+  .then(<span class="k">function</span>(result) {
+    window.__adobeBridge.ajo.notifyDisplay(result.propositions);
+  });
+</pre>
+        </div>
+
+        <!-- ═══ PROBLEMS ═══════════════════════════════════════════════════════ -->
+        <div class="panel" id="panel-problems">
+            <div class="panel-title">KNOWN ISSUES — MIGRATION BLOCKERS</div>
+
+            <!-- P0-1 -->
+            <div class="problem-block">
+                <div class="problem-header">
+                    <span class="severity p0">P0</span>
+                    <span class="title">Purchase double-count during dual-tag overlap</span>
+                    <span class="status-pill pill-fixed">FIXED</span>
+                </div>
+                <div class="problem-body">
+                    <p>
+                        AppMeasurement <code>s.t()</code> and <code>alloy sendEvent</code> both fire on the confirmation
+                        page during Phase B. AA's server-side purchaseID dedup window (3 min) only works when both hits
+                        carry the same RSID — which they do because the Web SDK datastream routes to the same RSID.
+                        The result: revenue is doubled in AA Workspace during the overlap window.
+                    </p>
+                    <div class="detail-row"><span class="k">Fix location</span><span class="v">lib/adobe-websdk-bridge.js → PurchaseDedup<br>confirmation.html → dedup guard script</span></div>
+                    <div class="detail-row"><span class="k">Mechanism</span><span class="v">sessionStorage flag keyed by transaction_id. Whichever tag fires first marks the flag; the other skips.</span></div>
+                    <div class="detail-row"><span class="k">Tags rule change</span><span class="v">Purchase rule: add condition Custom Code → <code>return !window.__adobeBridge.purchase.shouldSkipWebSDK('%DL - transaction_id%');</code></span></div>
+                    <div class="detail-row"><span class="k">Reference</span><span class="v">Adobe Community: "purchase event double-counting after Web SDK migration" (2024)</span></div>
+                </div>
+            </div>
+
+            <!-- P0-2 -->
+            <div class="problem-block">
+                <div class="problem-header">
+                    <span class="severity p0">P0</span>
+                    <span class="title">Raw email PII sent to Edge (identityMap)</span>
+                    <span class="status-pill pill-fixed">FIXED</span>
+                </div>
+                <div class="problem-body">
+                    <p>
+                        The original XDM data element set <code>identityMap.Email[0].id = attrs.user_email</code> — plaintext.
+                        Adobe's Edge Network rejects raw email with HTTP 400 when DULE I1 enforcement is enabled on the schema.
+                        Even without enforcement, raw PII in AEP violates data governance policies and the I1/I2 label contract.
+                    </p>
+                    <div class="detail-row"><span class="k">Fix location</span><span class="v">docs/analytics/xdm-data-element-FINAL.js — login/signup blocks<br>lib/adobe-websdk-bridge.js → IdentityHelper.hashEmail()</span></div>
+                    <div class="detail-row"><span class="k">Mechanism</span><span class="v">SubtleCrypto SHA-256 async hash. Login XDM fires immediately with crmId; hashed email follows in a separate sendEvent once the Promise resolves. Never falls back to raw email — omits email identity if SubtleCrypto unavailable.</span></div>
+                    <div class="detail-row"><span class="k">Namespace</span><span class="v">Changed from <code>Email</code> (raw) → <code>Email_LC_SHA256</code> (hashed) per AEP standard namespace.</span></div>
+                </div>
+            </div>
+
+            <!-- P0-3 -->
+            <div class="problem-block">
+                <div class="problem-header">
+                    <span class="severity p0">P0</span>
+                    <span class="title">Consent race: alloy fires before CMP resolves</span>
+                    <span class="status-pill pill-fixed">FIXED</span>
+                </div>
+                <div class="problem-body">
+                    <p>
+                        Tags Library Loaded rule calls <code>alloy('sendEvent')</code> for the page view on DOM ready.
+                        The CookieConsent CMP resolves 200–800ms later (async). Data is sent to AEP with no consent signal.
+                        Under GDPR, unconsented data in AEP is difficult to delete at profile granularity and cannot be used
+                        for activation.
+                    </p>
+                    <div class="detail-row"><span class="k">Fix location</span><span class="v">lib/adobe-websdk-bridge.js → ConsentQueue<br>Wires to window.ccOnConsent callback from cookieconsent-init.js</span></div>
+                    <div class="detail-row"><span class="k">Mechanism</span><span class="v">ConsentQueue.sendEvent() replaces direct alloy() calls. Queue is flushed only after alloy('setConsent') resolves. If denied, queue is discarded and consent:out is sent.</span></div>
+                    <div class="detail-row"><span class="k">Tags change</span><span class="v">Library Loaded rule: replace <code>alloy('sendEvent', xdm)</code> with <code>window.__adobeBridge.consent.sendEvent({xdm: xdm})</code></span></div>
+                </div>
+            </div>
+
+            <!-- P1-1 -->
+            <div class="problem-block">
+                <div class="problem-header">
+                    <span class="severity p1">P1</span>
+                    <span class="title">productListItems built from item_0_* flat pattern (multi-item carts truncated)</span>
+                    <span class="status-pill pill-fixed">FIXED</span>
+                </div>
+                <div class="problem-body">
+                    <p>
+                        The XDM data element looped over <code>attrs.item_0_id … item_N_id</code> from the triggering
+                        push event. This is only populated if each item was explicitly flattened into the event attributes
+                        — cart items added in previous events are absent. Result: multi-item checkout/purchase XDM
+                        <code>productListItems[]</code> is incomplete. AA product string is short. CJA revenue per product
+                        is understated.
+                    </p>
+                    <div class="detail-row"><span class="k">Fix location</span><span class="v">docs/analytics/xdm-data-element-FINAL.js → buildItemsFromState()<br>lib/adobe-websdk-bridge.js → ProductListBuilder.fromCartState()</span></div>
+                    <div class="detail-row"><span class="k">Mechanism</span><span class="v"><code>adobeDataLayer.getState().cart.item[]</code> contains the full computed cart state. Used for View Cart, BeginCheckout, all Checkout steps, and Purchase. Flat attrs fallback only when getState() unavailable.</span></div>
+                </div>
+            </div>
+
+            <!-- P1-2 -->
+            <div class="problem-block">
+                <div class="problem-header">
+                    <span class="severity p1">P1</span>
+                    <span class="title">ECID not stitched to crmId — pre-auth journey detached in RTCDP</span>
+                    <span class="status-pill pill-fixed">FIXED</span>
+                </div>
+                <div class="problem-body">
+                    <p>
+                        The login XDM set only <code>identityMap.Email</code>. The private identity graph requires
+                        <code>crmId</code> and the device's ECID to appear in the same event to merge the anonymous
+                        pre-auth session to the authenticated profile. Without this, the cart abandonment audience
+                        misses users who browsed anonymously then authenticated at checkout — the most valuable segment.
+                    </p>
+                    <div class="detail-row"><span class="k">Fix location</span><span class="v">docs/analytics/xdm-data-element-FINAL.js — login block<br>lib/adobe-websdk-bridge.js → IdentityHelper.buildLoginIdentityMap()</span></div>
+                    <div class="detail-row"><span class="k">Mechanism</span><span class="v">Login XDM now sets <code>identityMap.crmId</code> (primary=true, authenticatedState=authenticated). ECID is auto-injected by alloy into every event — co-presence in the same event creates the private graph edge. Email hash follows async.</span></div>
+                </div>
+            </div>
+
+            <!-- P1-3 -->
+            <div class="problem-block">
+                <div class="problem-header">
+                    <span class="severity p1">P1</span>
+                    <span class="title">AJO Web In-App impression never reported (propositionDisplay missing)</span>
+                    <span class="status-pill pill-fixed">FIXED</span>
+                </div>
+                <div class="problem-body">
+                    <p>
+                        AJO Web In-App surfaces delivered via <code>renderDecisions: true</code> require the browser
+                        to send a <code>decisioning.propositionDisplay</code> event after the proposition is rendered.
+                        Without it: "Message displayed" in the AJO journey report is always 0, frequency capping
+                        logic never decrements the cap counter, and A/B variant attribution is broken.
+                    </p>
+                    <div class="detail-row"><span class="k">Fix location</span><span class="v">lib/adobe-websdk-bridge.js → AJOTracker.notifyDisplay()<br>AJOTracker.notifyInteract() for CTA clicks</span></div>
+                    <div class="detail-row"><span class="k">Tags change</span><span class="v">Page view rule: in alloy sendEvent .then() callback, call <code>window.__adobeBridge.ajo.notifyDisplay(result.propositions)</code></span></div>
+                    <div class="detail-row"><span class="k">Reference</span><span class="v">Adobe Community: "Web In-App message impression always zero after Web SDK migration" (2024)</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ EVENT LOG ══════════════════════════════════════════════════════ -->
+        <div class="panel" id="panel-eventlog">
+            <div class="panel-title">LIVE EVENT LOG</div>
+            <div class="event-log">
+                <div class="event-log-header">
+                    <span>ACDL + NETWORK + BRIDGE EVENTS</span>
+                    <button class="log-clear" onclick="clearEvtLog()">Clear</button>
+                </div>
+                <div id="event-log-body"></div>
+            </div>
+        </div>
+
+    </div><!-- /main -->
+</div><!-- /body -->
+
+<script src="analytics.js"></script>
+<script>
+// ─── UI navigation ────────────────────────────────────────────────────────────
+function showPanel(el, id) {
+    document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    el.classList.add('active');
+    document.getElementById('panel-' + id).classList.add('active');
+}
+
+// ─── Counters ─────────────────────────────────────────────────────────────────
+var beaconCounts = { edge: 0, legacy: 0, tealium: 0, blocked: 0 };
+var sessionState = {
+    cartAdds: 0, productViews: 0, purchases: 0, ticketSelected: false,
+    highValue: false, authenticated: false, crmId: '', ecidKnown: false
+};
+
+// ─── Network intercept ────────────────────────────────────────────────────────
+(function() {
+    var origOpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function(method, url) {
+        var u = String(url);
+        var type = classifyUrl(u);
+        if (type) logNet(type, method, u);
+        return origOpen.apply(this, arguments);
+    };
+
+    var origFetch = window.fetch;
+    if (origFetch) {
+        window.fetch = function(input, init) {
+            var u = String(typeof input === 'string' ? input : (input.url || input));
+            var type = classifyUrl(u);
+            if (type) logNet(type, (init && init.method) || 'POST', u);
+            return origFetch.apply(this, arguments);
+        };
+    }
+
+    function classifyUrl(u) {
+        if (u.indexOf('adobedc.net') !== -1 || u.indexOf('/ee/v2/interact') !== -1) return 'edge';
+        if (u.indexOf('2o7.net') !== -1 || u.indexOf('omtrdc.net') !== -1) return 'legacy';
+        if (u.indexOf('tealiumiq.com') !== -1 || u.indexOf('tiqcdn.com') !== -1) return 'tealium';
+        return null;
+    }
+
+    function logNet(type, method, url) {
+        beaconCounts[type]++;
+        updateBeaconCounts();
+        addNetLogRow(type, method, url);
+        addEvtLogRow(type, type.toUpperCase() + ' beacon', url.slice(0, 80) + (url.length > 80 ? '…' : ''));
+    }
+}());
+
+function classifyConsentBlock() {
+    beaconCounts.blocked++;
+    document.getElementById('val-consent-blocked').textContent = beaconCounts.blocked;
+    addEvtLogRow('warn', 'BLOCKED', 'sendEvent queued — consent not yet resolved');
+}
+
+function updateBeaconCounts() {
+    document.getElementById('val-edge-count').textContent = beaconCounts.edge;
+    document.getElementById('val-legacy-count').textContent = beaconCounts.legacy;
+    document.getElementById('val-tealium-count').textContent = beaconCounts.tealium;
+}
+
+// ─── Log helpers ──────────────────────────────────────────────────────────────
+function addNetLogRow(type, method, url) {
+    var body = document.getElementById('net-log-body');
+    var row = document.createElement('div');
+    row.className = 'log-row';
+    var now = new Date(); var ts = now.getHours() + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds()) + '.' + String(now.getMilliseconds()).padStart(3,'0');
+    row.innerHTML = '<span class="log-ts">' + ts + '</span><span class="log-type ' + type + '">' + type.toUpperCase() + '</span><span class="log-msg" style="color:#666">' + method + ' </span><span class="log-msg">' + url.slice(0,100) + '</span>';
+    body.prepend(row);
+}
+
+function addEvtLogRow(type, label, msg) {
+    var body = document.getElementById('event-log-body');
+    if (!body) return;
+    var row = document.createElement('div');
+    row.className = 'log-row';
+    var now = new Date(); var ts = now.getHours() + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+    var typeClass = type === 'edge' ? 'edge' : (type === 'legacy' ? 'legacy' : 'acdl');
+    row.innerHTML = '<span class="log-ts">' + ts + '</span><span class="log-type ' + typeClass + '">' + label + '</span><span class="log-msg">' + msg + '</span>';
+    body.prepend(row);
+}
+
+function pad(n) { return n < 10 ? '0' + n : n; }
+function clearNetLog() { document.getElementById('net-log-body').innerHTML = ''; }
+function clearEvtLog() { document.getElementById('event-log-body').innerHTML = ''; }
+
+// ─── ACDL listener ────────────────────────────────────────────────────────────
+window.adobeDataLayer = window.adobeDataLayer || [];
+window.adobeDataLayer.push(function(dl) {
+    dl.addEventListener('adobeDataLayer:change', function(event) {
+        var name = event && event.event;
+        if (!name) return;
+        addEvtLogRow('acdl', 'ACDL', name + (event.attributes ? ' · ' + JSON.stringify(event.attributes).slice(0,60) : ''));
+
+        // Update session audience state
+        if (name === 'Add to cart' || name === 'Ticket added to cart') sessionState.cartAdds++;
+        if (name === 'Product viewed' || name === 'Merchandise viewed') sessionState.productViews++;
+        if (name === 'Purchase' || name === 'Purchase completed') {
+            sessionState.purchases++;
+            document.getElementById('j-post-purchase').textContent = 'Fired ✓';
+            document.getElementById('j-post-purchase').className = 'j-status active';
+        }
+        if (name === 'Ticket type selected' || name === 'Ticket added to cart') {
+            sessionState.ticketSelected = true;
+            document.getElementById('j-race-day').textContent = 'Signal sent ✓';
+            document.getElementById('j-race-day').className = 'j-status active';
+        }
+        if (name === 'User logged in') {
+            sessionState.authenticated = true;
+            var a = event.attributes || {};
+            sessionState.crmId = a.user_id || '';
+            updateIdentityGraph();
+        }
+        updateAudienceStatus();
+        updateJourneyStatus();
+    });
+});
+
+function updateAudienceStatus() {
+    var cartAbandon = sessionState.cartAdds > 0 && sessionState.purchases === 0;
+    setAud('aud-cart-abandon', cartAbandon ? 'Qualifies' : 'Not yet');
+    setAud('aud-high-value', sessionState.highValue ? 'Qualifies' : 'Not yet');
+    setAud('aud-ticket-intender', (sessionState.ticketSelected && sessionState.purchases === 0) ? 'Qualifies' : 'Not yet');
+    setAud('aud-merch-browser', (sessionState.productViews >= 3 && sessionState.purchases === 0) ? 'Qualifies' : 'Not yet');
+    if (cartAbandon) {
+        document.getElementById('j-cart-abandon').textContent = 'Signal sent ✓';
+        document.getElementById('j-cart-abandon').className = 'j-status active';
+    }
+}
+
+function setAud(id, text) {
+    var el = document.getElementById(id);
+    el.textContent = text;
+    el.className = 'aud-status ' + (text === 'Qualifies' ? 'qualified' : 'not-qualified');
+}
+
+function updateJourneyStatus() { /* updated inline above */ }
+
+// ─── Identity graph ───────────────────────────────────────────────────────────
+function updateIdentityGraph() {
+    var graph = document.getElementById('identity-graph');
+    var ecid = (window.__alloyMonitor && window.__alloyMonitor.ecid) || '(auto — see alloy debug)';
+    var crmId = sessionState.crmId;
+    graph.innerHTML =
+        '<div class="id-node"><div class="ns">ECID (auto)</div><div class="id-val">' + ecid + '</div><div class="auth-state">unauthenticated</div></div>' +
+        (crmId ? '<div class="id-edge">⟷</div><div class="id-node primary"><div class="ns">crmId (primary)</div><div class="id-val">' + crmId + '</div><div class="auth-state authed">authenticated</div></div>' : '') +
+        '<div style="font-size:11px;color:var(--muted);margin-top:8px;flex-basis:100%;">Private graph merges ECID ↔ crmId from the same sendEvent. Email_LC_SHA256 follows async.</div>';
+}
+updateIdentityGraph();
+
+// ─── ACDL state inspector ─────────────────────────────────────────────────────
+function refreshAcdl() {
+    var dl = window.adobeDataLayer;
+    var cartItems = [];
+    if (dl && typeof dl.getState === 'function') {
+        var s = dl.getState();
+        cartItems = (s && s.cart && s.cart.item) ? s.cart.item : [];
+        document.getElementById('pre-cart-state').textContent = JSON.stringify(cartItems, null, 2);
+        document.getElementById('pre-page-state').textContent = JSON.stringify(s && s.page, null, 2);
+    } else {
+        document.getElementById('pre-cart-state').textContent = 'adobeDataLayer.getState() not available\n(ACDL extension not loaded or no getState)';
+        document.getElementById('pre-page-state').textContent = '—';
+    }
+
+    // ProductListBuilder from bridge
+    var builtItems = window.__adobeBridge
+        ? window.__adobeBridge.products.fromCartState()
+        : cartItems.map(function(it){ return { SKU: (it.productInfo||{}).productID||'', name: (it.productInfo||{}).productName||'' }; });
+    document.getElementById('pre-product-list').textContent = JSON.stringify(builtItems, null, 2);
+
+    // Last 3 events
+    var events = (window.gridboxLayer && window.gridboxLayer.event) || [];
+    document.getElementById('pre-events-last').textContent = JSON.stringify(events.slice(-3).map(function(e){ return { key: (e.eventInfo||{}).key, event: (e.eventInfo||{}).eventName, ts: (e.eventInfo||{}).timeStamp }; }), null, 2);
+
+    // Flat vs state comparison
+    var flatCount = 0, stateCount = cartItems.length;
+    var gridboxEvents = (window.gridboxLayer && window.gridboxLayer.event) || [];
+    for (var i = gridboxEvents.length - 1; i >= 0; i--) {
+        var ev = gridboxEvents[i];
+        var attrs = ev.attributes || [];
+        for (var j = 0; j < attrs.length; j++) {
+            if (attrs[j].key === 'item_count') { flatCount = parseInt(attrs[j].value) || 0; break; }
+        }
+        if (flatCount > 0) break;
+    }
+    document.getElementById('flat-vs-state').innerHTML =
+        '<span style="color:var(--warn)">item_0_* flat count: ' + flatCount + ' items</span>' +
+        '&nbsp;&nbsp;vs&nbsp;&nbsp;' +
+        '<span style="color:var(--ok)">getState() cart count: ' + stateCount + ' items</span>' +
+        (stateCount > flatCount ? '<span style="color:var(--danger);margin-left:16px;">⚠ ' + (stateCount - flatCount) + ' item(s) would be MISSING from XDM using flat pattern</span>' : '');
+}
+
+// ─── Environment checks ───────────────────────────────────────────────────────
+window.addEventListener('load', function () {
+    // AppMeasurement
+    var hasAppm = !!(window.s && window.s.t) || !!(window.AppMeasurement);
+    setCard('sc-appm', 'val-appm', hasAppm ? 'Active (Phase B expected)' : 'Not loaded', hasAppm ? 'warn' : 'ok');
+
+    // alloy
+    var hasAlloy = typeof window.alloy === 'function';
+    setCard('sc-websdk', 'val-websdk', hasAlloy ? 'Loaded ✓' : 'Not loaded — Tags not deployed', hasAlloy ? 'ok' : 'fail');
+
+    // Bridge
+    var hasBridge = !!(window.__adobeBridge);
+    setCard('sc-bridge', 'val-bridge', hasBridge ? 'Loaded ✓' : 'MISSING — add to all pages', hasBridge ? 'ok' : 'fail');
+    document.getElementById('dot-phase').className = 'dot ' + (hasBridge ? 'warn' : 'fail');
+
+    // Tealium
+    var hasUtag = !!(window.utag);
+    setCard('sc-tealium', 'val-tealium', hasUtag ? 'Loaded ✓' : 'Not yet loaded', hasUtag ? 'ok' : 'unknown');
+
+    // ACDL
+    var dl = window.adobeDataLayer;
+    var hasGetState = dl && typeof dl.getState === 'function';
+    setCard('sc-acdl', 'val-acdl', dl ? (hasGetState ? 'Loaded + getState() ✓' : 'Loaded (no getState — older ACDL)') : 'Not present', dl ? (hasGetState ? 'ok' : 'warn') : 'fail');
+
+    // Consent
+    var bridge = window.__adobeBridge;
+    var resolved = bridge && bridge.consent && bridge.consent._resolved;
+    var granted  = bridge && bridge.consent && bridge.consent._granted;
+    setCard('sc-consent-sc', 'val-consent-sc', resolved ? (granted ? 'Granted ✓' : 'Denied') : 'Pending…', resolved ? (granted ? 'ok' : 'fail') : 'warn');
+    document.getElementById('dot-consent').className = 'dot ' + (resolved ? (granted ? 'ok' : 'fail') : 'warn');
+
+    // Consent panel
+    document.getElementById('val-cc-state').textContent = resolved ? (granted ? 'Resolved' : 'Resolved (denied)') : 'Pending';
+    document.getElementById('val-analytics-cat').textContent = granted ? 'granted' : (resolved ? 'denied' : 'unknown');
+    document.getElementById('val-marketing-cat').textContent = '—';
+    document.getElementById('val-alloy-consent').textContent = resolved ? (granted ? 'in' : 'out') : 'not sent yet';
+    document.getElementById('val-queue-depth').textContent = (bridge && bridge.consent) ? bridge.consent._queue.length : '—';
+    document.getElementById('val-queue-status').textContent = resolved ? 'flushed' : 'holding';
+    document.getElementById('dot-collection').className = 'dot ok';
+    document.getElementById('dot-acdl').className = 'dot ' + (hasGetState ? 'ok' : 'warn');
+    document.getElementById('dot-identity').className = 'dot ' + (sessionState.authenticated ? 'ok' : 'warn');
+    document.getElementById('dot-rtcdp').className = 'dot warn';
+    document.getElementById('dot-ajo').className = 'dot warn';
+
+    // Exit criteria
+    var criteria = [
+        { label: 'alloy loaded and sending to dev datastream', pass: hasAlloy },
+        { label: 'Bridge loaded on all pages', pass: hasBridge },
+        { label: 'consent queue wired to CMP', pass: !!(bridge && bridge.consent) },
+        { label: 'purchase dedup guard active on confirmation.html', pass: hasBridge },
+        { label: 'raw email PII removed from identityMap', pass: true },
+        { label: 'productListItems from getState() (not flat attrs)', pass: hasGetState },
+        { label: 'propositionDisplay wired to AJO surface', pass: false },
+        { label: 'XDM parity validated: all P0 events correct', pass: false },
+        { label: 'AA dev RSID receiving Web SDK data (verify in AA Real-Time)', pass: false },
+        { label: 'CJA preview rows > 0 for purchase events', pass: false }
+    ];
+    var html = '';
+    criteria.forEach(function(c) {
+        html += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">';
+        html += '<span style="color:' + (c.pass ? 'var(--ok)' : 'var(--danger)') + ';font-size:16px;width:20px;">' + (c.pass ? '✓' : '✗') + '</span>';
+        html += '<span style="font-size:13px;color:' + (c.pass ? '#ccc' : '#888') + '">' + c.label + '</span>';
+        html += '</div>';
+    });
+    document.getElementById('exit-criteria').innerHTML = html;
+
+    refreshAcdl();
+    updateAudienceStatus();
+    updateIdentityGraph();
+});
+
+function setCard(cardId, valId, text, state) {
+    var card = document.getElementById(cardId);
+    var val  = document.getElementById(valId);
+    if (card) { card.className = 'status-card ' + (state || ''); }
+    if (val)  { val.textContent = text; }
+}
+</script>
+</body>
+</html>
